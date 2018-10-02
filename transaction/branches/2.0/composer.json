@@ -1,17 +1,21 @@
 {
-  "name": "presstify-plugins/import",
-  "description": "Gestion des imports de données.",
+  "name": "presstify-plugins/transaction",
+  "description": "Gestion des données de transaction.",
   "type": "presstify-plugin",
   "keywords": [
     "presstify",
     "plugins",
     "wordpress",
     "import",
+    "export",
+    "transaction",
+    "ax",
+    "sage",
     "json",
     "xml",
     "csv"
   ],
-  "homepage": "https://svn.milkcreation.fr/presstify-plugins/import",
+  "homepage": "https://svn.milkcreation.fr/presstify-plugins/transaction",
   "time": "2018-10-02",
   "license": "proprietary",
   "authors": [
@@ -38,7 +42,7 @@
       "helpers.php"
     ],
     "psr-4": {
-      "tiFy\\Plugins\\Import\\": ""
+      "tiFy\\Plugins\\Transaction\\": ""
     }
   },
   "minimum-stability": "dev",
