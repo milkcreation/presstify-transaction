@@ -1,0 +1,52 @@
+{
+  "name": "presstify-plugins/import",
+  "description": "Gestion des imports de données.",
+  "type": "presstify-plugin",
+  "keywords": [
+    "presstify",
+    "plugins",
+    "wordpress",
+    "import",
+    "json",
+    "xml",
+    "csv"
+  ],
+  "homepage": "https://svn.milkcreation.fr/presstify-plugins/import",
+  "time": "2018-10-02",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Jordy Manner",
+      "email": "jordy.manner@milkcreation.fr",
+      "role": "Developper"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://composer.tigreblanc.fr/presstify/"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0",
+    "league/csv": "^9.0",
+    "presstify/framework": ">=1.4",
+    "rodenastyle/stream-parser" : "^1.1"
+  },
+  "autoload": {
+    "files": [
+      "helpers.php"
+    ],
+    "psr-4": {
+      "tiFy\\Plugins\\Import\\": ""
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config" : {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "secure-http": false,
+    "sort-packages": true
+  }
+}
