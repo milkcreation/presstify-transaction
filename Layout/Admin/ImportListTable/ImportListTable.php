@@ -1,9 +1,8 @@
 <?php
 
-namespace tiFy\Components\AdminView\ImportListTable;
+namespace tiFy\Plugins\Transaction\Layout\Admin\ImportListTable;
 
-use tiFy\Field\Field;
-use tiFy\Components\AdminView\AjaxListTable\AjaxListTable;
+use tiFy\Layout\Admin\AjaxListTable\AjaxListTable;
 
 class ImportListTable extends AjaxListTable
 {
