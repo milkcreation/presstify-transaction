@@ -1,8 +1,8 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\ImportItem;
+namespace tiFy\Plugins\Transaction\Import;
 
-class ImportDbItemController extends AbstractImportItemController
+class ImportItemDbController extends AbstractImportItemController
 {            
     /**
      * Base de données

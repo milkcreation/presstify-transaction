@@ -1,11 +1,11 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\ImportItem;
+namespace tiFy\Plugins\Transaction\Import;
 
 use Illuminate\Support\Arr;
-use tiFy\Plugins\Transaction\Contracts\ImportWpPostItemInterface;
+use tiFy\Plugins\Transaction\Contracts\ImportItemWpPostInterface;
 
-class ImportWpPostItemController extends AbstractImportItemController implements ImportWpPostItemInterface
+class ImportItemWpPostController extends ImportItemController implements ImportItemWpPostInterface
 {
     /**
      * Cartographie des clés de données de sortie autorisées à être traitée.
@@ -70,6 +70,17 @@ class ImportWpPostItemController extends AbstractImportItemController implements
     /**
      * {@inheritdoc}
      */
+    public function getSuccessMessage($post_id = null)
+    {
+        return sprintf(
+            __('Le contenu "%s" a été importé avec succès', 'tify'),
+            get_the_title($post_id)
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     final public function getTypes()
     {
         return array_intersect($this->types, ['data', 'meta', 'tax']);
@@ -96,13 +107,17 @@ class ImportWpPostItemController extends AbstractImportItemController implements
             $this->setSuccess(false);
             $post_id = 0;
         else :
+            $post_id = (int)$res;
+
             $this->notices()->add(
                 'success',
-                __('Le contenu a été importé avec succès', 'tify')
+                $this->getSuccessMessage($post_id),
+                [
+                    'post_id' => $post_id
+                ]
             );
 
             $this->setSuccess(true);
-            $post_id = $res;
         endif;
 
         $this->setPrimaryId($post_id);

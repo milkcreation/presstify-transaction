@@ -1,13 +1,13 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\ImportItem;
+namespace tiFy\Plugins\Transaction\Import;
 
 use Illuminate\Support\Arr;
 use tiFy\Contracts\Kernel\NoticesInterface;
 use tiFy\Kernel\Parameters\AbstractParametersBag;
 use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
 
-abstract class AbstractImportItemController extends AbstractParametersBag implements ImportItemInterface
+class ImportItemController extends AbstractParametersBag implements ImportItemInterface
 {
     /**
      * Indicateur d'interruption de l'exécution.
@@ -200,90 +200,17 @@ abstract class AbstractImportItemController extends AbstractParametersBag implem
     }
 
     /**
-     * Lancement du traitement.
+     * Traitement statique de l'import d'un élément.
      *
      * @param array $input Liste des attributs de données d'entrée.
      * @param array $attrs Attributs de configuration de traitement.
      *
-     * @return void
+     * @return array
      */
     public static function make($input = [], $attrs = [])
     {
-        $i = new static($input, $attrs);
-
-        while(!$i->break) :
-            // Définition des valeurs des données de sortie à traiter.
-            $i->_outputSet();
-            if ($i->onBreak()) break;
-
-            // Evénement pré-insertion.
-            $i->before($i->getPrimaryId());
-            if ($i->onBreak()) break;
-
-            // Filtrage des données principales de sorties.
-            $i->_outputTypeFilter('data');
-            if ($i->onBreak()) break;
-
-            // Vérification des données principales de sorties.
-            $i->_outputTypeCheck('data');
-            if ($i->onBreak()) break;
-
-            // Evénement pré-insertion des données principales de sorties.
-            $i->insertDataBefore($i->getOutputData(), $i->getPrimaryId());
-            if ($i->onBreak()) break;
-
-            // Insertion des données principales de sorties.
-            $i->insertData($i->getOutputData(), $i->getPrimaryId());
-            if ($i->onBreak()) break;
-
-            // Evénement post-insertion des données principales de sorties
-            $i->insertDataAfter($i->getOutputData(), $i->getPrimaryId());
-            if ($i->onBreak()) break;
-
-            if ($primary_id = $i->getPrimaryId()) :
-                $types = array_diff($i->getTypes(), ['data']);
-
-                foreach ($types as $type) :
-                    $Type = ucfirst($type);
-
-                    // Filtrage des données de sorties pour le type courant.
-                    $i->_outputTypeFilter($type);
-                    if ($i->onBreak()) break2;
-
-                    // Vérification des données de sorties pour le type courant.
-                    $i->_outputTypeCheck($type);
-                    if ($i->onBreak()) break2;
-
-                    // Récupération de la liste des données pour le type courant.
-                    $datas = call_user_func([$i, "getOutput{$Type}"]);
-
-                    // Evénement pré-insertion des données de sorties pour le type courant.
-                    call_user_func_array([$i, "insert{$Type}Before"], [$datas, $primary_id]);
-                    if ($i->onBreak()) break2;
-
-                    // Insertion des données de sorties pour le type courant.
-                    foreach ($datas as $key => $value) :
-                        call_user_func_array([$i, "insert{$Type}"], [$key, $value, $primary_id]);
-                        if ($i->onBreak()) break3;
-                    endforeach;
-
-                    // Evénement post-insertion des données de sorties pour le type courant.
-                    call_user_func_array([$i, "insert{$Type}After"], [$datas, $primary_id]);
-                    if ($i->onBreak()) break2;
-                endforeach;
-
-            endif;
-
-            // Evénement post-insertion.
-            $i->after($i->getPrimaryId());
-            if ($i->onBreak()) break;
-
-            $i->setOnBreak();
-        endwhile;
-
-        var_dump($i->getResults());
-
-        return $i->getResults();
+        return (new static($input, $attrs))->proceed();
+        
     }
 
     /**
@@ -371,12 +298,20 @@ abstract class AbstractImportItemController extends AbstractParametersBag implem
         $res['insert_id'] = $this->getPrimaryId();
         $res['success'] = $this->isSuccessfully();
         foreach ($this->notices()->getTypes() as $type) :
-            if ($messages = $this->notices()->getMessages($type)) :
-                $res['notices'][$type] = $messages;
+            if ($notices = $this->notices()->all($type)) :
+                $res['notices'][$type] = $notices;
             endif;
         endforeach;
 
         return $res;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSuccessMessage($primary_id = null)
+    {
+        return sprintf(__('L\'élément %s a été importé avec succès', 'tify'), $primary_id);
     }
 
     /**
@@ -480,14 +415,6 @@ abstract class AbstractImportItemController extends AbstractParametersBag implem
     /**
      * {@inheritdoc}
      */
-    public function parseInput($input)
-    {
-        return $input;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function onBreak()
     {
         return $this->break === true;
@@ -539,6 +466,92 @@ abstract class AbstractImportItemController extends AbstractParametersBag implem
     public function outputSetMeta($meta_key, $raw_meta_value = null)
     {
         return $raw_meta_value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function parseInput($input)
+    {
+        return $input;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function proceed()
+    {
+        while(!$this->break) :
+            // Définition des valeurs des données de sortie à traiter.
+            $this->_outputSet();
+            if ($this->onBreak()) break;
+
+            // Evénement pré-insertion.
+            $this->before($this->getPrimaryId());
+            if ($this->onBreak()) break;
+
+            // Filtrage des données principales de sorties.
+            $this->_outputTypeFilter('data');
+            if ($this->onBreak()) break;
+
+            // Vérification des données principales de sorties.
+            $this->_outputTypeCheck('data');
+            if ($this->onBreak()) break;
+
+            // Evénement pré-insertion des données principales de sorties.
+            $this->insertDataBefore($this->getOutputData(), $this->getPrimaryId());
+            if ($this->onBreak()) break;
+
+            // Insertion des données principales de sorties.
+            $this->insertData($this->getOutputData(), $this->getPrimaryId());
+            if ($this->onBreak()) break;
+
+            // Evénement post-insertion des données principales de sorties
+            $this->insertDataAfter($this->getOutputData(), $this->getPrimaryId());
+            if ($this->onBreak()) break;
+
+            if ($primary_id = $this->getPrimaryId()) :
+                $types = array_diff($this->getTypes(), ['data']);
+
+                foreach ($types as $type) :
+                    $Type = ucfirst($type);
+
+                    // Filtrage des données de sorties pour le type courant.
+                    $this->_outputTypeFilter($type);
+                    if ($this->onBreak()) break2;
+
+                    // Vérification des données de sorties pour le type courant.
+                    $this->_outputTypeCheck($type);
+                    if ($this->onBreak()) break2;
+
+                    // Récupération de la liste des données pour le type courant.
+                    $datas = call_user_func([$this, "getOutput{$Type}"]);
+
+                    // Evénement pré-insertion des données de sorties pour le type courant.
+                    call_user_func_array([$this, "insert{$Type}Before"], [$datas, $primary_id]);
+                    if ($this->onBreak()) break2;
+
+                    // Insertion des données de sorties pour le type courant.
+                    foreach ($datas as $key => $value) :
+                        call_user_func_array([$this, "insert{$Type}"], [$key, $value, $primary_id]);
+                        if ($this->onBreak()) break3;
+                    endforeach;
+
+                    // Evénement post-insertion des données de sorties pour le type courant.
+                    call_user_func_array([$this, "insert{$Type}After"], [$datas, $primary_id]);
+                    if ($this->onBreak()) break2;
+                endforeach;
+
+            endif;
+
+            // Evénement post-insertion.
+            $this->after($this->getPrimaryId());
+            if ($this->onBreak()) break;
+
+            $this->setOnBreak();
+        endwhile;
+
+        return $this->getResults();
     }
 
     /**

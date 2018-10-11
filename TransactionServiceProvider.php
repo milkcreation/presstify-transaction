@@ -9,15 +9,8 @@ class TransactionServiceProvider extends AppServiceProvider
     /**
      * {@inheritdoc}
      */
-    protected $singletons = [
-        Transaction::class
-    ];
-
-    /**
-     * {@inheritdoc}
-     */
     public function boot()
     {
-        $this->app->resolve(Transaction::class);
+        $this->app->singleton('transaction', function() {return new Transaction();})->build();
     }
 }

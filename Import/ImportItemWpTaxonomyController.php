@@ -1,10 +1,10 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\ImportItem;
+namespace tiFy\Plugins\Transaction\Import;
 
-use tiFy\Plugins\Transaction\Contracts\ImportWpTaxonomyItemInterface;
+use tiFy\Plugins\Transaction\Contracts\ImportItemWpTaxonomyInterface;
 
-class ImportWpTaxonomyItemController extends AbstractImportItemController implements ImportWpTaxonomyItemInterface
+class ImportItemWpTaxonomyController extends ImportItemController implements ImportItemWpTaxonomyInterface
 {
     /**
      * Cartographie des clés de données de sortie autorisées à être traitée.
@@ -97,13 +97,17 @@ class ImportWpTaxonomyItemController extends AbstractImportItemController implem
             $this->setSuccess(false);
             $term_id = 0;
         else :
+            $term_id = (int)$term['term_id'];
+
             $this->notices()->add(
                 'success',
-                __('La catégorie a été importé avec succès', 'tify')
+                __('La catégorie a été importé avec succès', 'tify'),
+                [
+                    'term_id' => $term_id
+                ]
             );
 
             $this->setSuccess(true);
-            $term_id = $term['term_id'];
         endif;
 
         $this->setPrimaryId($term_id);

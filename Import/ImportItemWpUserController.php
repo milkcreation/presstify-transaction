@@ -1,8 +1,10 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\ImportItem;
+namespace tiFy\Plugins\Transaction\Import;
 
-class ImportWpUserItemController extends AbstractImportItemController
+use tiFy\Plugins\Transaction\Contracts\ImportItemWpUserInterface;
+
+class ImportItemWpUserController extends ImportItemController implements ImportItemWpUserInterface
 {
     /**
      * Cartographie des clés de données de sortie autorisées à être traitée.
@@ -59,6 +61,17 @@ class ImportWpUserItemController extends AbstractImportItemController
     /**
      * {@inheritdoc}
      */
+    public function getSuccessMessage($user_id = null)
+    {
+        return sprintf(
+            __('L\'utilisateur "%s" a été importé avec succès', 'tify'),
+            $user_id
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     final public function getTypes()
     {
         return array_intersect($this->types, ['data', 'meta', 'opt']);
@@ -109,13 +122,17 @@ class ImportWpUserItemController extends AbstractImportItemController
             $this->setSuccess(false);
             $user_id = 0;
         else :
+            $user_id = (int)$res;
+
             $this->notices()->add(
                 'success',
-                __('L\'utilisateur a été importé avec succès', 'tify')
+                $this->getSuccessMessage($user_id),
+                [
+                    'user_id' => $user_id
+                ]
             );
 
             $this->setSuccess(true);
-            $user_id = $res;
         endif;
 
         $this->setPrimaryId($user_id);
