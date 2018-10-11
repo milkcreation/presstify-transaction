@@ -1,0 +1,100 @@
+._tiFyTemplatesImport_col_action{
+    position:relative;
+    width:50px;
+    
+    text-align:center;
+}
+.tiFyTemplatesImport-RowImport{
+    position:absolute;
+    top:0; right:0; bottom:0; left:0;
+    display: block;
+    outline:none;
+    z-index:1;
+}
+.tiFyTemplatesImport-RowImportIcon{
+    margin-top:10px;
+    font-size:18px;
+    line-height:1;
+}
+.tiFyTemplatesImport-ExistItem{
+    position:absolute;
+    top:20px; left:50%;
+    margin-top:0px; margin-left:-2px;
+    font-size:10px;
+}
+.tiFyTemplatesImport-Result {
+    position:absolute;
+    top:5px; right:5px;
+    font-size:12px;
+    display:none;
+}
+.tiFyTemplatesImport-Result--success {
+    color:#46B450;
+}
+.tiFyTemplatesImport-Result--error {
+    color:#DC3232;
+}
+.tiFyTemplatesImport-Notices {
+    position:absolute;
+    top:0; right: 0;
+    z-index:5;
+    width:250px; margin-right:-250px;
+    padding:5px;
+
+    background-color:#FFF;
+    border:solid 1px #E4E4E4;
+
+    display:none;
+}
+.tiFyTemplatesImport-Notices > span {
+    display:block;
+    line-height:1.1;
+    font-size:11px;
+}
+
+.active .tiFyTemplatesImport-RowImportIcon {
+  -webkit-animation:    rotating 2s linear infinite;
+  -moz-animation:       rotating 2s linear infinite;
+  -ms-animation:        rotating 2s linear infinite;
+  -o-animation:         rotating 2s linear infinite;
+  animation:            rotating 2s linear infinite;
+}
+@-webkit-keyframes rotating /* Safari and Chrome */ {
+  from {
+    -webkit-transform:  rotate(0deg);
+    -o-transform:       rotate(0deg);
+    transform:          rotate(0deg);
+  }
+  to {
+    -webkit-transform:  rotate(360deg);
+    -o-transform:       rotate(360deg);
+    transform:          rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    -ms-transform:      rotate(0deg);
+    -moz-transform:     rotate(0deg);
+    -webkit-transform:  rotate(0deg);
+    -o-transform:       rotate(0deg);
+    transform:          rotate(0deg);
+  }
+  to {
+    -ms-transform:      rotate(360deg);
+    -moz-transform:     rotate(360deg);
+    -webkit-transform:  rotate(360deg);
+    -o-transform:       rotate(360deg);
+    transform:          rotate(360deg);
+  }
+}
+#the-list td{
+    position:relative;
+}
+.tdOverlay{
+    position:absolute;
+    top:0; right:0; bottom:0; left:0;   
+    display:block; content:"";
+    z-index:10;
+    
+    background-color:rgba(255,255,255,0.5);
+}
