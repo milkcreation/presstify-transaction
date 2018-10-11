@@ -88,6 +88,15 @@ interface ImportItemInterface extends ParametersBagInterface
     public function getResults();
 
     /**
+     * Récupération du message de notification en cas de réussite de traitement de l'import.
+     *
+     * @param mixed $primary_id Valeur de clé primaire de l'élément enregistré.
+     *
+     * @return string
+     */
+    public function getSuccessMessage($primary_id = null);
+
+    /**
      * Récupération de la liste des types de données à traiter.
      *
      * @return array
@@ -184,16 +193,6 @@ interface ImportItemInterface extends ParametersBagInterface
     public function notices();
 
     /**
-     * Pré-traitement des données d'entrées brutes.
-     * {@internal Permet de convertir des données d'entrées de type iterateur au format tableau requis par la classe.}
-     *
-     * @param mixed $input Liste des données d'entrées brutes.
-     *
-     * @return array
-     */
-    public function parseInput($input);
-
-    /**
      * Vérification de l'arrêt de la tâche.
      *
      * @return boolean
@@ -263,6 +262,21 @@ interface ImportItemInterface extends ParametersBagInterface
      * @return mixed
      */
     public function outputSetMeta($meta_key, $raw_meta_value = null);
+
+    /**
+     * Pré-traitement des données d'entrées brutes.
+     * {@internal Permet de convertir des données d'entrées de type iterateur au format tableau requis par la classe.}
+     *
+     * @param mixed $input Liste des données d'entrées brutes.
+     *
+     * @return array
+     */
+    public function parseInput($input);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function proceed();
 
     /**
      * Définition de l'interruption de la tâche.

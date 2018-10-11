@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
-interface ImportWpTaxonomyItemInterface extends ImportItemInterface
+interface ImportItemWpTaxonomyInterface extends ImportItemInterface
 {
     /**
      * Récupération du nom de qualification de la taxonomie à traiter.

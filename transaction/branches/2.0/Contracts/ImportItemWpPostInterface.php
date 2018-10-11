@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
-interface ImportWpPostItemInterface extends ImportItemInterface
+interface ImportItemWpPostInterface extends ImportItemInterface
 {
     /**
      * Récupération de la liste des termes d'une taxonomie à taiter en sortie.
