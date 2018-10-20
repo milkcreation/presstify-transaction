@@ -3,7 +3,7 @@
 namespace tiFy\Plugins\Transaction\Import;
 
 use Illuminate\Support\Arr;
-use tiFy\Contracts\Kernel\NoticesInterface;
+use tiFy\Contracts\Kernel\Notices as NoticesInterface;
 use tiFy\Kernel\Parameters\AbstractParametersBag;
 use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
 
