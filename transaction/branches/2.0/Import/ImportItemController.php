@@ -297,11 +297,7 @@ class ImportItemController extends AbstractParametersBag implements ImportItemIn
         $res = [];
         $res['insert_id'] = $this->getPrimaryId();
         $res['success'] = $this->isSuccessfully();
-        foreach ($this->notices()->getTypes() as $type) :
-            if ($notices = $this->notices()->all($type)) :
-                $res['notices'][$type] = $notices;
-            endif;
-        endforeach;
+        $res['notices'] = $this->notices()->all();
 
         return $res;
     }
