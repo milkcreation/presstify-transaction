@@ -71,6 +71,23 @@ class ImportItemWpTaxonomyController extends ImportItemController implements Imp
     /**
      * {@inheritdoc}
      */
+    public function getSuccessMessage($term_id = null)
+    {
+        $term = get_term($term_id, $this->taxonomy);
+
+        if($term instanceof WP_Term) :
+            return sprintf(
+                __('La catégorie "%s" a été importé avec succès.', 'tify'),
+                $term->name
+            );
+        else :
+            return '';
+        endif;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getTaxonomy()
     {
         return $this->taxonomy;
@@ -79,7 +96,7 @@ class ImportItemWpTaxonomyController extends ImportItemController implements Imp
     /**
      * {@inheritdoc}
      */
-    public function insertData($datas, $term_id = null)
+    public function insertData($datas = [], $term_id = null)
     {
         if (empty($datas['term_id'])) :
             $res = wp_insert_term($datas['name'], $this->taxonomy, $datas);
@@ -91,23 +108,32 @@ class ImportItemWpTaxonomyController extends ImportItemController implements Imp
             $this->notices()->add(
                 'error',
                 $res->get_error_message(),
-                $term->get_error_data()
+                $res->get_error_data()
             );
 
             $this->setSuccess(false);
             $term_id = 0;
         else :
-            $term_id = (int)$term['term_id'];
+            $term_id = (int)$res['term_id'];
 
-            $this->notices()->add(
-                'success',
-                __('La catégorie a été importé avec succès', 'tify'),
-                [
-                    'term_id' => $term_id
-                ]
-            );
+            if ($message = $this->getSuccessMessage($term_id)) :
+                $this->notices()->add(
+                    'success',
+                    $this->getSuccessMessage($term_id),
+                    [
+                        'term_id' => $term_id
+                    ]
+                );
+                $this->setSuccess(true);
+            else :
+                $this->notices()->add(
+                    'error',
+                    __('La catégorie "%s" a été importé avec succès, mais il semble impossible de la récupérer.', 'tify')
+                );
 
-            $this->setSuccess(true);
+                $this->setSuccess(false);
+                $term_id = 0;
+            endif;
         endif;
 
         $this->setPrimaryId($term_id);
@@ -116,7 +142,7 @@ class ImportItemWpTaxonomyController extends ImportItemController implements Imp
     /**
      * {@inheritdoc}
      */
-    public function insert_meta($meta_key, $meta_value, $term_id)
+    public function insertMeta($meta_key, $meta_value, $term_id = null)
     {
         return update_term_meta($term_id, $meta_key, $meta_value);
     }
