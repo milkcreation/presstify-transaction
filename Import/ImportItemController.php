@@ -486,6 +486,7 @@ class ImportItemController extends AbstractParametersBag implements ImportItemIn
             $this->before($this->getPrimaryId());
             if ($this->onBreak()) break;
 
+
             // Filtrage des données principales de sorties.
             $this->_outputTypeFilter('data');
             if ($this->onBreak()) break;
