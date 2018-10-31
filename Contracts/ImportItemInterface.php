@@ -2,9 +2,9 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
-use tiFy\Contracts\Kernel\ParametersBagInterface;
+use tiFy\Contracts\Kernel\ParamsBag;
 
-interface ImportItemInterface extends ParametersBagInterface
+interface ImportItemInterface extends ParamsBag
 {
     /**
      * Evénement déclenché post-insertion.
