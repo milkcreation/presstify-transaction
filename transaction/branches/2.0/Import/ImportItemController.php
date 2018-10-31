@@ -4,10 +4,10 @@ namespace tiFy\Plugins\Transaction\Import;
 
 use Illuminate\Support\Arr;
 use tiFy\Contracts\Kernel\Notices as NoticesInterface;
-use tiFy\Kernel\Parameters\AbstractParametersBag;
+use tiFy\Kernel\Params\ParamsBag;
 use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
 
-class ImportItemController extends AbstractParametersBag implements ImportItemInterface
+class ImportItemController extends ParamsBag implements ImportItemInterface
 {
     /**
      * Indicateur d'interruption de l'exécution.

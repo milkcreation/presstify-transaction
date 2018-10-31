@@ -3,7 +3,7 @@
 namespace tiFy\Plugins\Transaction\Import;
 
 use Illuminate\Support\Collection;
-use tiFy\Contracts\Kernel\ParamsBagInterface;
+use tiFy\Contracts\Kernel\ParamsBag;
 use tiFy\Plugins\Transaction\Contracts\ImportCollectionInterface;
 use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
 
@@ -17,7 +17,7 @@ class ImportCollectionController implements ImportCollectionInterface
 
     /**
      * Instance du controleur de gestion des paramètres d'import.
-     * @var ParamsBagInterface
+     * @var ParamsBag
      */
     protected $params;
 
