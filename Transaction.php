@@ -6,7 +6,7 @@
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package presstify-plugins/transaction
  * @namespace \tiFy\Plugins\Transaction
- * @version 2.0.4
+ * @version 2.0.5
  */
 
 namespace tiFy\Plugins\Transaction;

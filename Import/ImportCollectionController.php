@@ -3,6 +3,7 @@
 namespace tiFy\Plugins\Transaction\Import;
 
 use Illuminate\Support\Collection;
+use tiFy\Contracts\Kernel\Logger;
 use tiFy\Contracts\Kernel\ParamsBag;
 use tiFy\Plugins\Transaction\Contracts\ImportCollectionInterface;
 use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
@@ -33,7 +34,7 @@ class ImportCollectionController implements ImportCollectionInterface
     {
         $this->params = app('params.bag', [$params]);
         $logger = $this->params->get('logger');
-        if (!$logger instanceof LoggerInterface) :
+        if (!$logger instanceof Logger) :
             $defaults = ['name' => 'import'];
 
             $logger = is_array($logger)
