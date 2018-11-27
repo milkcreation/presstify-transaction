@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
-use Psr\Log\LoggerInterface;
+use tiFy\Contracts\Kernel\Logger;
 
 interface ImportCollectionInterface
 {
@@ -41,7 +41,7 @@ interface ImportCollectionInterface
     /**
      * Récupération de l'instance du controleur de journalisation.
      *
-     * @return LoggerInterface
+     * @return Logger
      */
     public function log();
 
