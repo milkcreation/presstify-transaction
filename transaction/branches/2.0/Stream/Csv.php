@@ -1,6 +1,6 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\Stream\Csv;
+namespace tiFy\Plugins\Transaction\Stream;
 
 use League\Csv\CharsetConverter;
 use League\Csv\Exception;
