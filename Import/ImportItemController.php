@@ -515,28 +515,28 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
 
                     // Filtrage des données de sorties pour le type courant.
                     $this->_outputTypeFilter($type);
-                    if ($this->onBreak()) break2;
+                    if ($this->onBreak()) break 2;
 
                     // Vérification des données de sorties pour le type courant.
                     $this->_outputTypeCheck($type);
-                    if ($this->onBreak()) break2;
+                    if ($this->onBreak()) break 2;
 
                     // Récupération de la liste des données pour le type courant.
                     $datas = call_user_func([$this, "getOutput{$Type}"]);
 
                     // Evénement pré-insertion des données de sorties pour le type courant.
                     call_user_func_array([$this, "insert{$Type}Before"], [$datas, $primary_id]);
-                    if ($this->onBreak()) break2;
+                    if ($this->onBreak()) break 2;
 
                     // Insertion des données de sorties pour le type courant.
                     foreach ($datas as $key => $value) :
                         call_user_func_array([$this, "insert{$Type}"], [$key, $value, $primary_id]);
-                        if ($this->onBreak()) break3;
+                        if ($this->onBreak()) break 3;
                     endforeach;
 
                     // Evénement post-insertion des données de sorties pour le type courant.
                     call_user_func_array([$this, "insert{$Type}After"], [$datas, $primary_id]);
-                    if ($this->onBreak()) break2;
+                    if ($this->onBreak()) break 2;
                 endforeach;
 
             endif;
