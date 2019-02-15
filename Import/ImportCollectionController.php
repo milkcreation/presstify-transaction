@@ -2,17 +2,17 @@
 
 namespace tiFy\Plugins\Transaction\Import;
 
-use Illuminate\Support\Collection;
 use tiFy\Contracts\Kernel\Logger;
 use tiFy\Contracts\Kernel\ParamsBag;
+use tiFy\Kernel\Collection\Collection;
 use tiFy\Plugins\Transaction\Contracts\ImportCollectionInterface;
 use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
 
-class ImportCollectionController implements ImportCollectionInterface
+class ImportCollectionController extends Collection implements ImportCollectionInterface
 {
     /**
      * Liste des éléments du fichier.
-     * @var Collection|ImportItemInterface[]
+     * @var ImportItemInterface[]
      */
     protected $items = [];
 
@@ -32,7 +32,8 @@ class ImportCollectionController implements ImportCollectionInterface
      */
     public function __construct($items = [], $params = [])
     {
-        $this->params = app('params.bag', [$params]);
+        $this->params = params($params);
+
         $logger = $this->params->get('logger');
         if (!$logger instanceof Logger) :
             $defaults = ['name' => 'import'];
@@ -47,32 +48,34 @@ class ImportCollectionController implements ImportCollectionInterface
             );
         endif;
 
-        $this->items = $this->parse($items);
+        array_walk($items, [$this, 'wrap']);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function all()
+    public function after()
     {
-        return $this->items->all();
+
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function get($key)
+    public function before()
     {
-        return $this->items->get($key, []);
+
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function import()
     {
+        $this->before();
+
         $results = [];
-        foreach($this->all() as $item) :
+        foreach($this->all() as $i => $item) :
             $res = $this->importItem($item);
 
             foreach($res['notices'] as $type => $notices) :
@@ -84,11 +87,13 @@ class ImportCollectionController implements ImportCollectionInterface
             $results[] = $res;
         endforeach;
 
+        $this->after();
+
         return $results;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function importItem($item)
     {
@@ -96,18 +101,10 @@ class ImportCollectionController implements ImportCollectionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function log()
     {
         return $this->params->get('logger');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function parse($items = [])
-    {
-        return new Collection($items);
     }
 }
