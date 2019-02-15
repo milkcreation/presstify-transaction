@@ -116,7 +116,7 @@ class ImportItemWpUserController extends ImportItemController implements ImportI
             $this->notices()->add(
                 'error',
                 $res->get_error_message(),
-                $res->get_error_data()
+                $res->get_error_data() ? : []
             );
 
             $this->setSuccess(false);

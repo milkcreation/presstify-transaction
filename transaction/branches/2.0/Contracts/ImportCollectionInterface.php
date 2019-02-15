@@ -2,25 +2,38 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
+use tiFy\Contracts\Kernel\Collection;
 use tiFy\Contracts\Kernel\Logger;
 
-interface ImportCollectionInterface
+interface ImportCollectionInterface extends Collection
 {
     /**
-     * Récupération de la liste des éléments
+     * {@inheritdoc}
      *
      * @return ImportItemInterface[]
      */
     public function all();
 
     /**
-     * Récupération des données d'un élément.
+     * Action lancée après la tâche d'import.
      *
-     * @param string $key Identifiant de qualification de l'élément.
+     * @return void
+     */
+    public function after();
+
+    /**
+     * Action lancée avant la tâche d'import.
+     *
+     * @return void
+     */
+    public function before();
+
+    /**
+     * {@inheritdoc}
      *
      * @return ImportItemInterface
      */
-    public function get($key);
+    public function get($key, $default = null);
 
     /**
      * Traitement de l'import de la liste des éléments.
@@ -44,13 +57,4 @@ interface ImportCollectionInterface
      * @return Logger
      */
     public function log();
-
-    /**
-     * Traitement de la liste des éléments.
-     *
-     * @param array $items Liste des éléments.
-     *
-     * @return ImportItemInterface[]
-     */
-    public function parse($items = []);
 }
