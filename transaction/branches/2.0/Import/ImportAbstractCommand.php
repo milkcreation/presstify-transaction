@@ -7,8 +7,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use tiFy\Console\Command;
-use tiFy\Kernel\DateTime\DateTime;
 use tiFy\Kernel\Params\ParamsBag;
+use tiFy\Support\DateTime;
 use tiFy\Plugins\Transaction\Contracts\ImportCollectionInterface;
 use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
 
@@ -114,6 +114,8 @@ abstract class ImportAbstractCommand extends Command
         $output->writeln($this->message('end'));
 
         $this->onEnd($results);
+
+        return 0;
     }
 
     /**
