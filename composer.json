@@ -1,0 +1,56 @@
+{
+  "name": "presstify-plugins/transaction",
+  "description": "Gestion des données de transaction.",
+  "type": "presstify-plugin",
+  "keywords": [
+    "presstify",
+    "plugins",
+    "wordpress",
+    "import",
+    "export",
+    "transaction",
+    "ax",
+    "sage",
+    "json",
+    "xml",
+    "csv"
+  ],
+  "homepage": "https://svn.milkcreation.fr/presstify-plugins/transaction",
+  "time": "2019-02-19",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Jordy Manner",
+      "email": "jordy.manner@milkcreation.fr",
+      "role": "Developper"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://composer.tigreblanc.fr/presstify/"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0",
+    "league/csv": "^9.0",
+    "presstify/framework": ">=1.4",
+    "rodenastyle/stream-parser" : "^1.1"
+  },
+  "autoload": {
+    "files": [
+      "helpers.php"
+    ],
+    "psr-4": {
+      "tiFy\\Plugins\\Transaction\\": ""
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config" : {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "secure-http": false,
+    "sort-packages": true
+  }
+}
