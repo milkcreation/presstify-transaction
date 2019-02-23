@@ -8,7 +8,7 @@ namespace tiFy\Plugins\Transaction;
  * @desc Extension PresstiFy de gestion de données de transaction.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Transaction
- * @version 2.0.9
+ * @version 2.0.10
  *
  * USAGE :
  * Activation :

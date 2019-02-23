@@ -12,7 +12,6 @@ use tiFy\Support\DateTime;
 use tiFy\Plugins\Transaction\Contracts\ImportCollectionInterface;
 use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
 
-
 abstract class ImportAbstractCommand extends Command
 {
     /**
