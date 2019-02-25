@@ -2,41 +2,45 @@
 
 namespace tiFy\Plugins\Transaction\Import;
 
+use DateTimeZone;
 use Illuminate\Support\Arr;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use tiFy\Console\Command;
 use tiFy\Kernel\Params\ParamsBag;
+use tiFy\Plugins\Transaction\Contracts\ImportManager;
 use tiFy\Support\DateTime;
-use tiFy\Plugins\Transaction\Contracts\ImportCollectionInterface;
-use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
 
-abstract class ImportAbstractCommand extends Command
+abstract class ImportCommand extends Command
 {
     /**
      * Classe d'import (requis).
+     *
      * @var string
      */
-    protected $importerClass = '';
+    protected $managerClass = '';
 
     /**
      * Cartographie de la liste des messages de traitement personnalisés.
+     *
      * @var array
      */
     protected $messageMap = [];
 
     /**
      * Instance des messages de traitement.
+     *
      * @var ParamsBag
      */
     private $message;
 
     /**
      * Instance du controleur d'import.
-     * @var ImportCollectionInterface
+     *
+     * @var ImportManager
      */
-    private $importer;
+    private $manager;
 
     /**
      * @inheritdoc
@@ -48,8 +52,21 @@ abstract class ImportAbstractCommand extends Command
                 'offset', null, InputOption::VALUE_OPTIONAL, __('Numéro d\'enregistrement de démarrage', 'theme'), 0
             )
             ->addOption(
-                'length', null, InputOption::VALUE_OPTIONAL, __('Nombre d\'enregistrement à traiter', 'theme'), null
+                'length', null, InputOption::VALUE_OPTIONAL, __('Nombre d\'enregistrements à traiter', 'theme'), null
             );
+    }
+
+    /**
+     * Récupération de la date
+     *
+     * @param string $time Date
+     * @param DateTimeZone $tz
+     *
+     * @return string
+     */
+    public function datetime($time = null, $tz = null)
+    {
+        return (new DateTime($time, $tz))->toDateTimeString();
     }
 
     /**
@@ -65,9 +82,9 @@ abstract class ImportAbstractCommand extends Command
             return sprintf($message, $this->datetime());
         }, $this->message('start_datetime')));
 
-        $offset = (int) $input->getOption('offset');
+        $offset = (int)$input->getOption('offset');
         $length = $input->getOption('length');
-        $items  = array_slice($this->importer()->all(), $offset, $length, true);
+        $items  = array_slice($this->manager()->all(), $offset, $length, true);
         $count  = count($items);
 
         $output->writeln(array_map(function ($message) use ($count) {
@@ -86,12 +103,11 @@ abstract class ImportAbstractCommand extends Command
                 return sprintf($message, $this->datetime());
             }, $this->message('item_start_datetime')));
 
-            $results[] = $res = $this->importer()->importItem($item);
+            $results[] = $res = $this->manager()->handleItem($item);
 
             foreach ($res['notices'] as $type => $notices) :
                 foreach ($notices as $id => $notice) :
                     $output->writeln($notice['message']);
-                    call_user_func([$this->importer()->log(), $type], $notice['message'], $notice['datas']);
                 endforeach;
             endforeach;
 
@@ -118,15 +134,17 @@ abstract class ImportAbstractCommand extends Command
     }
 
     /**
-     * Action lancée à l'issue du traitement.
+     * Récupération de l'instance du controleur d'import.
      *
-     * @param array $results
-     *
-     * @return void
+     * @return ImportManager
      */
-    public function onStart()
+    protected function manager()
     {
+        if (!$this->manager instanceof ImportManager) :
+            $this->manager = new $this->managerClass();
+        endif;
 
+        return $this->manager;
     }
 
     /**
@@ -139,10 +157,10 @@ abstract class ImportAbstractCommand extends Command
      */
     public function message($key = null, $default = '')
     {
-        if ( ! $this->message instanceof ParamsBag) :
+        if (!$this->message instanceof ParamsBag) :
             $this->message = params(array_merge(
                 [
-                    'start'              => [
+                    'start'               => [
                         '====================================',
                         __('Import des élèments.', 'tify'),
                         '====================================',
@@ -173,7 +191,7 @@ abstract class ImportAbstractCommand extends Command
                         'Import des éléments terminé.',
                         __('Fin des opérations : %s', 'tify')
                     ],
-                    'end'               => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    'end'                 => "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                 ],
                 $this->messageMap
             ));
@@ -187,38 +205,13 @@ abstract class ImportAbstractCommand extends Command
     }
 
     /**
-     * Récupération de la date
+     * Action lancée à l'issue du traitement.
      *
-     * @return string
-     */
-    public function datetime($time = null, $tz = null)
-    {
-        return (new DateTime($time, $tz))->toDateTimeString();
-    }
-
-    /**
-     * Récupération de l'instance du controleur d'import.
-     *
-     * @return ImportCollectionInterface
-     */
-    protected function importer()
-    {
-        if ( ! $this->importer instanceof ImportCollectionInterface) :
-            $this->importer = new $this->importerClass();
-        endif;
-
-        return $this->importer;
-    }
-
-    /**
-     * Action lancée avant le traitement d'un élément d'import.
-     *
-     * @param ImportItemInterface $item Instance de l'élément d'import.
-     * @param int $key Indice de l'élément d'import.
+     * @param array $results
      *
      * @return void
      */
-    public function onItemStart($item, $key)
+    public function onEnd($results)
     {
 
     }
@@ -226,7 +219,7 @@ abstract class ImportAbstractCommand extends Command
     /**
      * Action lancée avant le traitement d'un élément d'import.
      *
-     * @param ImportItemInterface $item Instance de l'élément d'import.
+     * @param ImportFactory $item Instance de l'élément d'import.
      * @param int $key Indice de l'élément d'import.
      *
      * @return void
@@ -237,13 +230,24 @@ abstract class ImportAbstractCommand extends Command
     }
 
     /**
-     * Action lancée à l'issue du traitement.
+     * Action lancée avant le traitement d'un élément d'import.
      *
-     * @param array $results
+     * @param ImportFactory $item Instance de l'élément d'import.
+     * @param int $key Indice de l'élément d'import.
      *
      * @return void
      */
-    public function onEnd($results)
+    public function onItemStart($item, $key)
+    {
+
+    }
+
+    /**
+     * Action lancée à l'issue du traitement.
+     *
+     * @return void
+     */
+    public function onStart()
     {
 
     }

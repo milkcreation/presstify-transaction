@@ -4,7 +4,7 @@ namespace tiFy\Plugins\Transaction\Import;
 
 use tiFy\Plugins\Transaction\TransactionResolverTrait;
 
-class ImportCollectionJsonController extends ImportCollectionController
+class ImportManagerJson extends ImportManager
 {
     use TransactionResolverTrait;
 

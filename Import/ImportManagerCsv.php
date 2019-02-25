@@ -5,7 +5,7 @@ namespace tiFy\Plugins\Transaction\Import;
 use tiFy\Plugins\Transaction\Stream\Csv;
 use tiFy\Plugins\Transaction\TransactionResolverTrait;
 
-class ImportCollectionCsvController extends ImportCollectionController
+class ImportManagerCsv extends ImportManager
 {
     use TransactionResolverTrait;
 

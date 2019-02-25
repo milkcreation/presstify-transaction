@@ -2,9 +2,10 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
+use tiFy\Contracts\Kernel\Notices;
 use tiFy\Contracts\Kernel\ParamsBag;
 
-interface ImportItemInterface extends ParamsBag
+interface ImportFactory extends ParamsBag
 {
     /**
      * Evénement déclenché post-insertion.
@@ -188,7 +189,7 @@ interface ImportItemInterface extends ParamsBag
     /**
      * Récupération de l'instance de la classe de traitement des messages de notification.
      *
-     * @return NoticesInterface
+     * @return Notices
      */
     public function notices();
 

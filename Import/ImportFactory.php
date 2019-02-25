@@ -5,9 +5,10 @@ namespace tiFy\Plugins\Transaction\Import;
 use Illuminate\Support\Arr;
 use tiFy\Contracts\Kernel\Notices as NoticesInterface;
 use tiFy\Kernel\Params\ParamsBag;
-use tiFy\Plugins\Transaction\Contracts\ImportItemInterface;
+use tiFy\Plugins\Transaction\Contracts\ImportManager;
+use tiFy\Plugins\Transaction\Contracts\ImportFactory as ImportFactoryContract;
 
-class ImportItemController extends ParamsBag implements ImportItemInterface
+class ImportFactory extends ParamsBag implements ImportFactoryContract
 {
     /**
      * Indicateur d'interruption de l'exécution.
@@ -25,23 +26,26 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     ];
 
     /**
-     * Liste des données d'entrées brutes.
-     * @var array
-     */
-    protected $input = [];
-
-    /**
      * Cartographie des données à traiter.
      * {@internal Tableau indexé|Tableau dimensionné :
-     *  - Tableau indexé : ['key1', 'key2', ...]. La clé de données de sortie et la clé de donnée d'entrée sont identiques.
-     *  - Tableau dimensionné : ['outputkey1' => 'inputkey1', 'outputkey2' => 'inputkey2', ...]. La clé de données de sortie et la clé de donnée d'entrée sont différentes.
+     *  -   Tableau indexé : ['key1', 'key2', ...]. La clé de données de sortie et la clé de données d'entrée sont
+     *      identiques.
+     *  -   Tableau dimensionné : ['outputkey1' => 'inputkey1', 'outputkey2' => 'inputkey2', ...]. La clé de données de
+     *      sortie et la clé de données d'entrée sont différentes.
      * }
+     *
      * @var array
      */
     protected $map = [
         'data' => [],
         'meta' => []
     ];
+
+    /**
+     * Instance du gestionnaire d'import.
+     * @var ImportManager
+     */
+    protected $manager;
 
     /**
      * Instance de la classe de traitement des messages de notification.
@@ -80,15 +84,15 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
      * CONSTRUCTEUR.
      *
      * @param array $input Liste des données d'entrées brutes.
-     * @param array $attrs Liste des attributs de configuration.
+     * @param ImportManager $manager Instance du gestionnaire d'import associé.
      *
      * @return void
      */
-    public function __construct($input = [], $attrs = [])
+    public function __construct($input = [], ImportManager $manager)
     {
-        $this->input = $this->parseInput($input);
+        $this->manager = $manager;
 
-        parent::__construct($attrs);
+        parent::__construct($input);
 
         $this->boot();
     }
@@ -112,7 +116,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
                     $this->_outputSetValue($type, $output_key, $input_key);
                 endforeach;
             elseif ($type === 'data') :
-                foreach (array_keys($this->input) as $key) :
+                foreach ($this->keys() as $key) :
                     $this->_outputSetValue($type, $key, $key);
                 endforeach;
             endif;
@@ -144,10 +148,10 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
         if (is_array($input_key)) :
             $raw_value = [];
             foreach($input_key as $key) :
-                $raw_value[] = Arr::get($this->input, $key);
+                $raw_value[] = $this->get($key);
             endforeach;
         else :
-            $raw_value = Arr::get($this->input, $input_key);
+            $raw_value = $this->get($input_key);
         endif;
 
         $value = call_user_func_array(
@@ -162,6 +166,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
      * Contrôle des valeurs des données de sortie selon le type.
      *
      * @param string $type Nom de qualification du type de données.
+     * @param mixed $primary_id Identifiant de qualification de la clé primaire.
      *
      * @return void
      */
@@ -170,7 +175,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
         $Type = ucfirst($type);
 
         foreach(Arr::get($this->output, $type, []) as $key => &$value) :
-            $res = call_user_func_array(
+            call_user_func_array(
                 [$this, "outputCheck{$Type}"],
                 [$key, $value, $this->primaryId]
             );
@@ -181,6 +186,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
      * Filtrage des valeurs des données de sortie selon le type.
      *
      * @param string $type Nom de qualification du type de données.
+     * @param mixed $primary_id Identifiant de qualification de la clé primaire.
      *
      * @return void
      */
@@ -200,21 +206,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * Traitement statique de l'import d'un élément.
-     *
-     * @param array $input Liste des attributs de données d'entrée.
-     * @param array $attrs Attributs de configuration de traitement.
-     *
-     * @return array
-     */
-    public static function make($input = [], $attrs = [])
-    {
-        return (new static($input, $attrs))->proceed();
-        
-    }
-
-    /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function after($primary_id = null)
     {
@@ -222,7 +214,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function before($primary_id = null)
     {
@@ -230,7 +222,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function boot()
     {
@@ -238,19 +230,15 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getInput($key = null, $default = null)
     {
-        if (is_null($key)) :
-            return $this->input;
-        else :
-            return Arr::get($this->input, $key, $default);
-        endif;
+        return is_null($key) ? $this->all() : $this->get($key, $default);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getMap($type)
     {
@@ -258,7 +246,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getOutputData($key = null, $default = null)
     {
@@ -270,7 +258,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getOutputMeta($meta_key = null, $default = null)
     {
@@ -282,7 +270,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getPrimaryId()
     {
@@ -290,7 +278,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getResults()
     {
@@ -303,7 +291,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getSuccessMessage($primary_id = null)
     {
@@ -311,7 +299,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getTypes()
     {
@@ -319,7 +307,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function insertData($datas = [], $primary_id = null)
     {
@@ -330,7 +318,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function insertDataAfter($datas = [], $primary_id = null)
     {
@@ -338,7 +326,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function insertDataBefore($datas = [], $primary_id = null)
     {
@@ -346,7 +334,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function insertMeta($meta_key, $meta_value, $primary_id = null)
     {
@@ -357,7 +345,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function insertMetaAfter($metas = [], $primary_id = null)
     {
@@ -365,7 +353,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function insertMetaBefore($metas = [], $primary_id = null)
     {
@@ -373,7 +361,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function isSuccessfully()
     {
@@ -381,7 +369,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function mapData()
     {
@@ -389,7 +377,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function mapMeta()
     {
@@ -397,7 +385,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function notices()
     {
@@ -409,7 +397,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function onBreak()
     {
@@ -417,7 +405,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function outputCheckData($key, $value = null, $primary_id = null)
     {
@@ -425,7 +413,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function outputCheckMeta($meta_key, $meta_value = null, $primary_id = null)
     {
@@ -433,7 +421,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function outputFilterData($key, $value = null, $primary_id = null)
     {
@@ -441,7 +429,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function outputFilterMeta($meta_key, $meta_value = null, $primary_id = null)
     {
@@ -449,7 +437,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function outputSetData($key, $raw_value = null)
     {
@@ -457,7 +445,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function outputSetMeta($meta_key, $raw_meta_value = null)
     {
@@ -465,7 +453,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function parseInput($input)
     {
@@ -473,7 +461,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function proceed()
     {
@@ -552,7 +540,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setOnBreak()
     {
@@ -562,7 +550,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setPrimaryId($primary_id)
     {
@@ -572,7 +560,7 @@ class ImportItemController extends ParamsBag implements ImportItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setSuccess($success = true)
     {
