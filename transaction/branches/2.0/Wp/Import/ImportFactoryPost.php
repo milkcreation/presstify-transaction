@@ -1,11 +1,12 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\Import;
+namespace tiFy\Plugins\Transaction\Wp\Import;
 
 use Illuminate\Support\Arr;
-use tiFy\Plugins\Transaction\Contracts\ImportItemWpPostInterface;
+use tiFy\Plugins\Transaction\Import\ImportFactory;
+use tiFy\Plugins\Transaction\Wp\Contracts\ImportFactoryPost as ImportFactoryPostContract;
 
-class ImportItemWpPostController extends ImportItemController implements ImportItemWpPostInterface
+class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContract
 {
     /**
      * Cartographie des clés de données de sortie autorisées à être traitée.

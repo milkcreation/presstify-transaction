@@ -1,10 +1,12 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\Import;
+namespace tiFy\Plugins\Transaction\Wp\Import;
 
-use tiFy\Plugins\Transaction\Contracts\ImportItemWpTaxonomyInterface;
+use tiFy\Plugins\Transaction\Import\ImportFactory;
+use tiFy\Plugins\Transaction\Wp\Contracts\ImportFactoryTerm as ImportFactoryTermContract;
+use WP_Term;
 
-class ImportItemWpTaxonomyController extends ImportItemController implements ImportItemWpTaxonomyInterface
+class ImportFactoryTerm extends ImportFactory implements ImportFactoryTermContract
 {
     /**
      * Cartographie des clés de données de sortie autorisées à être traitée.
@@ -128,7 +130,10 @@ class ImportItemWpTaxonomyController extends ImportItemController implements Imp
             else :
                 $this->notices()->add(
                     'error',
-                    __('La catégorie "%s" a été importé avec succès, mais il semble impossible de la récupérer.', 'tify')
+                    __(
+                        'La catégorie "%s" a été importé avec succès, mais il semble impossible de la récupérer.',
+                        'tify'
+                    )
                 );
 
                 $this->setSuccess(false);

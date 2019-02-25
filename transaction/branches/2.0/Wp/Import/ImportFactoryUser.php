@@ -1,10 +1,11 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\Import;
+namespace tiFy\Plugins\Transaction\Wp\Import;
 
-use tiFy\Plugins\Transaction\Contracts\ImportItemWpUserInterface;
+use tiFy\Plugins\Transaction\Import\ImportFactory;
+use tiFy\Plugins\Transaction\Wp\Contracts\ImportFactoryUser as ImportFactoryUserContract;
 
-class ImportItemWpUserController extends ImportItemController implements ImportItemWpUserInterface
+class ImportFactoryUser extends ImportFactory implements ImportFactoryUserContract
 {
     /**
      * Cartographie des clés de données de sortie autorisées à être traitée.

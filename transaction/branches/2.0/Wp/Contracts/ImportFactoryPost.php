@@ -1,8 +1,10 @@
 <?php
 
-namespace tiFy\Plugins\Transaction\Contracts;
+namespace tiFy\Plugins\Transaction\Wp\Contracts;
 
-interface ImportItemWpPostInterface extends ImportItemInterface
+use tiFy\Plugins\Transaction\Contracts\ImportFactory;
+
+interface ImportFactoryPost extends ImportFactory
 {
     /**
      * Récupération de la liste des termes d'une taxonomie à taiter en sortie.
@@ -24,7 +26,7 @@ interface ImportItemWpPostInterface extends ImportItemInterface
      *
      * @return mixed
      */
-    public function insertTax($taxonomy, $terms, $insert_id);
+    public function insertTax($taxonomy, $terms, $primary_id = null);
 
     /**
      * Evénement post-insertion des termes de taxonomies.
