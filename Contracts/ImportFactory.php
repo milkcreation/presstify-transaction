@@ -173,6 +173,13 @@ interface ImportFactory extends ParamsBag
     public function isSuccessfully();
 
     /**
+     * Récupération de l'instance du gestionnaire d'import.
+     *
+     * @return ImportManager
+     */
+    public function manager();
+
+    /**
      * Définition de la cartographie des données principales.
      *
      * @return array

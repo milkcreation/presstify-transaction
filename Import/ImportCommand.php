@@ -3,6 +3,7 @@
 namespace tiFy\Plugins\Transaction\Import;
 
 use DateTimeZone;
+use Exception;
 use Illuminate\Support\Arr;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -57,12 +58,14 @@ abstract class ImportCommand extends Command
     }
 
     /**
-     * Récupération de la date
+     * Récupération de la date au format datetime.
      *
      * @param string $time Date
      * @param DateTimeZone $tz
      *
      * @return string
+     *
+     * @throws Exception
      */
     public function datetime($time = null, $tz = null)
     {

@@ -88,7 +88,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
      *
      * @return void
      */
-    public function __construct($input = [], ImportManager $manager)
+    public function __construct($input, ImportManager $manager)
     {
         $this->manager = $manager;
 
@@ -366,6 +366,14 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     public function isSuccessfully()
     {
         return $this->success !== false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function manager()
+    {
+        return $this->manager;
     }
 
     /**
