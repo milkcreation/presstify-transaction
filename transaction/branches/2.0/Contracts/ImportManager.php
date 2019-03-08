@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
-use tiFy\Contracts\Kernel\Collection;
+use tiFy\Contracts\Support\Collection;
 use tiFy\Contracts\Kernel\Logger;
 
 interface ImportManager extends Collection

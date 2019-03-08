@@ -4,7 +4,7 @@ namespace tiFy\Plugins\Transaction\Import;
 
 use tiFy\Contracts\Kernel\Logger;
 use tiFy\Contracts\Kernel\ParamsBag;
-use tiFy\Kernel\Collection\Collection;
+use tiFy\Support\Collection;
 use tiFy\Plugins\Transaction\Contracts\ImportManager as ImportManagerContract;
 use tiFy\Plugins\Transaction\Contracts\ImportFactory as ImportFactoryContract;
 
@@ -46,7 +46,7 @@ class ImportManager extends Collection implements ImportManagerContract
     {
         $this->params = params($params);
 
-        array_walk($items, [$this, 'wrap']);
+        array_walk($items, [$this, 'walk']);
     }
 
     /**
@@ -131,7 +131,7 @@ class ImportManager extends Collection implements ImportManagerContract
     /**
      * @inheritdoc
      */
-    public function wrap($item, $key = null)
+    public function walk($item, $key = null)
     {
         $this->items[$key] = new $this->factoryClass($item, $this);
     }
