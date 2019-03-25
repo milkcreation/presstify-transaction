@@ -1,0 +1,16 @@
+.tiFyTemplatesFileImport-Form,
+.tiFyTemplatesFileImport-handleFilename{
+    position:relative;
+    margin:10px 0;
+}
+.tiFyTemplatesFileImportUploadForm-FileInput{
+    width:100%; height:100%;
+    margin:0; padding:0;
+    
+    background-color:#FFF;
+    border:solid 1px #DDD;
+}
+.tiFyTemplatesFileImportUploadForm-Spinner{
+    position:absolute; 
+    top:0; right:0; 
+}
