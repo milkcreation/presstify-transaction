@@ -26,7 +26,7 @@ interface ImportManager extends Collection
      *
      * @return ImportFactory
      */
-    public function get($key, $default = null);
+    public function get($key);
 
     /**
      * Traitement de l'import de la liste des éléments.
