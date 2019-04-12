@@ -2,9 +2,9 @@
 
 namespace tiFy\Plugins\Transaction;
 
-use tiFy\App\Container\AppServiceProvider;
+use tiFy\Container\ServiceProvider;
 
-class TransactionServiceProvider extends AppServiceProvider
+class TransactionServiceProvider extends ServiceProvider
 {
     /**
      * Liste des noms de qualification des services fournis.
