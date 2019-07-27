@@ -104,23 +104,23 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
      */
     private function _outputSet()
     {
-        foreach ($this->getTypes() as $type) :
+        foreach ($this->getTypes() as $type) {
             $Type = ucfirst($type);
 
-            if ($customMap = call_user_func([$this, "map{$Type}"])) :
+            if ($customMap = call_user_func([$this, "map{$Type}"])) {
                 Arr::set($this->map, $type, $customMap);
-            endif;
+            }
 
-            if ($map = $this->getMap($type)) :
-                foreach ($map as $output_key => $input_key) :
+            if ($map = $this->getMap($type)) {
+                foreach ($map as $output_key => $input_key) {
                     $this->_outputSetValue($type, $output_key, $input_key);
-                endforeach;
-            elseif ($type === 'data') :
-                foreach ($this->keys() as $key) :
+                }
+            } elseif ($type === 'data') {
+                foreach ($this->keys() as $key) {
                     $this->_outputSetValue($type, $key, $key);
-                endforeach;
-            endif;
-        endforeach;
+                }
+            }
+        }
     }
 
     /**
@@ -136,23 +136,23 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     {
         $Type = ucfirst($type);
 
-        if (is_numeric($output_key)) :
+        if (is_numeric($output_key)) {
             $output_key = $input_key;
-        endif;
+        }
 
         $constraint = Arr::get($this->constraint, $type, []);
-        if ($constraint && !in_array($output_key, $constraint)) :
+        if ($constraint && !in_array($output_key, $constraint)) {
             return;
-        endif;
+        }
 
-        if (is_array($input_key)) :
+        if (is_array($input_key)) {
             $raw_value = [];
-            foreach($input_key as $key) :
+            foreach ($input_key as $key) {
                 $raw_value[] = $this->get($key);
-            endforeach;
-        else :
+            }
+        } else {
             $raw_value = $this->get($input_key);
-        endif;
+        }
 
         $value = call_user_func_array(
             [$this, "outputSet{$Type}"],
@@ -174,12 +174,9 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     {
         $Type = ucfirst($type);
 
-        foreach(Arr::get($this->output, $type, []) as $key => &$value) :
-            call_user_func_array(
-                [$this, "outputCheck{$Type}"],
-                [$key, $value, $this->primaryId]
-            );
-        endforeach;
+        foreach(Arr::get($this->output, $type, []) as $key => &$value) {
+            call_user_func_array([$this, "outputCheck{$Type}"], [$key, $value, $this->primaryId]);
+        }
     }
 
     /**
@@ -206,7 +203,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function after($primary_id = null)
     {
@@ -214,7 +211,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function before($primary_id = null)
     {
@@ -222,7 +219,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function boot()
     {
@@ -230,7 +227,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getInput($key = null, $default = null)
     {
@@ -238,7 +235,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getMap($type)
     {
@@ -246,7 +243,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getOutputData($key = null, $default = null)
     {
@@ -258,7 +255,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getOutputMeta($meta_key = null, $default = null)
     {
@@ -270,7 +267,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getPrimaryId()
     {
@@ -278,7 +275,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getResults()
     {
@@ -291,7 +288,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getSuccessMessage($primary_id = null)
     {
@@ -299,7 +296,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function getTypes()
     {
@@ -307,7 +304,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insertData($datas = [], $primary_id = null)
     {
@@ -318,7 +315,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insertDataAfter($datas = [], $primary_id = null)
     {
@@ -326,7 +323,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insertDataBefore($datas = [], $primary_id = null)
     {
@@ -334,7 +331,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insertMeta($meta_key, $meta_value, $primary_id = null)
     {
@@ -345,7 +342,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insertMetaAfter($metas = [], $primary_id = null)
     {
@@ -353,7 +350,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function insertMetaBefore($metas = [], $primary_id = null)
     {
@@ -361,7 +358,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function isSuccessfully()
     {
@@ -369,7 +366,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function manager()
     {
@@ -377,7 +374,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function mapData()
     {
@@ -385,7 +382,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function mapMeta()
     {
@@ -393,7 +390,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function notices()
     {
@@ -405,7 +402,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function onBreak()
     {
@@ -413,7 +410,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function outputCheckData($key, $value = null, $primary_id = null)
     {
@@ -421,7 +418,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function outputCheckMeta($meta_key, $meta_value = null, $primary_id = null)
     {
@@ -429,7 +426,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function outputFilterData($key, $value = null, $primary_id = null)
     {
@@ -437,7 +434,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function outputFilterMeta($meta_key, $meta_value = null, $primary_id = null)
     {
@@ -445,7 +442,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function outputSetData($key, $raw_value = null)
     {
@@ -453,7 +450,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function outputSetMeta($meta_key, $raw_meta_value = null)
     {
@@ -461,7 +458,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function parseInput($input)
     {
@@ -469,7 +466,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function proceed()
     {
@@ -548,7 +545,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function setOnBreak()
     {
@@ -558,7 +555,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function setPrimaryId($primary_id)
     {
@@ -568,7 +565,7 @@ class ImportFactory extends ParamsBag implements ImportFactoryContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function setSuccess($success = true)
     {

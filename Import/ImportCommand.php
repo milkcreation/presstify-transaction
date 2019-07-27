@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace tiFy\Plugins\Transaction\Import;
 
@@ -95,7 +95,7 @@ abstract class ImportCommand extends Command
         }, $this->message('total_count')));
 
         $results = [];
-        foreach ($items as $i => $item) :
+        foreach ($items as $i => $item) {
             $this->onItemStart($item, $i);
 
             $output->writeln(array_map(function ($message) use ($i, $count) {
@@ -108,11 +108,11 @@ abstract class ImportCommand extends Command
 
             $results[] = $res = $this->manager()->handleItem($item);
 
-            foreach ($res['notices'] as $type => $notices) :
-                foreach ($notices as $id => $notice) :
+            foreach ($res['notices'] as $type => $notices) {
+                foreach ($notices as $id => $notice) {
                     $output->writeln($notice['message']);
-                endforeach;
-            endforeach;
+                }
+            }
 
             $output->writeln(array_map(function ($message) {
                 return sprintf($message, $this->datetime());
@@ -123,7 +123,7 @@ abstract class ImportCommand extends Command
             }, $this->message('item_after')));
 
             $this->onItemEnd($item, $i);
-        endforeach;
+        }
 
         $output->writeln(array_map(function ($message) {
             return sprintf($message, $this->datetime());
@@ -143,9 +143,9 @@ abstract class ImportCommand extends Command
      */
     protected function manager()
     {
-        if (!$this->manager instanceof ImportManager) :
+        if (!$this->manager instanceof ImportManager) {
             $this->manager = new $this->managerClass();
-        endif;
+        }
 
         return $this->manager;
     }
@@ -160,7 +160,7 @@ abstract class ImportCommand extends Command
      */
     public function message($key = null, $default = '')
     {
-        if (!$this->message instanceof ParamsBag) :
+        if (!$this->message instanceof ParamsBag) {
             $this->message = params(array_merge(
                 [
                     'start'               => [
@@ -198,13 +198,9 @@ abstract class ImportCommand extends Command
                 ],
                 $this->messageMap
             ));
-        endif;
+        }
 
-        if (is_null($key)) :
-            return $this->message;
-        else :
-            return Arr::wrap($this->message->get($key, $default));
-        endif;
+        return  is_null($key) ? $this->message : Arr::wrap($this->message->get($key, $default));
     }
 
     /**
@@ -214,10 +210,7 @@ abstract class ImportCommand extends Command
      *
      * @return void
      */
-    public function onEnd($results)
-    {
-
-    }
+    public function onEnd($results) {}
 
     /**
      * Action lancée avant le traitement d'un élément d'import.
@@ -227,10 +220,7 @@ abstract class ImportCommand extends Command
      *
      * @return void
      */
-    public function onItemEnd($item, $key)
-    {
-
-    }
+    public function onItemEnd($item, $key) {}
 
     /**
      * Action lancée avant le traitement d'un élément d'import.
@@ -240,18 +230,12 @@ abstract class ImportCommand extends Command
      *
      * @return void
      */
-    public function onItemStart($item, $key)
-    {
-
-    }
+    public function onItemStart($item, $key) {}
 
     /**
      * Action lancée à l'issue du traitement.
      *
      * @return void
      */
-    public function onStart()
-    {
-
-    }
+    public function onStart() {}
 }

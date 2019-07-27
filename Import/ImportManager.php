@@ -50,24 +50,21 @@ class ImportManager extends Collection implements ImportManagerContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function end()
-    {
-
-    }
+    public function end() {}
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function handle()
     {
         $this->start();
 
         $results = [];
-        foreach($this->all() as $i => $item) :
+        foreach($this->all() as $i => $item) {
             $results[] = $this->handleItem($item);
-        endforeach;
+        }
 
         $this->end();
 
@@ -75,7 +72,7 @@ class ImportManager extends Collection implements ImportManagerContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function handleItem(ImportFactoryContract $item)
     {
@@ -93,7 +90,7 @@ class ImportManager extends Collection implements ImportManagerContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function log($type = null, $message = '', $context = [])
     {
@@ -121,7 +118,7 @@ class ImportManager extends Collection implements ImportManagerContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function start()
     {
@@ -129,7 +126,7 @@ class ImportManager extends Collection implements ImportManagerContract
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public function walk($item, $key = null)
     {
