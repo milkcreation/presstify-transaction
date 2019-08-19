@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace tiFy\Plugins\Transaction\Wp\Import;
 
@@ -57,7 +57,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     ];
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getOutputTax($taxonomy = null, $terms = [])
     {
@@ -69,7 +69,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSuccessMessage($post_id = null)
     {
@@ -80,7 +80,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     final public function getTypes()
     {
@@ -88,7 +88,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function insertData($postarr = [], $post_id = null)
     {
@@ -125,7 +125,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function insertMeta($meta_key, $meta_value, $post_id = null)
     {
@@ -133,7 +133,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function insertTax($taxonomy, $terms, $post_id = null)
     {
@@ -141,7 +141,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function insertTaxAfter($taxonomies = [], $primary_id = null)
     {
@@ -149,7 +149,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function insertTaxBefore($taxonomies = [], $primary_id = null)
     {
@@ -157,7 +157,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function mapTax()
     {
@@ -165,7 +165,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function outputSetTax($taxonomy, $raw_value = null)
     {
@@ -173,7 +173,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function outputCheckTax($taxonomy, $terms = null, $post_id = null)
     {
@@ -181,7 +181,7 @@ class ImportFactoryPost extends ImportFactory implements ImportFactoryPostContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function outputFilterTax($taxonomy, $terms = null, $post_id = null)
     {
