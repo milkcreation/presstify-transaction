@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace tiFy\Plugins\Transaction\Wp\Import;
 
@@ -50,7 +50,7 @@ class ImportFactoryUser extends ImportFactory implements ImportFactoryUserContra
     ];
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function boot()
     {
@@ -60,7 +60,7 @@ class ImportFactoryUser extends ImportFactory implements ImportFactoryUserContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function getSuccessMessage($user_id = null)
     {
@@ -71,7 +71,7 @@ class ImportFactoryUser extends ImportFactory implements ImportFactoryUserContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     final public function getTypes()
     {
@@ -79,7 +79,7 @@ class ImportFactoryUser extends ImportFactory implements ImportFactoryUserContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function outputFilterData($key, $value = null, $primary_id = null)
     {
@@ -107,7 +107,7 @@ class ImportFactoryUser extends ImportFactory implements ImportFactoryUserContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function insertData($userdata = [], $user_id = null)
     {
@@ -140,7 +140,7 @@ class ImportFactoryUser extends ImportFactory implements ImportFactoryUserContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function insertMeta($meta_key, $meta_value, $user_id = null)
     {
@@ -148,7 +148,7 @@ class ImportFactoryUser extends ImportFactory implements ImportFactoryUserContra
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function insertOption($option_name, $newvalue, $user_id = null)
     {
