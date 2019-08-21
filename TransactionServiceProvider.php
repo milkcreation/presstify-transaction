@@ -35,7 +35,10 @@ class TransactionServiceProvider extends ServiceProvider
     public function register()
     {
         $this->getContainer()->share('transaction', function() {
-            return new Transaction();
+            return new Transaction(
+                $this->getContainer()->get('console.controller.application'),
+                $this->getContainer()->get('app')
+            );
         });
         $this->registerImportListTable();
     }
