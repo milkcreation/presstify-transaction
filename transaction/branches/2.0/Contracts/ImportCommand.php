@@ -5,17 +5,36 @@ namespace tiFy\Plugins\Transaction\Contracts;
 use DateTimeZone;
 use tiFy\Contracts\Support\ParamsBag;
 
+/**
+ * Interface ImportCommand
+ * @package tiFy\Plugins\Transaction\Contracts
+ * @mixin \Symfony\Component\Console\Command\Command
+ */
 interface ImportCommand
 {
     /**
      * Récupération de la date au format datetime.
      *
-     * @param string|null $time Date
+     * @param int|null $time
      * @param DateTimeZone|null $tz
      *
      * @return string
      */
-    public function getDatetime(?string $time = null, ?DateTimeZone $tz = null): string;
+    public function getDate(?int $time = null, ?DateTimeZone $tz = null): string;
+
+    /**
+     * Récupération du format d'affichage des dates.
+     *
+     * @return string
+     */
+    public function getDateFormat(): string;
+
+    /**
+     * Récupération du niveau d'affichage des alertes.
+     *
+     * @return int
+     */
+    public function getLevel(): int;
 
     /**
      * Récupération de l'instance du controleur d'import.
@@ -29,44 +48,28 @@ interface ImportCommand
      *
      * @param string|array|null $key Clé d'indice du message
      * @param mixed $default Valeur de retour par défaut
+     * @param string[] ...$args Liste des arguments dynamique de remplacement
      *
      * @return string|ParamsBag
      */
-    public function message($key = null, string $default = '');
+    public function messages($key = null, string $default = '', ...$args);
 
     /**
-     * Action lancée à l'issue du traitement.
+     * Récupération de paramètre|Définition de paramètres|Instance du gestionnaire de paramètre.
      *
-     * @param array $results
+     * @param string|array|null $key Clé d'indice du paramètre à récupérer|Liste des paramètre à définir.
+     * @param mixed $default Valeur de retour par défaut lorsque la clé d'indice est une chaine de caractère.
      *
-     * @return void
+     * @return mixed|ParamsBag
      */
-    public function onEnd(array $results): void;
+    public function params($key = null, $default = null);
 
     /**
-     * Action lancée avant le traitement d'un élément d'import.
+     * Définition de la liste des paramètres.
      *
-     * @param ImportFactory $item Instance de l'élément d'import.
-     * @param string|int $key Indice de l'élément d'import.
+     * @param array $params
      *
-     * @return void
+     * @return static
      */
-    public function onItemEnd(ImportFactory $item, $key): void;
-
-    /**
-     * Action lancée avant le traitement d'un élément d'import.
-     *
-     * @param ImportFactory $item Instance de l'élément d'import.
-     * @param string|int $key Indice de l'élément d'import.
-     *
-     * @return void
-     */
-    public function onItemStart(ImportFactory $item, $key): void;
-
-    /**
-     * Action lancée à l'issue du traitement.
-     *
-     * @return void
-     */
-    public function onStart(): void;
+    public function setParams(array $params): ImportCommand;
 }

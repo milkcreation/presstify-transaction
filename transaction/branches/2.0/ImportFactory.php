@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Transaction\Import;
+namespace tiFy\Plugins\Transaction;
 
-use tiFy\Plugins\Transaction\Contracts\{
-    ImportManager,
-    ImportFactory as ImportFactoryContract
-};
-use tiFy\Support\{
-    MessagesBag,
-    ParamsBag
-};
+use tiFy\Plugins\Transaction\Contracts\{ImportFactory as ImportFactoryContract, ImportManager};
+use tiFy\Support\{MessagesBag, ParamsBag};
 
-class Factory implements ImportFactoryContract
+class ImportFactory implements ImportFactoryContract
 {
+    /**
+     * Indice de traitement de l'import de l'élément
+     * @var int
+     */
+    protected $index;
+
     /**
      * Instance des données d'entrée.
      * @var ParamsBag
@@ -60,9 +60,9 @@ class Factory implements ImportFactoryContract
      */
     public function __construct(array $input, ImportManager $manager)
     {
-        $this->manager  = $manager;
-        $this->input    = ParamsBag::createFromAttrs($input);
-        $this->output   = new ParamsBag();
+        $this->manager = $manager;
+        $this->input = ParamsBag::createFromAttrs($input);
+        $this->output = new ParamsBag();
         $this->messages = new MessagesBag();
 
         $this->boot();
@@ -76,9 +76,11 @@ class Factory implements ImportFactoryContract
     /**
      * @inheritDoc
      */
-    public function execute(): array
+    public function execute(): ImportFactoryContract
     {
-        return $this->getResults();
+        $this->save();
+
+        return $this;
     }
 
     /**
@@ -92,13 +94,29 @@ class Factory implements ImportFactoryContract
     /**
      * @inheritDoc
      */
-    public function getResults()
+    public function setPrimary($primary): ImportFactoryContract
+    {
+        $this->primary = $primary;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getResults(): array
     {
         return [
             'success' => $this->getSuccess(),
             'data'    => [
                 'insert_id' => $this->getPrimary(),
-                'messages'  => $this->messages()->all(),
+                'messages'  => $this->messages(),
+                'count'     => [
+                    'error'   => $this->messages()->count(MessagesBag::ERROR),
+                    'info'    => $this->messages()->count(MessagesBag::INFO),
+                    'success' => $this->messages()->count(MessagesBag::NOTICE),
+                    'warning' => $this->messages()->count(MessagesBag::WARNING),
+                ],
             ],
         ];
     }
@@ -106,9 +124,19 @@ class Factory implements ImportFactoryContract
     /**
      * @inheritDoc
      */
-    public function getSuccess()
+    public function getSuccess(): bool
     {
-        return ! ! $this->success;
+        return !!$this->success;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setSuccess($success = true): ImportFactoryContract
+    {
+        $this->success = $success;
+
+        return $this;
     }
 
     /**
@@ -128,7 +156,7 @@ class Factory implements ImportFactoryContract
     /**
      * @inheritDoc
      */
-    public function manager()
+    public function manager(): ImportManager
     {
         return $this->manager;
     }
@@ -140,16 +168,6 @@ class Factory implements ImportFactoryContract
     {
         return $this->messages;
     }
-
-    /**
-     * @inheritDoc
-     */
-    public function OnEnd($primary_id = null): void { }
-
-    /**
-     * @inheritDoc
-     */
-    public function onStart($primary_id = null): void { }
 
     /**
      * @inheritDoc
@@ -168,19 +186,17 @@ class Factory implements ImportFactoryContract
     /**
      * @inheritDoc
      */
-    public function setPrimary($primary)
+    public function save(): ImportFactoryContract
     {
-        $this->primary = $primary;
-
         return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function setSuccess($success = true)
+    public function setIndex(int $index): ImportFactoryContract
     {
-        $this->success = $success;
+        $this->index = $index;
 
         return $this;
     }

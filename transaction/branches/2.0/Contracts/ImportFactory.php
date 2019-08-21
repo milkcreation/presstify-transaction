@@ -16,9 +16,9 @@ interface ImportFactory
     /**
      * Execution de l'import des éléments.
      *
-     * @return array
+     * @return static
      */
-    public function execute(): array;
+    public function execute(): ImportFactory;
 
     /**
      * Récupération de la valeur de clé primaire de l'élément.
@@ -32,7 +32,7 @@ interface ImportFactory
      *
      * @return array
      */
-    public function getResults();
+    public function getResults(): array;
 
     /**
      * Définition/Récupération des données d'entrées.
@@ -46,7 +46,7 @@ interface ImportFactory
      *
      * @return ImportManager
      */
-    public function manager();
+    public function manager(): ImportManager;
 
     /**
      * Définition/Récupération des messages de notification.
@@ -56,20 +56,6 @@ interface ImportFactory
     public function messages();
 
     /**
-     * Evénement déclenché au démarrage du traitement.
-     *
-     * @return void
-     */
-    public function onStart(): void;
-
-    /**
-     * Evénement déclenché à l'issue du traitement.
-     *
-     * @return void
-     */
-    public function onEnd(): void;
-
-    /**
      * Définition/Récupération des messages de notification.
      *
      * @return mixed|ParamsBag
@@ -77,20 +63,36 @@ interface ImportFactory
     public function output();
 
     /**
+     * Enregistrement des données d'import.
+     *
+     * @return static
+     */
+    public function save(): ImportFactory;
+
+    /**
+     * Définition de l'indice de traitement de l'élément.
+     *
+     * @param int $index
+     *
+     * @return static
+     */
+    public function setIndex(int $index): ImportFactory;
+
+    /**
      * Définition de la valeur de la clé primaire de l'élément.
      *
      * @param mixed $primary Valeur de la clé primaire.
      *
-     * @return $this
+     * @return static
      */
-    public function setPrimary($primary);
+    public function setPrimary($primary): ImportFactory;
 
     /**
      * Définition de la statut de réussite de la tâche.
      *
      * @param boolean $success Valeur de réussite
      *
-     * @return $this
+     * @return static
      */
-    public function setSuccess($success = true);
+    public function setSuccess($success = true): ImportFactory;
 }
