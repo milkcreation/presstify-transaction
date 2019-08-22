@@ -15,7 +15,7 @@ use tiFy\Support\Manager;
  * @desc Extension PresstiFy de gestion de données de transaction.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Transaction
- * @version 2.0.19
+ * @version 2.0.20
  *
  * USAGE :
  * Activation :
