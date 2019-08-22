@@ -16,7 +16,7 @@
     "csv"
   ],
   "homepage": "https://svn.milkcreation.fr/presstify-plugins/transaction",
-  "time": "2019-08-21",
+  "time": "2019-08-22",
   "license": "proprietary",
   "authors": [
     {
@@ -33,9 +33,8 @@
   ],
   "require": {
     "composer/installers": "~1.0",
-    "league/csv": "^9.0",
     "presstify/framework": ">=1.4",
-    "rodenastyle/stream-parser" : "^1.1"
+    "presstify-plugins/parser": "^2.0"
   },
   "autoload": {
     "files": [
