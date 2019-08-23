@@ -2,11 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 
-use tiFy\Contracts\Template\FactoryBuilder;
-use tiFy\Template\Templates\ListTable\Contracts\Builder;
-use tiFy\Template\Templates\ListTable\Contracts\DbBuilder;
-use tiFy\Template\Templates\ListTable\ListTable as BaseListTable;
-use tiFy\Plugins\Transaction\Template\ImportListTable\Contracts\FileBuilder;
+use tiFy\Plugins\Parser\Template\FileListTable\FileListTable as BaseListTable;
 
 class ImportListTable extends BaseListTable
 {
@@ -17,14 +13,4 @@ class ImportListTable extends BaseListTable
     protected $serviceProviders = [
         ImportListTableServiceProvider::class,
     ];
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return Builder|DbBuilder|FileBuilder
-     */
-    public function builder(): FactoryBuilder
-    {
-        return parent::builder();
-    }
 }

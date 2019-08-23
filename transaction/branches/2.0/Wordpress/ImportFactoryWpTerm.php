@@ -150,10 +150,11 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
                     ->messages()->success(
                         sprintf(
                             $update
-                                ? __('Le terme "%s" de la taxonomie "%s" a été mis à jour avec succès.', 'tify')
-                                : __('Le terme "%s" de la taxonomie "%s" a été créé avec succès.', 'tify'),
+                                ? __('%s : "%s" - id : "%d" >> mis(e) à avec succès.', 'tify')
+                                : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
+                            $this->getManager()->labels()->getSingular(),
                             html_entity_decode($term->name),
-                            $term->taxonomy
+                            $term->term_id
                         ), ['term' => get_object_vars($term)]
                     );
 
@@ -193,10 +194,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
     {
         parent::setPrimary($primary);
 
-        $term = get_term((int)$primary, $this->getTaxonomy());
-        if ($term instanceof WP_Term) {
-            $this->term = $term;
-        }
+        $this->term = ($term = get_term((int)$primary, $this->getTaxonomy())) instanceof WP_Term ? $term : null;
 
         return $this;
     }

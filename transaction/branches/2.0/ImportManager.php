@@ -30,12 +30,6 @@ class ImportManager implements ImportManagerContract
     ];
 
     /**
-     * Classe de traitement d'un élément (requis).
-     * @var string
-     */
-    protected $factoryClass = ImportFactory::class;
-
-    /**
      * Indice de l'enregistrement de démarrage.
      * @var int
      */
@@ -64,6 +58,12 @@ class ImportManager implements ImportManagerContract
      * @var ParamsBag
      */
     protected $params;
+
+    /**
+     * Instance du gestionnaire de récupération des enregistrements.
+     * @var ReaderContract|null
+     */
+    protected $reader;
 
     /**
      * Liste des éléments du fichier.
@@ -96,12 +96,16 @@ class ImportManager implements ImportManagerContract
      *
      * @throws Exception
      */
-    public static function createFromPath(string $path, $params = []): ImportManagerContract
+    public static function createFromPath(string $path, $params = [], $asserts = true): ImportManagerContract
     {
         try {
             return self::createFromReader(Reader::createFromPath($path), $params);
         } catch (Exception $e) {
-            throw $e;
+            if ($asserts) {
+                throw $e;
+            } else {
+                return new static($params);
+            }
         }
     }
 
@@ -110,7 +114,7 @@ class ImportManager implements ImportManagerContract
      */
     public static function createFromReader(ReaderContract $reader, $params = []): ImportManagerContract
     {
-        return (new static($params))->setRecord($reader);
+        return (new static($params))->setReader($reader);
     }
 
     /**
@@ -169,7 +173,13 @@ class ImportManager implements ImportManagerContract
         $this->summary = new ParamsBag();
 
         $start = time() + (new DateTime())->getOffset();
-        $items = (new Collection($this->getRecords()))->slice($this->getOffset(), $this->getLength());
+
+        if ($this->reader) {
+            $this->reader->setOffset($this->getOffset())->setPerPage($this->getLength())->fetch();
+            $this->setRecord($this->reader->all());
+        }
+
+        $items = new Collection($this->getRecords());
         $count = $items->count();
 
         $this->summary([
@@ -416,6 +426,16 @@ class ImportManager implements ImportManagerContract
     /**
      * @inheritDoc
      */
+    public function setReader(ReaderContract $reader): ImportManagerContract
+    {
+        $this->reader = $reader;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function setRecord($key, $value = null): ImportManagerContract
     {
         if (is_array($key)) {
@@ -448,15 +468,16 @@ class ImportManager implements ImportManagerContract
     /**
      * @inheritDoc
      */
-    public function walkRecord($value, $key = null): ImportFactoryContract
+    public function walkRecord($record, $key = null): ImportFactoryContract
     {
-        if ($value instanceof ImportFactoryContract) {
-        } elseif (($factory = $this->params->get('factory')) && class_exists($factory)) {
-            $value = new $factory($value, $this);
+        if ($record instanceof ImportFactoryContract) {
+            $record = clone $record;
+        } elseif (($factory = $this->params->get('factory')) && ($factory instanceof ImportFactoryContract)) {
+            $record = clone $factory->setInput($record);
         } else {
-            $value = new $this->factoryClass($value, $this);
+            $record = (new ImportFactory())->setInput($record);
         }
 
-        return $this->records[$key] = $value;
+        return $this->records[$key] = $record->setManager($this)->prepare();
     }
 }
