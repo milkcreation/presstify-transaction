@@ -21,6 +21,13 @@ interface ImportFactory
     public function execute(): ImportFactory;
 
     /**
+     * Récupération de l'instance du gestionnaire d'import.
+     *
+     * @return ImportManager
+     */
+    public function getManager(): ImportManager;
+
+    /**
      * Récupération de la valeur de clé primaire de l'élément.
      *
      * @return mixed
@@ -56,6 +63,13 @@ interface ImportFactory
     public function messages();
 
     /**
+     * Initialisation d'une instance de la classe.
+     *
+     * @return static
+     */
+    public function prepare(): ImportFactory;
+
+    /**
      * Définition/Récupération des messages de notification.
      *
      * @return mixed|ParamsBag
@@ -77,6 +91,24 @@ interface ImportFactory
      * @return static
      */
     public function setIndex(int $index): ImportFactory;
+
+    /**
+     * Définition de la liste des données d'entrée.
+     *
+     * @param iterable $input
+     *
+     * @return static
+     */
+    public function setInput(iterable $input): ImportFactory;
+
+    /**
+     * Définition de l'instance du gestionnaire d'import.
+     *
+     * @param ImportManager $manager
+     *
+     * @return static
+     */
+    public function setManager(ImportManager $manager): ImportFactory;
 
     /**
      * Définition de la valeur de la clé primaire de l'élément.

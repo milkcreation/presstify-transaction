@@ -217,9 +217,11 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
                         ->messages()->success(
                             sprintf(
                                 $update
-                                    ? __('L\'utilisateur "%s" a été mis à jour avec succès.', 'tify')
-                                    : __('L\'utilisateur "%s" a été créé avec succès.', 'tify'),
-                                html_entity_decode($user->display_name)
+                                    ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
+                                    : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
+                                $this->getManager()->labels()->getSingular(),
+                                html_entity_decode($user->display_name),
+                                $user->ID
                             ),
                             ['user' => $user->to_array()]
                         );
@@ -279,10 +281,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     {
         parent::setPrimary($primary);
 
-        $user = get_userdata((int)$primary);
-        if ($user instanceof WP_User) {
-            $this->user = $user;
-        }
+        $this->user = ($user = get_userdata((int)$primary)) instanceof WP_User ? $user : null;
 
         return $this;
     }

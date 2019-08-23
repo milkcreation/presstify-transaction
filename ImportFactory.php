@@ -2,6 +2,7 @@
 
 namespace tiFy\Plugins\Transaction;
 
+use Traversable;
 use tiFy\Plugins\Transaction\Contracts\{ImportFactory as ImportFactoryContract, ImportManager};
 use tiFy\Support\{MessagesBag, ParamsBag};
 
@@ -51,24 +52,6 @@ class ImportFactory implements ImportFactoryContract
     protected $success = false;
 
     /**
-     * CONSTRUCTEUR.
-     *
-     * @param array $input Liste des données d'entrées.
-     * @param ImportManager $manager Instance du gestionnaire d'import associé.
-     *
-     * @return void
-     */
-    public function __construct(array $input, ImportManager $manager)
-    {
-        $this->manager = $manager;
-        $this->input = ParamsBag::createFromAttrs($input);
-        $this->output = new ParamsBag();
-        $this->messages = new MessagesBag();
-
-        $this->boot();
-    }
-
-    /**
      * @inheritDoc
      */
     public function boot(): void { }
@@ -86,19 +69,17 @@ class ImportFactory implements ImportFactoryContract
     /**
      * @inheritDoc
      */
-    public function getPrimary()
+    public function getManager(): ImportManager
     {
-        return $this->primary;
+        return $this->manager;
     }
 
     /**
      * @inheritDoc
      */
-    public function setPrimary($primary): ImportFactoryContract
+    public function getPrimary()
     {
-        $this->primary = $primary;
-
-        return $this;
+        return $this->primary;
     }
 
     /**
@@ -127,16 +108,6 @@ class ImportFactory implements ImportFactoryContract
     public function getSuccess(): bool
     {
         return !!$this->success;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setSuccess($success = true): ImportFactoryContract
-    {
-        $this->success = $success;
-
-        return $this;
     }
 
     /**
@@ -186,6 +157,19 @@ class ImportFactory implements ImportFactoryContract
     /**
      * @inheritDoc
      */
+    public function prepare(): ImportFactoryContract
+    {
+        $this->messages = new MessagesBag();
+        $this->output = new ParamsBag();
+
+        $this->boot();
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function save(): ImportFactoryContract
     {
         return $this;
@@ -197,6 +181,50 @@ class ImportFactory implements ImportFactoryContract
     public function setIndex(int $index): ImportFactoryContract
     {
         $this->index = $index;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setInput(iterable $input): ImportFactoryContract
+    {
+        if ($input instanceof Traversable) {
+            $input = iterator_to_array($input);
+        }
+
+        $this->input = (new ParamsBag())->set($input);
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setManager(ImportManager $manager): ImportFactoryContract
+    {
+        $this->manager = $manager;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setPrimary($primary): ImportFactoryContract
+    {
+        $this->primary = $primary;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setSuccess($success = true): ImportFactoryContract
+    {
+        $this->success = $success;
 
         return $this;
     }

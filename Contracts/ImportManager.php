@@ -15,17 +15,18 @@ interface ImportManager
      * Création d'une instance de la classe basée sur un chemin vers un fichier.
      *
      * @param string $path
-     * @param array $params Liste des paramètre
+     * @param array $params Liste des paramètres.
+     * @param string $asserts Activation des exceptions d'accès au fichier.
      *
      * @return static
      */
-    public static function createFromPath(string $path, $params = []): ImportManager;
+    public static function createFromPath(string $path, $params = [], $asserts = true): ImportManager;
 
     /**
      * Création d'un instance de la classe.
      *
      * @param Reader $reader
-     * @param array $params Liste des paramètre
+     * @param array $params Liste des paramètres.
      *
      * @return static
      */

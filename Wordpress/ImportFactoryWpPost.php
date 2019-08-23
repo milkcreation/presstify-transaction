@@ -127,9 +127,11 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
                     ->messages()->success(
                         sprintf(
                             $update
-                                ? __('Le post "%s" a été mis à jour avec succès.', 'tify')
-                                : __('Le post "%s" a été crée avec succès.', 'tify'),
-                            html_entity_decode($post->post_title)
+                                ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
+                                : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
+                            $this->getManager()->labels()->getSingular(),
+                            html_entity_decode($post->post_title),
+                            $post->ID
                         ),
                         ['post' => $post->to_array()]
                     );
