@@ -475,7 +475,10 @@ class ImportManager implements ImportManagerContract
         } elseif (($factory = $this->params->get('factory')) && ($factory instanceof ImportFactoryContract)) {
             $record = clone $factory->setInput($record);
         } else {
-            $record = (new ImportFactory())->setInput($record);
+            $factory = $this->params->get('factory');
+            $input = $record;
+            /** @var ImportFactoryContract $record */
+            $record = (class_exists($factory) ? new $factory() : new ImportFactory())->setInput($input);
         }
 
         return $this->records[$key] = $record->setManager($this)->prepare();
