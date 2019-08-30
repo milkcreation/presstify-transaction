@@ -81,6 +81,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
         ]);
 
         $this
+            ->addOption('url', null, InputOption::VALUE_OPTIONAL, __('Url du site', 'tify'), '')
             ->addOption(
                 'offset', null, InputOption::VALUE_OPTIONAL, __('Numéro d\'enregistrement de démarrage', 'tify'), 0
             )
