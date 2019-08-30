@@ -112,8 +112,9 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     {
         if ($role = $this->input('role', '')) {
             $this->role = $role;
-            $this->output(['role' => $this->role]);
         }
+
+        $this->output(['role' => $this->role]);
 
         return $this;
     }
