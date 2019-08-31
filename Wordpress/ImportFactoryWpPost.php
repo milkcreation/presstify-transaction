@@ -170,6 +170,7 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
         if ($post = $this->getPost()) {
             foreach ($this->output('_term', []) as $taxonomy => $terms) {
                 $res = wp_set_post_terms($post->ID, $terms, $taxonomy);
+
                 if ($res instanceof WP_Error) {
                     $this->messages()->debug(
                         sprintf(__('Les termes de taxonomie "%s" n\'ont été enregistrés.', 'tify'), $taxonomy),
