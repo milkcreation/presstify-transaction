@@ -220,7 +220,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
                                 $update
                                     ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
                                     : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                                $this->getManager()->labels()->getSingular(),
+                                $this->getManager()->labels()->singular(),
                                 html_entity_decode($user->display_name),
                                 $user->ID
                             ),
