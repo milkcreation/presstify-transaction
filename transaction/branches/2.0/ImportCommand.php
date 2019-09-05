@@ -46,7 +46,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
         $this->messagesBag = (new ParamsBag())->set([
             'start'      => [
                 '=====================================================================================================',
-                sprintf(__('Import des %s.', 'tify'), $this->getManager()->labels()->getPlural()),
+                sprintf(__('Import des %s.', 'tify'), $this->getManager()->labels()->plural()),
                 '=====================================================================================================',
                 __('Démarrage des opérations : %1$s', 'tify'),
                 __('Total à traiter : %2$s', 'tify'),
@@ -54,7 +54,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
             ],
             'item_start' => [
                 '-----------------------------------------------------------------------------------------------------',
-                sprintf(__('Import %s :', 'tify'), $this->getManager()->labels()->getSingular()) . ' %1$s/%2$s',
+                sprintf(__('Import %s :', 'tify'), $this->getManager()->labels()->singular()) . ' %1$s/%2$s',
                 '-----------------------------------------------------------------------------------------------------',
                 __('Démarrage de l\'opération : %3$s', 'tify'),
                 '',
@@ -67,7 +67,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
             'end'        => [
                 '_____________________________________________________________________________________________________',
                 '',
-                sprintf(__('Résumé d\'import des %s :', 'tify'), $this->getManager()->labels()->getPlural()),
+                sprintf(__('Résumé d\'import des %s :', 'tify'), $this->getManager()->labels()->plural()),
                 '_____________________________________________________________________________________________________',
                 '',
                 __('Début des opérations : %1$s', 'tify'),

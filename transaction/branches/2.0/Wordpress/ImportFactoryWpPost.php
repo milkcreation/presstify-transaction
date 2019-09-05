@@ -129,7 +129,7 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
                             $update
                                 ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
                                 : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                            $this->getManager()->labels()->getSingular(),
+                            $this->getManager()->labels()->singular(),
                             html_entity_decode($post->post_title),
                             $post->ID
                         ),

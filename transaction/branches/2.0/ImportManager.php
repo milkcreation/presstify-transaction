@@ -192,7 +192,7 @@ class ImportManager implements ImportManagerContract
 
         $this->logger(
             'info',
-            sprintf(__('-------- Démarrage de l\'import des %s --------', 'tify'), $this->labels()->getPlural()),
+            sprintf(__('-------- Démarrage de l\'import des %s --------', 'tify'), $this->labels()->plural()),
             $this->summary()->all()
         );
 
@@ -210,7 +210,7 @@ class ImportManager implements ImportManagerContract
 
         $this->logger(
             'info',
-            sprintf(__('-------- Fin de l\'import des %s --------', 'tify'), $this->labels()->getPlural()),
+            sprintf(__('-------- Fin de l\'import des %s --------', 'tify'), $this->labels()->plural()),
             $this->summary()->all()
         );
 

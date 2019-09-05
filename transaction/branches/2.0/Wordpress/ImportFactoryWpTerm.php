@@ -152,7 +152,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
                             $update
                                 ? __('%s : "%s" - id : "%d" >> mis(e) à avec succès.', 'tify')
                                 : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                            $this->getManager()->labels()->getSingular(),
+                            $this->getManager()->labels()->singular(),
                             html_entity_decode($term->name),
                             $term->term_id
                         ), ['term' => get_object_vars($term)]
