@@ -4,7 +4,7 @@ namespace tiFy\Plugins\Transaction\Contracts;
 
 use tiFy\Contracts\Support\ParamsBag;
 
-interface ImportFactory
+interface ImportRecord
 {
     /**
      * Initialisation du controleur.
@@ -18,14 +18,7 @@ interface ImportFactory
      *
      * @return static
      */
-    public function execute(): ImportFactory;
-
-    /**
-     * Récupération de l'instance du gestionnaire d'import.
-     *
-     * @return ImportManager
-     */
-    public function getManager(): ImportManager;
+    public function execute(): ImportRecord;
 
     /**
      * Récupération de la valeur de clé primaire de l'élément.
@@ -49,13 +42,6 @@ interface ImportFactory
     public function input();
 
     /**
-     * Récupération de l'instance du gestionnaire d'import.
-     *
-     * @return ImportManager
-     */
-    public function manager(): ImportManager;
-
-    /**
      * Définition/Récupération des messages de notification.
      *
      * @return mixed|ParamsBag
@@ -67,7 +53,7 @@ interface ImportFactory
      *
      * @return static
      */
-    public function prepare(): ImportFactory;
+    public function prepare(): ImportRecord;
 
     /**
      * Définition/Récupération des messages de notification.
@@ -77,11 +63,18 @@ interface ImportFactory
     public function output();
 
     /**
+     * Récupération de l'instance du gestionnaire d'import.
+     *
+     * @return ImportRecords
+     */
+    public function records(): ImportRecords;
+
+    /**
      * Enregistrement des données d'import.
      *
      * @return static
      */
-    public function save(): ImportFactory;
+    public function save(): ImportRecord;
 
     /**
      * Définition de l'indice de traitement de l'élément.
@@ -90,7 +83,7 @@ interface ImportFactory
      *
      * @return static
      */
-    public function setIndex(int $index): ImportFactory;
+    public function setIndex(int $index): ImportRecord;
 
     /**
      * Définition de la liste des données d'entrée.
@@ -99,16 +92,16 @@ interface ImportFactory
      *
      * @return static
      */
-    public function setInput(iterable $input): ImportFactory;
+    public function setInput(iterable $input): ImportRecord;
 
     /**
      * Définition de l'instance du gestionnaire d'import.
      *
-     * @param ImportManager $manager
+     * @param ImportRecords $records
      *
      * @return static
      */
-    public function setManager(ImportManager $manager): ImportFactory;
+    public function setRecords(ImportRecords $records): ImportRecord;
 
     /**
      * Définition de la valeur de la clé primaire de l'élément.
@@ -117,7 +110,7 @@ interface ImportFactory
      *
      * @return static
      */
-    public function setPrimary($primary): ImportFactory;
+    public function setPrimary($primary): ImportRecord;
 
     /**
      * Définition de la statut de réussite de la tâche.
@@ -126,5 +119,5 @@ interface ImportFactory
      *
      * @return static
      */
-    public function setSuccess($success = true): ImportFactory;
+    public function setSuccess($success = true): ImportRecord;
 }

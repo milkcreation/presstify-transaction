@@ -4,18 +4,17 @@ namespace tiFy\Plugins\Transaction;
 
 use Psr\Container\ContainerInterface as Container;
 use Symfony\Component\Console\Application as ConsoleApplication;
-use tiFy\Plugins\Transaction\Contracts\{
-    ImportCommand as ImportCommandContract,
+use tiFy\Plugins\Transaction\Contracts\{ImportCommand as ImportCommandContract,
     ImportCommandStack as ImportCommandStackContract,
-    ImportManager as ImportManagerContract,
-    TransactionManager};
+    ImportRecords as ImportRecordsContract,
+    Transaction as TransactionContract};
 use tiFy\Support\Manager;
 
 /**
  * @desc Extension PresstiFy de gestion de données de transaction.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Transaction
- * @version 2.0.25
+ * @version 2.0.26
  *
  * USAGE :
  * Activation :
@@ -42,7 +41,7 @@ use tiFy\Support\Manager;
  * Dans le dossier de config, créer le fichier transaction.php
  * @see /vendor/presstify-plugins/transaction/Resources/config/transaction.php Exemple de configuration
  */
-class Transaction extends Manager implements TransactionManager
+class Transaction extends Manager implements TransactionContract
 {
     /**
      * Instance du controleur d'application de commande console cli.
@@ -84,30 +83,76 @@ class Transaction extends Manager implements TransactionManager
     /**
      * @inheritDoc
      */
-    public function registerImportCommand(
-        string $name,
-        ImportManagerContract $manager,
-        array $params = []
-    ): ?ImportCommandContract {
-        $alias = "import.command.{$name}";
-
-        return $this->set(
-            $alias,
-            $this->getConsoleApp()->add((new ImportCommand($name, $manager))->setParams($params))
-        )->get($alias, null);
+    public function getImportCommandStack(string $name): ?ImportCommandStackContract
+    {
+        return $this->get("import.command-stack.{$name}", null);
     }
 
     /**
      * @inheritDoc
      */
-    public function registerImportStack(string $name, array $stack = []): ?ImportCommandStackContract
+    public function getImportRecords(string $name): ?ImportRecordsContract
     {
-        $alias = "import.stack.{$name}";
+        return $this->get("import.records.{$name}", null);
+    }
 
-        return $this->set(
-            $alias,
-            $this->getConsoleApp()->add((new ImportCommandStack($name))->setStack($stack))
-        )->get($alias, null);
+    /**
+     * @inheritDoc
+     */
+    public function registerImportCommand(
+        ?string $name = null,
+        ?ImportRecordsContract $records = null,
+        array $params = []
+    ): ?ImportCommandContract {
+        /** @var ImportCommandContract $concrete */
+        $concrete = $this->getContainer()
+            ? $this->getContainer()->get('transaction.import.command')
+            : new ImportCommand();
+
+        if ($name) {
+            $concrete->setName($name);
+        }
+
+        $command = $this->getConsoleApp()->add($concrete->setRecords($records)->setParams($params));
+        $name = $command->getName();
+        $alias = "import.command.{$name}";
+
+        return $this->set($alias, $command)->get($alias, null);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerImportCommandStack(?string $name = null, array $stack = []): ?ImportCommandStackContract
+    {
+        /** @var ImportCommandStackContract $concrete */
+        $concrete = $this->getContainer()
+            ? $this->getContainer()->get('transaction.import.command-stack')
+            : new ImportCommandStack();
+
+        if ($name) {
+            $concrete->setName($name);
+        }
+
+        $command = $this->getConsoleApp()->add($concrete->setStack($stack));
+        $name = $command->getName();
+        $alias = "import.command-stack.{$name}";
+
+        return $this->set($alias, $command)->get($alias, null);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerImportRecords(string $name, array $params = []): ?ImportRecordsContract {
+        /** @var ImportRecordsContract $concrete */
+        $concrete = $this->getContainer()
+            ? $this->getContainer()->get('transaction.import.records')
+            : new ImportRecords();
+
+        $alias = "import.records.{$name}";
+
+        return $this->set($alias, $concrete->setParams($params))->get($alias, null);
     }
 
     /**

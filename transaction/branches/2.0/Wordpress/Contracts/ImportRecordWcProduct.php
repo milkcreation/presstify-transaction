@@ -2,13 +2,13 @@
 
 namespace tiFy\Plugins\Transaction\Wordpress\Contracts;
 
-use tiFy\Plugins\Transaction\Contracts\ImportFactory;
+use tiFy\Plugins\Transaction\Contracts\ImportRecord;
 use WC_Product;
 use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
 
-interface ImportFactoryWcProduct extends ImportFactory
+interface ImportRecordWcProduct extends ImportRecord
 {
     /**
      * Récupération de l'instance du produit Woocommerce associé.

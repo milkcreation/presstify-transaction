@@ -3,6 +3,10 @@
 namespace tiFy\Plugins\Transaction;
 
 use tiFy\Container\ServiceProvider;
+use tiFy\Plugins\Transaction\{ImportCommand as ImportCommandContract,
+    ImportCommandStack as ImportCommandStackContract,
+    ImportRecords as ImportRecordsContract,
+    Transaction as TransactionContract};
 
 class TransactionServiceProvider extends ServiceProvider
 {
@@ -12,7 +16,10 @@ class TransactionServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $provides = [
-        'transaction'
+        'transaction',
+        'transaction.import.command',
+        'transaction.import.command-stack',
+        'transaction.import.records',
     ];
 
     /**
@@ -30,11 +37,23 @@ class TransactionServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->share('transaction', function() {
+        $this->getContainer()->share('transaction', function (): TransactionContract {
             return new Transaction(
                 $this->getContainer()->get('console.application'),
                 $this->getContainer()->get('app')
             );
         });
+
+        $this->getContainer()->add('transaction.import.command', function (): ImportCommandContract {
+            return new ImportCommand();
+        });
+
+        $this->getContainer()->add('transaction.import.command-stack', function (): ImportCommandStackContract {
+                return new ImportCommandStack();
+            });
+
+        $this->getContainer()->add('transaction.import.records', function (): ImportRecordsContract {
+                return new ImportRecords();
+            });
     }
 }

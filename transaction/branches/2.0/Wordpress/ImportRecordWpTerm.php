@@ -3,14 +3,14 @@
 namespace tiFy\Plugins\Transaction\Wordpress;
 
 use tiFy\Plugins\Transaction\{
-    Contracts\ImportFactory as BaseImportFactoryContract,
-    ImportFactory as BaseImportFactory,
-    Wordpress\Contracts\ImportFactoryWpTerm as ImportFactoryWpTermContract};
+    Contracts\ImportRecord as BaseImportRecordContract,
+    ImportRecord as BaseImportRecord,
+    Wordpress\Contracts\ImportRecordWpTerm as ImportRecordWpTermContract};
 use WP_Error;
 use WP_Term;
 use WP_Term_Query;
 
-class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTermContract
+class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermContract
 {
     /**
      * Cartographie des clés de données de terme.
@@ -43,7 +43,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
     /**
      * @inheritDoc
      */
-    public function execute(): BaseImportFactoryContract
+    public function execute(): BaseImportRecordContract
     {
         $this
             ->fetchTaxonomy()
@@ -56,7 +56,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
     /**
      * @inheritDoc
      */
-    public function fetchTermId(): ImportFactoryWpTermContract
+    public function fetchTermId(): ImportRecordWpTermContract
     {
         if ($exists = (new WP_Term_Query())->query([
             'fields'     => 'ids',
@@ -78,7 +78,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
     /**
      * @inheritDoc
      */
-    public function fetchTaxonomy(): ImportFactoryWpTermContract
+    public function fetchTaxonomy(): ImportRecordWpTermContract
     {
         if ($taxonomy = $this->input('taxonomy')) {
             $this->taxonomy = $taxonomy;
@@ -98,7 +98,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
     /**
      * @inheritDoc
      */
-    public function setTaxonomy(string $taxonomy): ImportFactoryWpTermContract
+    public function setTaxonomy(string $taxonomy): ImportRecordWpTermContract
     {
         $this->taxonomy = $taxonomy;
 
@@ -116,7 +116,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
     /**
      * @inheritDoc
      */
-    public function save(): BaseImportFactoryContract
+    public function save(): BaseImportRecordContract
     {
         $datas = array_intersect_key($this->output->all(), array_flip($this->keys));
 
@@ -152,7 +152,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
                             $update
                                 ? __('%s : "%s" - id : "%d" >> mis(e) à avec succès.', 'tify')
                                 : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                            $this->getManager()->labels()->singular(),
+                            $this->records()->labels()->singular(),
                             html_entity_decode($term->name),
                             $term->term_id
                         ), ['term' => get_object_vars($term)]
@@ -168,7 +168,7 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
     /**
      * @inheritDoc
      */
-    public function saveMetas(): ImportFactoryWpTermContract
+    public function saveMetas(): ImportRecordWpTermContract
     {
         if ($term = $this->getTerm()) {
             foreach ($this->output('_meta', []) as $meta_key => $meta_value) {
@@ -188,9 +188,9 @@ class ImportFactoryWpTerm extends BaseImportFactory implements ImportFactoryWpTe
     /**
      * {@inheritDoc}
      *
-     * @return ImportFactoryWpTermContract
+     * @return ImportRecordWpTermContract
      */
-    public function setPrimary($primary): BaseImportFactoryContract
+    public function setPrimary($primary): BaseImportRecordContract
     {
         parent::setPrimary($primary);
 

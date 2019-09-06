@@ -3,15 +3,15 @@
 namespace tiFy\Plugins\Transaction\Wordpress;
 
 use tiFy\Plugins\Transaction\{
-    Contracts\ImportFactory as BaseImportFactoryContract,
-    Wordpress\Contracts\ImportFactoryWcProduct as ImportFactoryWcProductContract
+    Contracts\ImportRecord as BaseImportRecordContract,
+    Wordpress\Contracts\ImportRecordWcProduct as ImportRecordWcProductContract
 };
 use WC_Product;
 use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
 
-class ImportFactoryWcProduct extends ImportFactoryWpPost implements ImportFactoryWcProductContract
+class ImportRecordWcProduct extends ImportRecordWpPost implements ImportRecordWcProductContract
 {
     /**
      * Instance du produit woocommerce associé.
@@ -30,9 +30,9 @@ class ImportFactoryWcProduct extends ImportFactoryWpPost implements ImportFactor
     /**
      * {@inheritDoc}
      *
-     * @return ImportFactoryWcProductContract
+     * @return ImportRecordWcProductContract
      */
-    public function setPrimary($primary): BaseImportFactoryContract
+    public function setPrimary($primary): BaseImportRecordContract
     {
         parent::setPrimary($primary);
 
