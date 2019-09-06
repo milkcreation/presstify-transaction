@@ -2,25 +2,25 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
-use Psr\Log\LoggerInterface as Logger;
-use tiFy\Contracts\{
-    Support\LabelsBag,
-    Support\ParamsBag
+use tiFy\Contracts\{Log\Logger, Support\Collection, Support\LabelsBag, Support\MessagesBag, Support\ParamsBag};
+use tiFy\Plugins\Parser\{
+    Contracts\Reader,
+    Exceptions\ReaderException
 };
-use tiFy\Plugins\Parser\Contracts\Reader;
 
-interface ImportManager
+interface ImportRecords extends Collection
 {
     /**
      * Création d'une instance de la classe basée sur un chemin vers un fichier.
      *
      * @param string $path
      * @param array $params Liste des paramètres.
-     * @param string $asserts Activation des exceptions d'accès au fichier.
      *
      * @return static
+     *
+     * @throws ReaderException
      */
-    public static function createFromPath(string $path, $params = [], $asserts = true): ImportManager;
+    public static function createFromPath(string $path, $params = []): ImportRecords;
 
     /**
      * Création d'un instance de la classe.
@@ -30,58 +30,75 @@ interface ImportManager
      *
      * @return static
      */
-    public static function createFromReader(Reader $reader, $params = []): ImportManager;
+    public static function createFromReader(Reader $reader, $params = []): ImportRecords;
 
     /**
      * Execution des fonctions de rappel à l'issue du traitement de l'import.
      *
      * @return static
      */
-    public function callAfter(): ImportManager;
+    public function callAfter(): ImportRecords;
 
     /**
      * Execution des fonctions de rappel à l'issue du traitement de l'import d'un élément.
      *
-     * @param ImportFactory $item Instance de l'élément.
+     * @param ImportRecord $record Instance de l'élément.
      * @param string|int $key Clé d'indice de l'élément.
      *
      * @return static
      */
-    public function callAfterItem(ImportFactory $item, $key): ImportManager;
+    public function callAfterItem(ImportRecord $record, $key): ImportRecords;
 
     /**
      * Execution des fonctions de rappel au démarrage du traitement de l'import.
      *
      * @return static
      */
-    public function callBefore(): ImportManager;
+    public function callBefore(): ImportRecords;
 
     /**
      * Execution des fonctions de rappel au démarrage  du traitement de l'import d'un élément.
      *
-     * @param ImportFactory $item Instance de l'élément.
+     * @param ImportRecord $record Instance de l'élément.
      * @param string|int $key Clé d'indice de l'élément.
      *
      * @return static
      */
-    public function callBeforeItem(ImportFactory $item, $key): ImportManager;
+    public function callBeforeItem(ImportRecord $record, $key): ImportRecords;
 
     /**
      * Traitement de l'import de la liste des éléments.
      *
      * @return static
      */
-    public function execute(): ImportManager;
+    public function execute(): ImportRecords;
 
     /**
      * Traitement de l'import d'un élément.
      *
-     * @param ImportFactory $item Données de l'élément.
      * @param int|string $key Clé d'indice de l'élément.
      *
      * @return static
      */
-    public function executeItem(ImportFactory $item, $key): ImportManager;
+    public function executeRecord($key): ImportRecords;
+
+    /**
+     * Retrouve la liste des éléments.
+     *
+     * @return static
+     */
+    public function fetch(): ImportRecords;
+
+    /**
+     * Définition du chemin de récupération des enregistrements.
+     *
+     * @param string $path Chemin absolu
+     *
+     * @return static
+     *
+     * @throws ReaderException
+     */
+    public function fromPath(string $path): ImportRecords;
 
     /**
      * Récupération de l'enregistrement de démarrage lors du traitement de l'import.
@@ -96,13 +113,6 @@ interface ImportManager
      * @return int|null
      */
     public function getLength(): ?int;
-
-    /**
-     * Récupération de la liste des enregistrements.
-     *
-     * @return ImportFactory[]
-     */
-    public function getRecords(): array;
 
     /**
      * Récupération d'intitulé|Définition d'intitulés|Instance du gestionnaire d'intitulés.
@@ -126,6 +136,15 @@ interface ImportManager
     public function logger($level = null, string $message = '', array $context = []): ?Logger;
 
     /**
+     * Récupération de la liste des messages de notifications associés au traitement d'un enregistrement.
+     *
+     * @param int|string $key Indice de qualification de l'élément.
+     *
+     * @return MessagesBag|null
+     */
+    public function messages($key): ?MessagesBag;
+
+    /**
      * Récupération de paramètre|Définition de paramètres|Instance du gestionnaire de paramètre.
      *
      * @param string|array|null $key Clé d'indice du paramètre à récupérer|Liste des paramètres à définir.
@@ -136,13 +155,20 @@ interface ImportManager
     public function params($key = null, $default = null);
 
     /**
+     * Récupération de l'instance du gestionnaires d'enregistrements.
+     *
+     * @return Reader|null
+     */
+    public function reader(): ?Reader;
+
+    /**
      * Définition d'une fonction de rappel à l'issue du traitement de l'import.
      *
      * @param callable $func
      *
      * @return static
      */
-    public function setAfter(callable $func): ImportManager;
+    public function setAfter(callable $func): ImportRecords;
 
     /**
      * Définition d'une fonction de rappel à l'issue du traitement de l'import d'un élément.
@@ -151,7 +177,7 @@ interface ImportManager
      *
      * @return static
      */
-    public function setAfterItem(callable $func): ImportManager;
+    public function setAfterItem(callable $func): ImportRecords;
 
     /**
      * Définition d'une fonction de rappel au démarrage du traitement de l'import.
@@ -160,7 +186,7 @@ interface ImportManager
      *
      * @return static
      */
-    public function setBefore(callable $func): ImportManager;
+    public function setBefore(callable $func): ImportRecords;
 
     /**
      * Définition d'une fonction de rappel au démarrage du traitement de l'import d'un élément.
@@ -169,16 +195,7 @@ interface ImportManager
      *
      * @return static
      */
-    public function setBeforeItem(callable $func): ImportManager;
-
-    /**
-     * Définition du nombre d'enregistrements à traiter lors de l'import.
-     *
-     * @param int $length
-     *
-     * @return static
-     */
-    public function setLength(int $length): ImportManager;
+    public function setBeforeItem(callable $func): ImportRecords;
 
     /**
      * Définition du gestionnaire d'intitulés.
@@ -187,7 +204,16 @@ interface ImportManager
      *
      * @return static
      */
-    public function setLabels(LabelsBag $labels): ImportManager;
+    public function setLabels(LabelsBag $labels): ImportRecords;
+
+    /**
+     * Définition du nombre d'enregistrements à traiter lors de l'import.
+     *
+     * @param int $length
+     *
+     * @return static
+     */
+    public function setLength(int $length): ImportRecords;
 
     /**
      * Définition du gestionnaire de journalisation.
@@ -196,16 +222,7 @@ interface ImportManager
      *
      * @return static
      */
-    public function setLogger(Logger $logger): ImportManager;
-
-    /**
-     * Définition de la liste des paramètres.
-     *
-     * @param array $params
-     *
-     * @return static
-     */
-    public function setParams(array $params): ImportManager;
+    public function setLogger(Logger $logger): ImportRecords;
 
     /**
      * Définition de l'enregistrement de démarrage lors du traitement de l'import.
@@ -214,17 +231,27 @@ interface ImportManager
      *
      * @return static
      */
-    public function setOffset(int $offset): ImportManager;
+    public function setOffset(int $offset): ImportRecords;
 
     /**
-     * Définition d'un enregistrement.
+     * Définition de la liste des paramètres.
      *
-     * @param string|int|array $key Clé d'indice de l'élément ou liste des éléments à définir.
-     * @param mixed $value Valeur de l'élément si la clé d'index est de type string.
+     * @param array $params
      *
-     * @return ImportManager
+     * @return static
+     *
+     * @throws ReaderException
      */
-    public function setRecord($key, $value = null): ImportManager;
+    public function setParams(array $params): ImportRecords;
+
+    /**
+     * Définition de l'instance du lecteur d'enregistrements.
+     *
+     * @param Reader $reader
+     *
+     * @return static
+     */
+    public function setReader(Reader $reader): ImportRecords;
 
     /**
      * Récupération d'info|Définition d'infos|Instance du gestionnaire d'information de traitement.
@@ -237,12 +264,19 @@ interface ImportManager
     public function summary($key = null, $default = null);
 
     /**
+     * Retourne la liste des enregistrements sous forme de tableau.
+     *
+     * @return array
+     */
+    public function toArray(): array;
+
+    /**
      * Traitement d'un enregistrement.
      *
-     * @param array|ImportFactory $value Valeur de l'enregistrement.
+     * @param array|ImportRecord $value Valeur de l'enregistrement.
      * @param string|int|null $key Clé d'indice de l'enregistrement.
      *
-     * @return ImportFactory
+     * @return ImportRecord
      */
-    public function walkRecord($value, $key = null): ImportFactory;
+    public function walk($value, $key = null): ImportRecord;
 }

@@ -2,31 +2,31 @@
 
 namespace tiFy\Plugins\Transaction\Wordpress\Contracts;
 
-use tiFy\Plugins\Transaction\Contracts\ImportFactory;
+use tiFy\Plugins\Transaction\Contracts\ImportRecord;
 use WP_User;
 
-interface ImportFactoryWpUser extends ImportFactory
+interface ImportRecordWpUser extends ImportRecord
 {
     /**
      * Retrouve l'identifiant de qualification du site d'affectation.
      *
      * @return static
      */
-    public function fetchBlogId(): ImportFactoryWpUser;
+    public function fetchBlogId(): ImportRecordWpUser;
 
     /**
      * Retrouve l'identifiant de qualification de l'utilisateur.
      *
      * @return static
      */
-    public function fetchID(): ImportFactoryWpUser;
+    public function fetchID(): ImportRecordWpUser;
 
     /**
      * Retrouve l'intitulé de qualification du role associée.
      *
      * @return static
      */
-    public function fetchRole(): ImportFactoryWpUser;
+    public function fetchRole(): ImportRecordWpUser;
 
     /**
      * Retrouve le mot de passe associé.
@@ -34,7 +34,7 @@ interface ImportFactoryWpUser extends ImportFactory
      *
      * @return static
      */
-    public function fetchUserPass(): ImportFactoryWpUser;
+    public function fetchUserPass(): ImportRecordWpUser;
 
     /**
      * Retrouve l'identifiant de qualification du site d'affectation.
@@ -69,14 +69,14 @@ interface ImportFactoryWpUser extends ImportFactory
      *
      * @return static
      */
-    public function saveMetas(): ImportFactoryWpUser;
+    public function saveMetas(): ImportRecordWpUser;
 
     /**
      * Enregistrement des options.
      *
      * @return static
      */
-    public function saveOptions(): ImportFactoryWpUser;
+    public function saveOptions(): ImportRecordWpUser;
 
     /**
      * Définition de l'identifiant de qualification du site d'affection.
@@ -85,7 +85,7 @@ interface ImportFactoryWpUser extends ImportFactory
      *
      * @return static
      */
-    public function setBlogId(int $blog_id): ImportFactoryWpUser;
+    public function setBlogId(int $blog_id): ImportRecordWpUser;
 
     /**
      * Définition du nom de qualification du rôle associé.
@@ -94,5 +94,5 @@ interface ImportFactoryWpUser extends ImportFactory
      *
      * @return static
      */
-    public function setRole(string $role): ImportFactoryWpUser;
+    public function setRole(string $role): ImportRecordWpUser;
 }

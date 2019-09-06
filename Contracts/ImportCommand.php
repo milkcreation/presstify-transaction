@@ -37,13 +37,6 @@ interface ImportCommand
     public function getLevel(): int;
 
     /**
-     * Récupération de l'instance du controleur d'import.
-     *
-     * @return ImportManager|null
-     */
-    public function getManager(): ?ImportManager;
-
-    /**
      * Récupération des messages de sortie ou d'un message de sortie.
      *
      * @param string|array|null $key Clé d'indice du message
@@ -65,6 +58,13 @@ interface ImportCommand
     public function params($key = null, $default = null);
 
     /**
+     * Récupération de l'instance du controleur d'enregistrements.
+     *
+     * @return ImportRecords|null
+     */
+    public function records(): ?ImportRecords;
+
+    /**
      * Définition de la liste des paramètres.
      *
      * @param array $params
@@ -72,4 +72,13 @@ interface ImportCommand
      * @return static
      */
     public function setParams(array $params): ImportCommand;
+
+    /**
+     * Définition de l'instance des enregistrements.
+     *
+     * @param ImportRecords $records
+     *
+     * @return static
+     */
+    public function setRecords(ImportRecords $records): ImportCommand;
 }

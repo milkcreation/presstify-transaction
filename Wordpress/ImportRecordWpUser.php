@@ -3,15 +3,15 @@
 namespace tiFy\Plugins\Transaction\Wordpress;
 
 use tiFy\Plugins\Transaction\{
-    Contracts\ImportFactory as BaseImportFactoryContract,
-    ImportFactory as BaseImportFactory,
-    Wordpress\Contracts\ImportFactoryWpUser as ImportFactoryWpUserContract};
+    Contracts\ImportRecord as BaseImportRecordContract,
+    ImportRecord as BaseImportRecord,
+    Wordpress\Contracts\ImportRecordWpUser as ImportRecordWpUserContract};
 use WP_Error;
 use WP_Roles;
 use WP_User;
 use WP_User_Query;
 
-class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUserContract
+class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserContract
 {
     /**
      * Identifiant de qualification du blog d'affectation.
@@ -60,7 +60,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function execute(): BaseImportFactoryContract
+    public function execute(): BaseImportRecordContract
     {
         $this
             ->fetchBlogId()
@@ -75,7 +75,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function fetchBlogId(): ImportFactoryWpUserContract
+    public function fetchBlogId(): ImportRecordWpUserContract
     {
         if ($this->input('blog_id', 0)) {
             $this->blog = (int)$this->input('blog_id', 0);
@@ -87,7 +87,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function fetchID(): ImportFactoryWpUserContract
+    public function fetchID(): ImportRecordWpUserContract
     {
         if ($exists = (new WP_User_Query([
             'blog_id' => 0,
@@ -108,7 +108,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function fetchRole(): ImportFactoryWpUserContract
+    public function fetchRole(): ImportRecordWpUserContract
     {
         if ($role = $this->input('role', '')) {
             $this->role = $role;
@@ -122,7 +122,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function fetchUserPass(): ImportFactoryWpUserContract
+    public function fetchUserPass(): ImportRecordWpUserContract
     {
         if ($user_pass = $this->input('user_pass', '')) {
             $this->output(['user_pass' => wp_hash_password($user_pass)]);
@@ -169,7 +169,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function save(): BaseImportFactoryContract
+    public function save(): BaseImportRecordContract
     {
         if (!$this->isRole()) {
             $this->messages()->error(sprintf(__('Le rôle "%s" n\'existe pas', 'tify'), $this->getRole()));
@@ -220,7 +220,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
                                 $update
                                     ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
                                     : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                                $this->getManager()->labels()->singular(),
+                                $this->records()->labels()->singular(),
                                 html_entity_decode($user->display_name),
                                 $user->ID
                             ),
@@ -238,7 +238,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function saveMetas(): ImportFactoryWpUserContract
+    public function saveMetas(): ImportRecordWpUserContract
     {
         if ($user = $this->getUser()) {
             foreach ($this->output('_meta', []) as $meta_key => $meta_value) {
@@ -257,7 +257,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function saveOptions(): ImportFactoryWpUserContract
+    public function saveOptions(): ImportRecordWpUserContract
     {
         if ($user = $this->getUser()) {
             foreach ($this->output('_option', []) as $option_name => $newvalue) {
@@ -276,9 +276,9 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * {@inheritDoc}
      *
-     * @return ImportFactoryWpUserContract
+     * @return ImportRecordWpUserContract
      */
-    public function setPrimary($primary): BaseImportFactoryContract
+    public function setPrimary($primary): BaseImportRecordContract
     {
         parent::setPrimary($primary);
 
@@ -290,7 +290,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function setBlogId(int $blog_id): ImportFactoryWpUserContract
+    public function setBlogId(int $blog_id): ImportRecordWpUserContract
     {
         $this->blog = $blog_id;
 
@@ -300,7 +300,7 @@ class ImportFactoryWpUser extends BaseImportFactory implements ImportFactoryWpUs
     /**
      * @inheritDoc
      */
-    public function setRole(string $role): ImportFactoryWpUserContract
+    public function setRole(string $role): ImportRecordWpUserContract
     {
         $this->role = $role;
 

@@ -3,14 +3,15 @@
 namespace tiFy\Plugins\Transaction\Wordpress;
 
 use tiFy\Plugins\Transaction\{
-    Contracts\ImportFactory as BaseImportFactoryContract,
-    ImportFactory as BaseImportFactory,
-    Wordpress\Contracts\ImportFactoryWpPost as ImportFactoryWpPostContract};
+    Contracts\ImportRecord as BaseImportRecordContract,
+    ImportRecord as BaseImportRecord,
+    Wordpress\Contracts\ImportRecordWpPost as ImportRecordWpPostContract
+};
 use WP_Error;
 use WP_Post;
 use WP_Query;
 
-class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPostContract
+class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostContract
 {
     /**
      * Cartographie des clés de données de post.
@@ -53,7 +54,7 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
     /**
      * @inheritDoc
      */
-    public function fetchID(): ImportFactoryWpPostContract
+    public function fetchID(): ImportRecordWpPostContract
     {
         if ($exists = (new WP_Query())->query([
             'fields'         => 'ids',
@@ -74,7 +75,7 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
     /**
      * @inheritDoc
      */
-    public function execute(): BaseImportFactoryContract
+    public function execute(): BaseImportRecordContract
     {
         $this
             ->fetchID()
@@ -94,9 +95,9 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
     /**
      * {@inheritDoc}
      *
-     * @return ImportFactoryWpPostContract
+     * @return ImportRecordWpPostContract
      */
-    public function save(): BaseImportFactoryContract
+    public function save(): BaseImportRecordContract
     {
         $postarr = array_intersect_key($this->output->all(), array_flip($this->keys));
 
@@ -129,7 +130,7 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
                             $update
                                 ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
                                 : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                            $this->getManager()->labels()->singular(),
+                            $this->records()->labels()->singular(),
                             html_entity_decode($post->post_title),
                             $post->ID
                         ),
@@ -146,7 +147,7 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
     /**
      * @inheritDoc
      */
-    public function saveMetas(): ImportFactoryWpPostContract
+    public function saveMetas(): ImportRecordWpPostContract
     {
         if ($post = $this->getPost()) {
             foreach ($this->output('_meta', []) as $meta_key => $meta_value) {
@@ -165,7 +166,7 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
     /**
      * @inheritDoc
      */
-    public function saveTerms(): ImportFactoryWpPostContract
+    public function saveTerms(): ImportRecordWpPostContract
     {
         if ($post = $this->getPost()) {
             foreach ($this->output('_term', []) as $taxonomy => $terms) {
@@ -186,9 +187,9 @@ class ImportFactoryWpPost extends BaseImportFactory implements ImportFactoryWpPo
     /**
      * {@inheritDoc}
      *
-     * @return ImportFactoryWpPostContract
+     * @return ImportRecordWpPostContract
      */
-    public function setPrimary($primary): BaseImportFactoryContract
+    public function setPrimary($primary): BaseImportRecordContract
     {
         parent::setPrimary($primary);
 

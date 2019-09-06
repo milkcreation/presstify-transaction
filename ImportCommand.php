@@ -6,7 +6,7 @@ use DateTimeZone;
 use Exception;
 use Symfony\Component\Console\{Input\InputInterface, Input\InputOption, Output\OutputInterface};
 use tiFy\Console\Command as BaseCommand;
-use tiFy\Plugins\Transaction\Contracts\{ImportCommand as ImportCommandContract, ImportFactory, ImportManager};
+use tiFy\Plugins\Transaction\Contracts\{ImportCommand as ImportCommandContract, ImportRecord, ImportRecords};
 use tiFy\Support\{DateTime, MessagesBag, ParamsBag};
 
 class ImportCommand extends BaseCommand implements ImportCommandContract
@@ -18,10 +18,10 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
     private $messagesBag;
 
     /**
-     * Instance du controleur d'import.
-     * @var ImportManager
+     * Instance du controleur d'enregistrement.
+     * @var ImportRecords
      */
-    private $manager;
+    private $records;
 
     /**
      * Instance des paramètres.
@@ -32,53 +32,16 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
     /**
      * CONSTRUCTEUR.
      *
-     * @param string $name
-     * @param ImportManager $manager
+     * @param string|null $name
      *
      * @return void
      */
-    public function __construct(string $name, ImportManager $manager)
+    public function __construct(string $name = null)
     {
         parent::__construct($name);
 
-        $this->manager = $manager;
         $this->params = new ParamsBag();
-        $this->messagesBag = (new ParamsBag())->set([
-            'start'      => [
-                '=====================================================================================================',
-                sprintf(__('Import des %s.', 'tify'), $this->getManager()->labels()->plural()),
-                '=====================================================================================================',
-                __('Démarrage des opérations : %1$s', 'tify'),
-                __('Total à traiter : %2$s', 'tify'),
-                '',
-            ],
-            'item_start' => [
-                '-----------------------------------------------------------------------------------------------------',
-                sprintf(__('Import %s :', 'tify'), $this->getManager()->labels()->singular()) . ' %1$s/%2$s',
-                '-----------------------------------------------------------------------------------------------------',
-                __('Démarrage de l\'opération : %3$s', 'tify'),
-                '',
-            ],
-            'item_end'   => [
-                '',
-                __('Fin de l\'opération : %s', 'tify'),
-                '',
-            ],
-            'end'        => [
-                '_____________________________________________________________________________________________________',
-                '',
-                sprintf(__('Résumé d\'import des %s :', 'tify'), $this->getManager()->labels()->plural()),
-                '_____________________________________________________________________________________________________',
-                '',
-                __('Début des opérations : %1$s', 'tify'),
-                __('Fin des opérations : %2$s', 'tify'),
-                __('Traitement terminé en %3$s', 'tify'),
-                __('%4$s enregistrement(s) réussi(s)', 'tify'),
-                __('%5$s enregistrement(s) en échec', 'tify'),
-                '_____________________________________________________________________________________________________',
-                '_____________________________________________________________________________________________________',
-            ],
-        ]);
+        $this->messagesBag = new ParamsBag();
 
         $this
             ->addOption('url', null, InputOption::VALUE_OPTIONAL, __('Url du site', 'tify'), '')
@@ -95,8 +58,45 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getManager()
-            ->setBefore(function (ImportManager $manager) use ($output) {
+        $this->messages([
+            'start'      => [
+                '=====================================================================================================',
+                sprintf(__('Import des %s.', 'tify'), $this->records()->labels()->plural()),
+                '=====================================================================================================',
+                __('Démarrage des opérations : %1$s', 'tify'),
+                __('Total à traiter : %2$s', 'tify'),
+                '',
+            ],
+            'item_start' => [
+                '-----------------------------------------------------------------------------------------------------',
+                sprintf(__('Import %s :', 'tify'), $this->records()->labels()->singular()) . ' %1$s/%2$s',
+                '-----------------------------------------------------------------------------------------------------',
+                __('Démarrage de l\'opération : %3$s', 'tify'),
+                '',
+            ],
+            'item_end'   => [
+                '',
+                __('Fin de l\'opération : %s', 'tify'),
+                '',
+            ],
+            'end'        => [
+                '_____________________________________________________________________________________________________',
+                '',
+                sprintf(__('Résumé d\'import des %s :', 'tify'), $this->records()->labels()->plural()),
+                '_____________________________________________________________________________________________________',
+                '',
+                __('Début des opérations : %1$s', 'tify'),
+                __('Fin des opérations : %2$s', 'tify'),
+                __('Traitement terminé en %3$s', 'tify'),
+                __('%4$s enregistrement(s) réussi(s)', 'tify'),
+                __('%5$s enregistrement(s) en échec', 'tify'),
+                '_____________________________________________________________________________________________________',
+                '_____________________________________________________________________________________________________',
+            ],
+        ]);
+
+        $this->records()
+            ->setBefore(function (ImportRecords $manager) use ($output) {
                 $manager->summary([
                     'class' => __CLASS__,
                     'type'  => 'cli',
@@ -109,7 +109,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
                     (int)$manager->summary('count', 0)
                 ));
             })
-            ->setBeforeItem(function (ImportManager $manager, ImportFactory $item, $key) use ($output)  {
+            ->setBeforeItem(function (ImportRecords $manager, ImportRecord $record, $key) use ($output)  {
                 $output->writeln(
                     $this->messages(
                         'item_start',
@@ -120,7 +120,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
                     )
                 );
             })
-            ->setAfterItem(function (ImportManager $manager, ImportFactory $item, $key) use ($output)  {
+            ->setAfterItem(function (ImportRecords $manager, ImportRecord $record, $key) use ($output)  {
                 foreach ($manager->summary("items.{$key}.data.messages", []) as $level => $message) {
                     if ($level >= $this->getLevel()){
                         $output->writeln($message);
@@ -129,7 +129,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
 
                 $output->writeln($this->messages('item_end', '', $this->getDate()));
             })
-            ->setAfter(function (ImportManager $manager) use ($output) {
+            ->setAfter(function (ImportRecords $manager) use ($output) {
                 $output->writeln($this->messages(
                     'end',
                     '',
@@ -178,14 +178,6 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
     /**
      * @inheritDoc
      */
-    public function getManager(): ?ImportManager
-    {
-        return $this->manager;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function messages($key = null, $default = '', ...$args)
     {
         if (is_string($key)) {
@@ -217,6 +209,14 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
     /**
      * @inheritDoc
      */
+    public function records(): ?ImportRecords
+    {
+        return $this->records;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function setParams(array $params): ImportCommandContract
     {
         $this->params->set($params);
@@ -224,6 +224,16 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
         if ($description = $this->params()->pull('description')) {
             $this->setDescription($description);
         }
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setRecords(ImportRecords $records): ImportCommandContract
+    {
+        $this->records = $records;
 
         return $this;
     }

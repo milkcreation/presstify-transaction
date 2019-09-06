@@ -2,24 +2,24 @@
 
 namespace tiFy\Plugins\Transaction\Wordpress\Contracts;
 
-use tiFy\Plugins\Transaction\Contracts\ImportFactory;
+use tiFy\Plugins\Transaction\Contracts\ImportRecord;
 use WP_Term;
 
-interface ImportFactoryWpTerm extends ImportFactory
+interface ImportRecordWpTerm extends ImportRecord
 {
     /**
      * Retrouve l'identifiant de qualification du terme.
      *
      * @return static
      */
-    public function fetchTermId(): ImportFactoryWpTerm;
+    public function fetchTermId(): ImportRecordWpTerm;
 
     /**
      * Retrouve le nom de qualification de la taxonomie associée.
      *
      * @return static
      */
-    public function fetchTaxonomy(): ImportFactoryWpTerm;
+    public function fetchTaxonomy(): ImportRecordWpTerm;
 
     /**
      * Récupération du nom de qualification de la taxonomie associée.
@@ -40,7 +40,7 @@ interface ImportFactoryWpTerm extends ImportFactory
      *
      * @return static
      */
-    public function saveMetas(): ImportFactoryWpTerm;
+    public function saveMetas(): ImportRecordWpTerm;
 
     /**
      * Définition du nom de qualification de la taxonomie associée.
@@ -49,5 +49,5 @@ interface ImportFactoryWpTerm extends ImportFactory
      *
      * @return static
      */
-    public function setTaxonomy(string $taxonomy): ImportFactoryWpTerm;
+    public function setTaxonomy(string $taxonomy): ImportRecordWpTerm;
 }

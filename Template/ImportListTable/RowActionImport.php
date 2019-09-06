@@ -3,9 +3,16 @@
 namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 
 use tiFy\Template\Templates\ListTable\RowAction;
+use tiFy\Plugins\Transaction\Template\ImportListTable\Contracts\ImportListTable;
 
 class RowActionImport extends RowAction
 {
+    /**
+     * Instance du gabarit d'affichage.
+     * @var ImportListTable
+     */
+    protected $factory;
+
     /**
      * @inheritDoc
      */
@@ -17,5 +24,25 @@ class RowActionImport extends RowAction
             ],
             'content' => __('Importer', 'tify'),
         ]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function httpController()
+    {
+        if ($item = $this->factory->builder()->getItem($this->factory->request()->input('id'))) {
+            $records = $this->factory->records()->executeRecord($item->getOffset());
+
+            return [
+                'success' => true,
+                'data'    => $records->messages($item->getOffset())->fetch()
+            ];
+        } else {
+            return [
+                'success' => false,
+                'data'    => __('Impossible de récupérer l\'élément associé.', 'tify')
+            ];
+        }
     }
 }
