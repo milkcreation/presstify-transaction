@@ -5,21 +5,19 @@ namespace tiFy\Plugins\Transaction\Wordpress\Contracts;
 use tiFy\Plugins\Transaction\Contracts\ImportRecord;
 use WP_Term;
 
-interface ImportRecordWpTerm extends ImportRecord
+interface ImportWpTerm extends ImportRecord
 {
     /**
-     * Retrouve l'identifiant de qualification du terme.
-     *
-     * @return static
+     * @inheritDoc
      */
-    public function fetchTermId(): ImportRecordWpTerm;
+    public function exists(): ?WP_Term;
 
     /**
      * Retrouve le nom de qualification de la taxonomie associée.
      *
      * @return static
      */
-    public function fetchTaxonomy(): ImportRecordWpTerm;
+    public function fetchTaxonomy(): ImportWpTerm;
 
     /**
      * Récupération du nom de qualification de la taxonomie associée.
@@ -40,7 +38,7 @@ interface ImportRecordWpTerm extends ImportRecord
      *
      * @return static
      */
-    public function saveMetas(): ImportRecordWpTerm;
+    public function saveMetas(): ImportWpTerm;
 
     /**
      * Définition du nom de qualification de la taxonomie associée.
@@ -49,5 +47,5 @@ interface ImportRecordWpTerm extends ImportRecord
      *
      * @return static
      */
-    public function setTaxonomy(string $taxonomy): ImportRecordWpTerm;
+    public function setTaxonomy(string $taxonomy): ImportWpTerm;
 }

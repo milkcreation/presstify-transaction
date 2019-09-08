@@ -101,6 +101,11 @@ interface ImportRecords extends Collection
     public function fromPath(string $path): ImportRecords;
 
     /**
+     * @inheritDoc
+     */
+    public function get($key): ?ImportRecord;
+
+    /**
      * Récupération de l'enregistrement de démarrage lors du traitement de l'import.
      *
      * @return int

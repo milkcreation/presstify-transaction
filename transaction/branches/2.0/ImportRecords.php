@@ -258,6 +258,14 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
+    public function get($key): ?ImportRecordContract
+    {
+        return parent::get($key);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function fromPath(string $path): ImportRecordsContract
     {
         try {
@@ -510,6 +518,6 @@ class ImportRecords extends Collection implements ImportRecordsContract
             $record = (class_exists($factory) ? new $factory() : new ImportRecord())->setInput($input);
         }
 
-        return $this->items[$key] = $record->setRecords($this)->prepare();
+        return $this->items[$key] = $record->setRecords($this);
     }
 }

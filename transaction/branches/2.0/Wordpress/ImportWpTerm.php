@@ -5,13 +5,20 @@ namespace tiFy\Plugins\Transaction\Wordpress;
 use tiFy\Plugins\Transaction\{
     Contracts\ImportRecord as BaseImportRecordContract,
     ImportRecord as BaseImportRecord,
-    Wordpress\Contracts\ImportRecordWpTerm as ImportRecordWpTermContract};
+    Wordpress\Contracts\ImportWpTerm as ImportWpTermContract
+};
 use WP_Error;
 use WP_Term;
 use WP_Term_Query;
 
-class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermContract
+class ImportWpTerm extends BaseImportRecord implements ImportWpTermContract
 {
+    /**
+     * Instance du post Wordpress associé.
+     * @var WP_Term|null
+     */
+    protected $exists;
+
     /**
      * Cartographie des clés de données de terme.
      * @var array
@@ -35,20 +42,11 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
     protected $taxonomy = '';
 
     /**
-     * Instance du post Wordpress associé.
-     * @var WP_Term|null
-     */
-    protected $term;
-
-    /**
      * @inheritDoc
      */
     public function execute(): BaseImportRecordContract
     {
-        $this
-            ->fetchTaxonomy()
-            ->fetchTermId()
-            ->save();
+        $this->prepare()->save();
 
         return $this;
     }
@@ -56,20 +54,29 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
     /**
      * @inheritDoc
      */
-    public function fetchTermId(): ImportRecordWpTermContract
+    public function exists(): ?WP_Term
     {
-        if ($exists = (new WP_Term_Query())->query([
-            'fields'     => 'ids',
-            'hide_empty' => false,
-            'include'    => $this->input('term_id', 0),
-            'number'     => 1,
-            'taxonomy'   => $this->getTaxonomy(),
-        ])) {
-            $term_id = (int)current($exists);
-            $this->output(['term_id' => $term_id]);
-            $this->setPrimary($term_id);
-        } else {
-            $this->output(['term_id' => 0]);
+        return parent::exists();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function fetchExists(): BaseImportRecordContract
+    {
+        if (is_null($this->exists)) {
+            if ($exists = (new WP_Term_Query())->query([
+                'hide_empty' => false,
+                'include'    => $this->input('term_id', 0),
+                'number'     => 1,
+                'taxonomy'   => $this->getTaxonomy(),
+            ])) {
+                $this->setExists(current($exists));
+                $this->output(['term_id' => $this->exists()->term_id]);
+            } else {
+                $this->setExists(false);
+                $this->output(['term_id' => 0]);
+            }
         }
 
         return $this;
@@ -78,7 +85,7 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
     /**
      * @inheritDoc
      */
-    public function fetchTaxonomy(): ImportRecordWpTermContract
+    public function fetchTaxonomy(): ImportWpTermContract
     {
         if ($taxonomy = $this->input('taxonomy')) {
             $this->taxonomy = $taxonomy;
@@ -98,7 +105,7 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
     /**
      * @inheritDoc
      */
-    public function setTaxonomy(string $taxonomy): ImportRecordWpTermContract
+    public function setTaxonomy(string $taxonomy): ImportWpTermContract
     {
         $this->taxonomy = $taxonomy;
 
@@ -110,7 +117,23 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
      */
     public function getTerm(): ?WP_Term
     {
-        return $this->term;
+        return $this->exists ?: null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function prepare(): BaseImportRecordContract
+    {
+        if (!$this->prepared) {
+            $this
+                ->fetchTaxonomy()
+                ->fetchExists();
+
+            $this->prepared = true;
+        }
+
+        return $this;
     }
 
     /**
@@ -133,7 +156,7 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
 
             $this
                 ->setSuccess(false)
-                ->setPrimary(0);
+                ->setExists(false);
         } else {
             $term = get_term((int)$res['term_id'], $this->getTaxonomy());
 
@@ -142,11 +165,11 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
 
                 $this
                     ->setSuccess(false)
-                    ->setPrimary(0);
+                    ->setExists(false);
             } else {
                 $this
                     ->setSuccess(true)
-                    ->setPrimary($term->term_id)
+                    ->setExists($term)
                     ->messages()->success(
                         sprintf(
                             $update
@@ -168,7 +191,7 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
     /**
      * @inheritDoc
      */
-    public function saveMetas(): ImportRecordWpTermContract
+    public function saveMetas(): ImportWpTermContract
     {
         if ($term = $this->getTerm()) {
             foreach ($this->output('_meta', []) as $meta_key => $meta_value) {
@@ -181,20 +204,6 @@ class ImportRecordWpTerm extends BaseImportRecord implements ImportRecordWpTermC
                 }
             }
         }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return ImportRecordWpTermContract
-     */
-    public function setPrimary($primary): BaseImportRecordContract
-    {
-        parent::setPrimary($primary);
-
-        $this->term = ($term = get_term((int)$primary, $this->getTaxonomy())) instanceof WP_Term ? $term : null;
 
         return $this;
     }

@@ -5,13 +5,13 @@ namespace tiFy\Plugins\Transaction\Wordpress;
 use tiFy\Plugins\Transaction\{
     Contracts\ImportRecord as BaseImportRecordContract,
     ImportRecord as BaseImportRecord,
-    Wordpress\Contracts\ImportRecordWpPost as ImportRecordWpPostContract
+    Wordpress\Contracts\ImportWpPost as ImportWpPostContract
 };
 use WP_Error;
 use WP_Post;
 use WP_Query;
 
-class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostContract
+class ImportWpPost extends BaseImportRecord implements ImportWpPostContract
 {
     /**
      * Cartographie des clés de données de post.
@@ -47,27 +47,16 @@ class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostC
 
     /**
      * Instance du post Wordpress associé.
-     * @var WP_Post|null
+     * @var WP_Post|false|null
      */
-    protected $post;
+    protected $exists;
 
     /**
      * @inheritDoc
      */
-    public function fetchID(): ImportRecordWpPostContract
+    public function execute(): BaseImportRecordContract
     {
-        if ($exists = (new WP_Query())->query([
-            'fields'         => 'ids',
-            'p'              => $this->input('ID', 0),
-            'post_type'      => 'any',
-            'posts_per_page' => 1,
-        ])) {
-            $post_id = (int)current($exists);
-            $this->output(['ID' => $post_id]);
-            $this->setPrimary($post_id);
-        } else {
-            $this->output(['ID' => 0]);
-        }
+        $this->prepare()->save();
 
         return $this;
     }
@@ -75,11 +64,29 @@ class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostC
     /**
      * @inheritDoc
      */
-    public function execute(): BaseImportRecordContract
+    public function exists(): ?WP_Post
     {
-        $this
-            ->fetchID()
-            ->save();
+        return parent::exists();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function fetchExists(): BaseImportRecordContract
+    {
+        if (is_null($this->exists)) {
+            if ($exists = (new WP_Query())->query([
+                'p'              => $this->input('ID', 0),
+                'post_type'      => 'any',
+                'posts_per_page' => 1,
+            ])) {
+                $this->setExists(current($exists));
+                $this->output(['ID' => $this->exists()->ID]);
+            } else {
+                $this->setExists(false);
+                $this->output(['ID' => 0]);
+            }
+        }
 
         return $this;
     }
@@ -89,13 +96,13 @@ class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostC
      */
     public function getPost(): ?WP_Post
     {
-        return $this->post;
+        return $this->exists ?: null;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @return ImportRecordWpPostContract
+     * @return ImportWpPostContract
      */
     public function save(): BaseImportRecordContract
     {
@@ -114,17 +121,17 @@ class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostC
 
             $this
                 ->setSuccess(false)
-                ->setPrimary(0);
+                ->setExists(false);
         } else {
             if (!$post = get_post((int)$res)) {
                 $this
                     ->setSuccess(false)
-                    ->setPrimary(0)
+                    ->setExists(false)
                     ->messages()->error(__('Impossible de récupérer le post importé', 'tify'));
             } else {
                 $this
                     ->setSuccess(true)
-                    ->setPrimary($post->ID)
+                    ->setExists($post)
                     ->messages()->success(
                         sprintf(
                             $update
@@ -147,7 +154,7 @@ class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostC
     /**
      * @inheritDoc
      */
-    public function saveMetas(): ImportRecordWpPostContract
+    public function saveMetas(): ImportWpPostContract
     {
         if ($post = $this->getPost()) {
             foreach ($this->output('_meta', []) as $meta_key => $meta_value) {
@@ -166,7 +173,7 @@ class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostC
     /**
      * @inheritDoc
      */
-    public function saveTerms(): ImportRecordWpPostContract
+    public function saveTerms(): ImportWpPostContract
     {
         if ($post = $this->getPost()) {
             foreach ($this->output('_term', []) as $taxonomy => $terms) {
@@ -180,20 +187,6 @@ class ImportRecordWpPost extends BaseImportRecord implements ImportRecordWpPostC
                 }
             }
         }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return ImportRecordWpPostContract
-     */
-    public function setPrimary($primary): BaseImportRecordContract
-    {
-        parent::setPrimary($primary);
-
-        $this->post = get_post($primary);
 
         return $this;
     }
