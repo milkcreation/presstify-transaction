@@ -8,7 +8,7 @@ use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
 
-interface ImportRecordWcProduct extends ImportRecord
+interface ImportWcProduct extends ImportRecord
 {
     /**
      * Récupération de l'instance du produit Woocommerce associé.

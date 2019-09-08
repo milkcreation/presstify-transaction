@@ -2,14 +2,14 @@
 
 namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 
-use tiFy\Template\Templates\ListTable\RowAction;
-use tiFy\Plugins\Transaction\Template\ImportListTable\Contracts\ImportListTable;
+use tiFy\Template\Templates\ListTable\RowAction as BaseRowAction;
+use tiFy\Template\Templates\ListTable\Contracts\RowAction as BaseRowActionContract;
 
-class RowActionImport extends RowAction
+class RowActionImport extends BaseRowAction
 {
     /**
-     * Instance du gabarit d'affichage.
-     * @var ImportListTable
+     * Instance du gabarit associé.
+     * @var Factory
      */
     protected $factory;
 
@@ -44,5 +44,27 @@ class RowActionImport extends RowAction
                 'data'    => __('Impossible de récupérer l\'élément associé.', 'tify')
             ];
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isAvailable(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function parse(): BaseRowActionContract
+    {
+        parent::parse();
+
+        if ($this->factory->ajax()) {
+            $this->set('attrs.data-control', 'list-table.row-action.import');
+        }
+
+        return $this;
     }
 }

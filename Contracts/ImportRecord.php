@@ -21,11 +21,18 @@ interface ImportRecord
     public function execute(): ImportRecord;
 
     /**
-     * Récupération de la valeur de clé primaire de l'élément.
+     * Récupération de l'élément existant associé.
      *
      * @return mixed
      */
-    public function getPrimary();
+    public function exists();
+
+    /**
+     * Retrouve l'élément existant associé.
+     *
+     * @return static
+     */
+    public function fetchExists(): ImportRecord;
 
     /**
      * Récupération du résultat de traitement.
@@ -77,6 +84,15 @@ interface ImportRecord
     public function save(): ImportRecord;
 
     /**
+     * Définition de l'élément associé aux données d'import.
+     *
+     * @param mixed $exists
+     *
+     * @return static
+     */
+    public function setExists($exists): ImportRecord;
+
+    /**
      * Définition de l'indice de traitement de l'élément.
      *
      * @param int $index
@@ -102,15 +118,6 @@ interface ImportRecord
      * @return static
      */
     public function setRecords(ImportRecords $records): ImportRecord;
-
-    /**
-     * Définition de la valeur de la clé primaire de l'élément.
-     *
-     * @param mixed $primary Valeur de la clé primaire.
-     *
-     * @return static
-     */
-    public function setPrimary($primary): ImportRecord;
 
     /**
      * Définition de la statut de réussite de la tâche.

@@ -4,14 +4,15 @@ namespace tiFy\Plugins\Transaction\Wordpress;
 
 use tiFy\Plugins\Transaction\{
     Contracts\ImportRecord as BaseImportRecordContract,
-    Wordpress\Contracts\ImportRecordWcProduct as ImportRecordWcProductContract
+    Wordpress\Contracts\ImportWcProduct as ImportWcProductContract
 };
+use WP_Post;
 use WC_Product;
 use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
 
-class ImportRecordWcProduct extends ImportRecordWpPost implements ImportRecordWcProductContract
+class ImportWcProduct extends ImportWpPost implements ImportWcProductContract
 {
     /**
      * Instance du produit woocommerce associé.
@@ -30,13 +31,15 @@ class ImportRecordWcProduct extends ImportRecordWpPost implements ImportRecordWc
     /**
      * {@inheritDoc}
      *
-     * @return ImportRecordWcProductContract
+     * @return ImportWcProductContract
      */
-    public function setPrimary($primary): BaseImportRecordContract
+    public function setExists($exists = null): BaseImportRecordContract
     {
-        parent::setPrimary($primary);
+        parent::setExists($exists);
 
-        $this->product = wc_get_product($primary);
+        if ($this->exists instanceof WP_Post) {
+            $this->product = wc_get_product($this->exists);
+        }
 
         return $this;
     }

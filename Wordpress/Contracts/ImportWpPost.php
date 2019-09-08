@@ -5,14 +5,12 @@ namespace tiFy\Plugins\Transaction\Wordpress\Contracts;
 use tiFy\Plugins\Transaction\Contracts\ImportRecord;
 use WP_Post;
 
-interface ImportRecordWpPost extends ImportRecord
+interface ImportWpPost extends ImportRecord
 {
     /**
-     * Rétrouve l'identifiant de qualification du post.
-     *
-     * @return static
+     * @inheritDoc
      */
-    public function fetchID(): ImportRecordWpPost;
+    public function exists(): ?WP_Post;
 
     /**
      * Récupération de l'instance du post Wordpress associé.
@@ -26,12 +24,12 @@ interface ImportRecordWpPost extends ImportRecord
      *
      * @return static
      */
-    public function saveMetas(): ImportRecordWpPost;
+    public function saveMetas(): ImportWpPost;
 
     /**
      * Enregistrement des termes de taxonomies.
      *
      * @return static
      */
-    public function saveTerms(): ImportRecordWpPost;
+    public function saveTerms(): ImportWpPost;
 }

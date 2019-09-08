@@ -5,19 +5,26 @@ namespace tiFy\Plugins\Transaction\Wordpress;
 use tiFy\Plugins\Transaction\{
     Contracts\ImportRecord as BaseImportRecordContract,
     ImportRecord as BaseImportRecord,
-    Wordpress\Contracts\ImportRecordWpUser as ImportRecordWpUserContract};
+    Wordpress\Contracts\ImportWpUser as ImportWpUserContract
+};
 use WP_Error;
 use WP_Roles;
 use WP_User;
 use WP_User_Query;
 
-class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserContract
+class ImportWpUser extends BaseImportRecord implements ImportWpUserContract
 {
     /**
      * Identifiant de qualification du blog d'affectation.
      * @var int
      */
     protected $blog = 0;
+
+    /**
+     * Instance du post Wordpress associé.
+     * @var WP_User|null
+     */
+    protected $exists;
 
     /**
      * Cartographie des clés de données de post.
@@ -52,22 +59,11 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     protected $role = '';
 
     /**
-     * Instance du post Wordpress associé.
-     * @var WP_User|null
-     */
-    protected $user;
-
-    /**
      * @inheritDoc
      */
     public function execute(): BaseImportRecordContract
     {
-        $this
-            ->fetchBlogId()
-            ->fetchRole()
-            ->fetchID()
-            ->fetchUserPass()
-            ->save();
+        $this->prepare()->save();
 
         return $this;
     }
@@ -75,7 +71,15 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     /**
      * @inheritDoc
      */
-    public function fetchBlogId(): ImportRecordWpUserContract
+    public function exists(): ?WP_User
+    {
+        return parent::exists();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function fetchBlogId(): ImportWpUserContract
     {
         if ($this->input('blog_id', 0)) {
             $this->blog = (int)$this->input('blog_id', 0);
@@ -87,19 +91,20 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     /**
      * @inheritDoc
      */
-    public function fetchID(): ImportRecordWpUserContract
+    public function fetchExists(): BaseImportRecordContract
     {
-        if ($exists = (new WP_User_Query([
-            'blog_id' => 0,
-            'fields'  => 'ID',
-            'include' => $this->input('ID', 0),
-            'number'  => 1
-        ]))->get_results()) {
-            $user_id = (int)current($exists);
-            $this->output(['ID' => $user_id]);
-            $this->setPrimary($user_id);
-        } else {
-            $this->output(['user_id' => 0]);
+        if (is_null($this->exists)) {
+            if ($exists = (new WP_User_Query([
+                'blog_id' => 0,
+                'include' => $this->input('ID', 0),
+                'number'  => 1
+            ]))->get_results()) {
+                $this->setExists(current($exists));
+                $this->output(['ID' => $this->exists()->ID]);
+            } else {
+                $this->setExists(false);
+                $this->output(['user_id' => 0]);
+            }
         }
 
         return $this;
@@ -108,7 +113,7 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     /**
      * @inheritDoc
      */
-    public function fetchRole(): ImportRecordWpUserContract
+    public function fetchRole(): ImportWpUserContract
     {
         if ($role = $this->input('role', '')) {
             $this->role = $role;
@@ -122,7 +127,7 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     /**
      * @inheritDoc
      */
-    public function fetchUserPass(): ImportRecordWpUserContract
+    public function fetchUserPass(): ImportWpUserContract
     {
         if ($user_pass = $this->input('user_pass', '')) {
             $this->output(['user_pass' => wp_hash_password($user_pass)]);
@@ -152,7 +157,7 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
      */
     public function getUser(): ?WP_User
     {
-        return $this->user;
+        return $this->exists ?: null;
     }
 
     /**
@@ -164,6 +169,24 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
         global $wp_roles;
 
         return $wp_roles->is_role($this->getRole());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function prepare(): BaseImportRecordContract
+    {
+        if (!$this->prepared) {
+            $this
+                ->fetchBlogId()
+                ->fetchRole()
+                ->fetchExists()
+                ->fetchUserPass();
+
+            $this->prepared = true;
+        }
+
+        return $this;
     }
 
     /**
@@ -199,12 +222,12 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
 
                 $this
                     ->setSuccess(false)
-                    ->setPrimary(0);
+                    ->setExists(false);
             } else {
                 if (!$user = get_userdata((int)$res)) {
                     $this
                         ->setSuccess(false)
-                        ->setPrimary(0)
+                        ->setExists(false)
                         ->messages()->error(__('Impossible de récupérer l\'utilisateur importé', 'tify'));
                 } else {
                     /** @todo
@@ -214,7 +237,7 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
 
                     $this
                         ->setSuccess(true)
-                        ->setPrimary($user->ID)
+                        ->setExists($user)
                         ->messages()->success(
                             sprintf(
                                 $update
@@ -238,7 +261,7 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     /**
      * @inheritDoc
      */
-    public function saveMetas(): ImportRecordWpUserContract
+    public function saveMetas(): ImportWpUserContract
     {
         if ($user = $this->getUser()) {
             foreach ($this->output('_meta', []) as $meta_key => $meta_value) {
@@ -257,7 +280,7 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     /**
      * @inheritDoc
      */
-    public function saveOptions(): ImportRecordWpUserContract
+    public function saveOptions(): ImportWpUserContract
     {
         if ($user = $this->getUser()) {
             foreach ($this->output('_option', []) as $option_name => $newvalue) {
@@ -274,23 +297,9 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @return ImportRecordWpUserContract
-     */
-    public function setPrimary($primary): BaseImportRecordContract
-    {
-        parent::setPrimary($primary);
-
-        $this->user = ($user = get_userdata((int)$primary)) instanceof WP_User ? $user : null;
-
-        return $this;
-    }
-
-    /**
      * @inheritDoc
      */
-    public function setBlogId(int $blog_id): ImportRecordWpUserContract
+    public function setBlogId(int $blog_id): ImportWpUserContract
     {
         $this->blog = $blog_id;
 
@@ -300,7 +309,7 @@ class ImportRecordWpUser extends BaseImportRecord implements ImportRecordWpUserC
     /**
      * @inheritDoc
      */
-    public function setRole(string $role): ImportRecordWpUserContract
+    public function setRole(string $role): ImportWpUserContract
     {
         $this->role = $role;
 

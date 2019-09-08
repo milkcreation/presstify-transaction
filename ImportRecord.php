@@ -9,7 +9,14 @@ use tiFy\Support\{MessagesBag, ParamsBag};
 class ImportRecord implements ImportRecordContract
 {
     /**
-     * Indice de traitement de l'import de l'élément
+     * Elements existant associé au données d'import.
+     * {@internal Déclenche la mise à jour si définie, sinon crée un nouvel élément.}
+     * @var mixed
+     */
+    protected $exists;
+
+    /**
+     * Indice de traitement de l'import de l'élément.
      * @var int
      */
     protected $index;
@@ -39,17 +46,29 @@ class ImportRecord implements ImportRecordContract
     protected $output;
 
     /**
-     * Valeur de clé primaire de l'élément.
-     * {@internal Déclenche la mise à jour si définie, sinon crée un nouvel élément.}
-     * @var mixed
+     * Indicateur de préparation.
+     * @var boolean
      */
-    protected $primary = null;
+    protected $prepared = false;
 
     /**
      * Indicateur de succès de la tâche.
      * @var boolean
      */
     protected $success = false;
+
+    /**
+     * CONSTRUCTEUR.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->messages = new MessagesBag();
+        $this->output = new ParamsBag();
+
+        $this->boot();
+    }
 
     /**
      * @inheritDoc
@@ -69,9 +88,21 @@ class ImportRecord implements ImportRecordContract
     /**
      * @inheritDoc
      */
-    public function getPrimary()
+    public function exists()
     {
-        return $this->primary;
+        return $this->exists ?: null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function fetchExists(): ImportRecordContract
+    {
+        if (is_null($this->exists)) {
+            $this->exists = false;
+        }
+
+        return $this;
     }
 
     /**
@@ -82,7 +113,6 @@ class ImportRecord implements ImportRecordContract
         return [
             'success' => $this->getSuccess(),
             'data'    => [
-                'insert_id' => $this->getPrimary(),
                 'messages'  => $this->messages(),
                 'count'     => [
                     'error'   => $this->messages()->count(MessagesBag::ERROR),
@@ -143,10 +173,11 @@ class ImportRecord implements ImportRecordContract
      */
     public function prepare(): ImportRecordContract
     {
-        $this->messages = new MessagesBag();
-        $this->output = new ParamsBag();
+        if (!$this->prepared) {
+            $this->fetchExists();
 
-        $this->boot();
+            $this->prepared = true;
+        }
 
         return $this;
     }
@@ -170,6 +201,16 @@ class ImportRecord implements ImportRecordContract
     /**
      * @inheritDoc
      */
+    public function setExists($exists = null): ImportRecordContract
+    {
+        $this->exists = $exists;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function setIndex(int $index): ImportRecordContract
     {
         $this->index = $index;
@@ -187,16 +228,6 @@ class ImportRecord implements ImportRecordContract
         }
 
         $this->input = (new ParamsBag())->set($input);
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setPrimary($primary): ImportRecordContract
-    {
-        $this->primary = $primary;
 
         return $this;
     }

@@ -5,28 +5,26 @@ namespace tiFy\Plugins\Transaction\Wordpress\Contracts;
 use tiFy\Plugins\Transaction\Contracts\ImportRecord;
 use WP_User;
 
-interface ImportRecordWpUser extends ImportRecord
+interface ImportWpUser extends ImportRecord
 {
+    /**
+     * @inheritDoc
+     */
+    public function exists(): ?WP_User;
+
     /**
      * Retrouve l'identifiant de qualification du site d'affectation.
      *
      * @return static
      */
-    public function fetchBlogId(): ImportRecordWpUser;
-
-    /**
-     * Retrouve l'identifiant de qualification de l'utilisateur.
-     *
-     * @return static
-     */
-    public function fetchID(): ImportRecordWpUser;
+    public function fetchBlogId(): ImportWpUser;
 
     /**
      * Retrouve l'intitulé de qualification du role associée.
      *
      * @return static
      */
-    public function fetchRole(): ImportRecordWpUser;
+    public function fetchRole(): ImportWpUser;
 
     /**
      * Retrouve le mot de passe associé.
@@ -34,7 +32,7 @@ interface ImportRecordWpUser extends ImportRecord
      *
      * @return static
      */
-    public function fetchUserPass(): ImportRecordWpUser;
+    public function fetchUserPass(): ImportWpUser;
 
     /**
      * Retrouve l'identifiant de qualification du site d'affectation.
@@ -69,14 +67,14 @@ interface ImportRecordWpUser extends ImportRecord
      *
      * @return static
      */
-    public function saveMetas(): ImportRecordWpUser;
+    public function saveMetas(): ImportWpUser;
 
     /**
      * Enregistrement des options.
      *
      * @return static
      */
-    public function saveOptions(): ImportRecordWpUser;
+    public function saveOptions(): ImportWpUser;
 
     /**
      * Définition de l'identifiant de qualification du site d'affection.
@@ -85,7 +83,7 @@ interface ImportRecordWpUser extends ImportRecord
      *
      * @return static
      */
-    public function setBlogId(int $blog_id): ImportRecordWpUser;
+    public function setBlogId(int $blog_id): ImportWpUser;
 
     /**
      * Définition du nom de qualification du rôle associé.
@@ -94,5 +92,5 @@ interface ImportRecordWpUser extends ImportRecord
      *
      * @return static
      */
-    public function setRole(string $role): ImportRecordWpUser;
+    public function setRole(string $role): ImportWpUser;
 }
