@@ -46,7 +46,7 @@ class ImportWpTerm extends BaseImportRecord implements ImportWpTermContract
      */
     public function execute(): BaseImportRecordContract
     {
-        $this->prepare()->save();
+        $this->prepare()->save()->saveInfos();
 
         return $this;
     }

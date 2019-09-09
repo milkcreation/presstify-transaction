@@ -84,6 +84,13 @@ interface ImportRecord
     public function save(): ImportRecord;
 
     /**
+     * Enregistrement des informations d'import.
+     *
+     * @return static
+     */
+    public function saveInfos(): ImportRecord;
+
+    /**
      * Définition de l'élément associé aux données d'import.
      *
      * @param mixed $exists
