@@ -3,7 +3,6 @@
 namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 
 use tiFy\Template\Templates\ListTable\RowAction as BaseRowAction;
-use tiFy\Template\Templates\ListTable\Contracts\RowAction as BaseRowActionContract;
 
 class RowActionImport extends BaseRowAction
 {
@@ -36,7 +35,9 @@ class RowActionImport extends BaseRowAction
 
             return [
                 'success' => true,
-                'data'    => $records->messages($item->getOffset())->fetch()
+                'data'    => [
+                    $records->messages($item->getOffset())->fetch()
+                ]
             ];
         } else {
             return [
@@ -52,19 +53,5 @@ class RowActionImport extends BaseRowAction
     public function isAvailable(): bool
     {
         return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function parse(): BaseRowActionContract
-    {
-        parent::parse();
-
-        if ($this->factory->ajax()) {
-            $this->set('attrs.data-control', 'list-table.row-action.import');
-        }
-
-        return $this;
     }
 }

@@ -14,7 +14,7 @@ use tiFy\Support\Manager;
  * @desc Extension PresstiFy de gestion de données de transaction.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Transaction
- * @version 2.0.27
+ * @version 2.0.28
  *
  * USAGE :
  * Activation :
@@ -158,7 +158,7 @@ class Transaction extends Manager implements TransactionContract
     /**
      * @inheritDoc
      */
-    public function resourcesDir($path = ''): string
+    public function resourcesDir(string $path = null): string
     {
         $path = $path ? '/' . ltrim($path, '/') : '';
 
@@ -170,7 +170,7 @@ class Transaction extends Manager implements TransactionContract
     /**
      * @inheritDoc
      */
-    public function resourcesUrl($path = ''): string
+    public function resourcesUrl(string $path = null): string
     {
         $cinfo = class_info($this);
         $path = $path ? '/' . ltrim($path, '/') : '';
