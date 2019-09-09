@@ -63,7 +63,7 @@ class ImportWpUser extends BaseImportRecord implements ImportWpUserContract
      */
     public function execute(): BaseImportRecordContract
     {
-        $this->prepare()->save();
+        $this->prepare()->save()->saveInfos();
 
         return $this;
     }

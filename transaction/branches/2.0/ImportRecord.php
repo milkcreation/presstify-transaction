@@ -201,6 +201,14 @@ class ImportRecord implements ImportRecordContract
     /**
      * @inheritDoc
      */
+    public function saveInfos(): ImportRecordContract
+    {
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function setExists($exists = null): ImportRecordContract
     {
         $this->exists = $exists;
