@@ -2,8 +2,8 @@
 
 namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 
-use Closure;
 use tiFy\Template\Templates\ListTable\Column as BaseColumn;
+use tiFy\Plugins\Transaction\Proxy\Transaction;
 
 class ColumnImport extends BaseColumn
 {
@@ -34,41 +34,10 @@ class ColumnImport extends BaseColumn
     /**
      * @inheritDoc
      */
-    public function render(): string
+    public function value(): string
     {
-        if ($item = $this->factory->item()) {
-            $classes = '';
-            if ($this->isPrimary()) {
-                $classes .= 'has-row-actions column-primary';
-            }
-
-            if ($this->isHidden()) {
-                $classes .= 'hidden';
-            }
-
-            if ($classes) {
-                $this->set('attrs.class', trim($this->get('attrs.class', '') . " {$classes}"));
-            }
-
-            $row_actions = (string)($this->isPrimary() ? $this->factory->rowActions() : '');
-
-            $args = [
-                'item'        => $item,
-                'value'       => $this->value() . $row_actions,
-                'column'      => $this,
-                'row_actions' => $row_actions,
-            ];
-
-            if (($content = $this->get('content')) instanceof Closure) {
-                return call_user_func_array($content, $args);
-            } else {
-
-
-
-                return (string)$this->factory->viewer($this->getTemplate(), $args);
-            }
-        } else {
-            return '';
-        }
+        return (string)view()
+            ->setDirectory(Transaction::resourcesDir('/views/import-list-table'))
+            ->make('col-import', ['item' => $this->factory->item()]);
     }
 }

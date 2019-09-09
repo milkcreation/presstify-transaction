@@ -11,7 +11,8 @@ use tiFy\Support\Proxy\AbstractProxy;
  * @method static ImportRecords|null getImportRecords(string $name)
  * @method static ImportCommand|null registerImportCommand(string|null $name = null, ImportRecords|null $records = null, array $params = [])
  * @method static ImportCommandStack|null registerImportCommandStack(string|null $name = null, array $stack = [])
- * @method static ImportRecords|null registerImportRecords(string|null $name = null, array $params = [], ?string $path = null)
+ * @method static ImportRecords|null registerImportRecords(string|null $name = null, array $params = [], string|null $path = null)
+ * @method static string resourcesDir(string|null $path = null)
  */
 class Transaction extends AbstractProxy
 {

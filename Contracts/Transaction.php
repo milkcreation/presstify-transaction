@@ -18,7 +18,7 @@ interface Transaction extends Manager
      *
      * @param string $name Nom de qualification de la commande.
      *
-     * @return ImportCommand|null\tiFy\Plugins\Parser\Exceptions\
+     * @return ImportCommand|null
      */
     public function getImportCommand(string $name): ?ImportCommand;
 
@@ -80,18 +80,18 @@ interface Transaction extends Manager
     /**
      * Récupération du chemin absolu vers le répertoire des ressources.
      *
-     * @param string $path Chemin relatif du sous-repertoire.
+     * @param string|null $path Chemin relatif du sous-repertoire.
      *
      * @return string
      */
-    public function resourcesDir($path = ''): string;
+    public function resourcesDir(string $path = null): string;
 
     /**
      * Récupération de l'url absolue vers le répertoire des ressources.
      *
-     * @param string $path Chemin relatif du sous-repertoire.
+     * @param string|null $path Chemin relatif du sous-repertoire.
      *
      * @return string
      */
-    public function resourcesUrl($path = ''): string;
+    public function resourcesUrl(string $path = null): string;
 }
