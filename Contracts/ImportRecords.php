@@ -141,6 +141,13 @@ interface ImportRecords extends Collection
     public function logger($level = null, string $message = '', array $context = []): ?Logger;
 
     /**
+     * Récupération de l'instance du gestionnaire de transaction.
+     *
+     * @return Transaction|null
+     */
+    public function manager(): ?Transaction;
+
+    /**
      * Récupération de la liste des messages de notifications associés au traitement d'un enregistrement.
      *
      * @param int|string $key Indice de qualification de l'élément.
@@ -228,6 +235,15 @@ interface ImportRecords extends Collection
      * @return static
      */
     public function setLogger(Logger $logger): ImportRecords;
+
+    /**
+     * Définition de l'instance du gestionnaire de transaction.
+     *
+     * @param Transaction $manager
+     *
+     * @return static
+     */
+    public function setManager(Transaction $manager): ImportRecords;
 
     /**
      * Définition de l'enregistrement de démarrage lors du traitement de l'import.

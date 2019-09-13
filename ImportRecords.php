@@ -2,14 +2,14 @@
 
 namespace tiFy\Plugins\Transaction;
 
-use tiFy\Contracts\{
-    Log\Logger as LoggerContract,
+use tiFy\Contracts\{Log\Logger as LoggerContract,
     Support\LabelsBag as LabelsBagContract,
-    Support\MessagesBag as MessagesBagContract
-};
+    Support\MessagesBag as MessagesBagContract};
+use tiFy\Log\Logger;
 use tiFy\Plugins\Parser\{Contracts\Reader as ReaderContract, Exceptions\ReaderException, Reader};
 use tiFy\Plugins\Transaction\{Contracts\ImportRecord as ImportRecordContract,
-    Contracts\ImportRecords as ImportRecordsContract};
+    Contracts\ImportRecords as ImportRecordsContract,
+    Contracts\Transaction};
 use tiFy\Support\{Collection, DateTime, LabelsBag, MessagesBag, ParamsBag};
 
 class ImportRecords extends Collection implements ImportRecordsContract
@@ -48,6 +48,12 @@ class ImportRecords extends Collection implements ImportRecordsContract
      * @var LoggerContract|false|null
      */
     protected $logger;
+
+    /**
+     * Instance du gestionnaire de transaction.
+     * @var Transaction|null
+     */
+    protected $manager;
 
     /**
      * Indice de l'enregistrement de démarrage.
@@ -96,7 +102,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
      */
     public static function createFromPath(string $path, $params = []): ImportRecordsContract
     {
-       return (new static($params))->fromPath($path);
+        return (new static($params))->fromPath($path);
     }
 
     /**
@@ -212,7 +218,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
             $this->callBeforeItem($record, $key);
 
             $this->summary([
-                "items.{$key}" => $record->setIndex((int)$this->summary('index', 0))->execute()->getResults()
+                "items.{$key}" => $record->setIndex((int)$this->summary('index', 0))->execute()->getResults(),
             ]);
 
             $this->summary(['index' => $this->summary('index', 0) + 1]);
@@ -253,14 +259,6 @@ class ImportRecords extends Collection implements ImportRecordsContract
         }
 
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function get($key): ?ImportRecordContract
-    {
-        return parent::get($key);
     }
 
     /**
@@ -317,10 +315,9 @@ class ImportRecords extends Collection implements ImportRecordsContract
         if (is_null($this->logger)) {
             if ($logger = $this->params()->pull('logger', true)) {
                 if (!$logger instanceof LoggerContract) {
-                    $params = is_array($logger) ? $logger : [];
-                    /** @var LoggerContract $logger */
-                    $logger = app('logger');
-                    $logger->setParams($params);
+                    $logger = (new Logger('transaction-import'))
+                        ->setContainer($this->manager()->getContainer())
+                        ->setParams(is_array($logger) ? $logger : []);
                 }
                 $this->setLogger($logger);
             } else {
@@ -334,6 +331,14 @@ class ImportRecords extends Collection implements ImportRecordsContract
             $this->logger->log($level, $message, $context);
         }
         return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function manager(): ?Transaction
+    {
+        return $this->manager;
     }
 
     /**
@@ -471,6 +476,16 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
+    public function setManager(Transaction $manager): ImportRecordsContract
+    {
+        $this->manager = $manager;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function setReader(ReaderContract $reader): ImportRecordsContract
     {
         $this->reader = $reader;
@@ -500,6 +515,14 @@ class ImportRecords extends Collection implements ImportRecordsContract
         return ($items = $this->collect()->map(function (ImportRecordContract $item) {
             return $item->input()->all();
         })) ? $items->all() : [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function get($key): ?ImportRecordContract
+    {
+        return parent::get($key);
     }
 
     /**

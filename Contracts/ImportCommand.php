@@ -3,14 +3,12 @@
 namespace tiFy\Plugins\Transaction\Contracts;
 
 use DateTimeZone;
-use tiFy\Contracts\Support\ParamsBag;
+use tiFy\Contracts\{
+    Console\Command,
+    Support\ParamsBag
+};
 
-/**
- * Interface ImportCommand
- * @package tiFy\Plugins\Transaction\Contracts
- * @mixin \Symfony\Component\Console\Command\Command
- */
-interface ImportCommand
+interface ImportCommand extends Command
 {
     /**
      * Récupération de la date au format datetime.
