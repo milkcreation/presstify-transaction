@@ -39,7 +39,7 @@ jQuery( document ).ready( function( $ ){
         }
         
         $.ajax({
-            url :           tify_ajaxurl,
+            url :           tify.ajaxurl,
             data :          data,
             success :       function( resp ){   
                 $( '.tiFyTemplatesExport-ProgressBar' ).tiFyProgress( 'option', { value: (resp.data.paged*resp.data.per_page), max: resp.data.total_items } );

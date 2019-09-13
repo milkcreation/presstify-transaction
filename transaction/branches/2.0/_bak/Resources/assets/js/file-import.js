@@ -22,7 +22,7 @@ jQuery(document).ready(function ($) {
         });
 
         $.ajax({
-            url: tify_ajaxurl + '?action=' + action,
+            url: tify.ajaxurl + '?action=' + action,
             type: 'POST',
             data: data,
             cache: false,

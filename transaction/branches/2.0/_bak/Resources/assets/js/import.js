@@ -201,7 +201,7 @@ jQuery(document).ready(function ($) {
         });
 
         $.ajax({
-            url: tify_ajaxurl,
+            url: tify.ajaxurl,
             type: 'POST',
             data: data,
             dataType: 'json',

@@ -14,7 +14,7 @@ use tiFy\Support\Manager;
  * @desc Extension PresstiFy de gestion de données de transaction.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Transaction
- * @version 2.0.29
+ * @version 2.0.30
  *
  * USAGE :
  * Activation :
@@ -152,7 +152,7 @@ class Transaction extends Manager implements TransactionContract
 
         $alias = "import.records.{$name}";
 
-        return $this->set($alias, $concrete->setParams($params))->get($alias, null);
+        return $this->set($alias, $concrete->setManager($this)->setParams($params))->get($alias, null);
     }
 
     /**
