@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpTerm;
+namespace tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpBase;
 
-use tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpBase\Factory as BaseFactory;
+use tiFy\Plugins\Transaction\Template\ImportListTable\Factory as BaseFactory;
 
 class Factory extends BaseFactory
 {
