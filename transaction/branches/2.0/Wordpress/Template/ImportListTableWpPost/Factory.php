@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpPost;
 
-use tiFy\Plugins\Transaction\Template\ImportListTable\Factory as BaseFactory;
+use tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpBase\Factory as BaseFactory;
 
 class Factory extends BaseFactory
 {

@@ -12,8 +12,13 @@ use tiFy\Plugins\Transaction\{
 };
 use tiFy\Template\Templates\ListTable\{
     Contracts\Column as BaseColumnContract,
-    Contracts\Item as BaseItemContract,
+    Contracts\Extra as BaseExtraContract,
+    Contracts\Params as BaseParamsContract,
     Contracts\RowAction as BaseRowActionContract
+};
+use tiFy\Plugins\Transaction\Template\ImportListTable\{
+    Contracts\Actions as ActionsContract,
+    Contracts\Item as ItemContract
 };
 
 class ServiceProvider extends BaseServiceProvider
@@ -36,6 +41,21 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * @inheritDoc
      */
+    public function registerFactoryActions(): void
+    {
+        $this->getContainer()->share($this->getFactoryAlias('actions'), function (): ActionsContract {
+            $ctrl = $this->factory->provider('actions');
+            $ctrl = $ctrl instanceof ActionsContract
+                ? $ctrl
+                : new Actions();
+
+            return $ctrl->setTemplateFactory($this->factory);
+        });
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function registerFactoryColumns(): void
     {
         parent::registerFactoryColumns();
@@ -52,15 +72,44 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * @inheritDoc
      */
+    public function registerFactoryExtras(): void
+    {
+        parent::registerFactoryExtras();
+
+        $this->getContainer()->add($this->getFactoryAlias('extra.full-import'), function (): BaseExtraContract {
+            return (new ExtraImport())->setTemplateFactory($this->factory);
+        });
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function registerFactoryItem(): void
     {
-        $this->getContainer()->add($this->getFactoryAlias('item'), function (): BaseItemContract {
+        $this->getContainer()->add($this->getFactoryAlias('item'), function (): ItemContract {
             $ctrl = $this->factory->provider('item');
-            $ctrl = $ctrl instanceof BaseItemContract
+            $ctrl = $ctrl instanceof ItemContract
                 ? clone $ctrl
                 : new Item();
 
             return $ctrl->setTemplateFactory($this->factory);
+        });
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function registerFactoryParams(): void
+    {
+        $this->getContainer()->share($this->getFactoryAlias('params'), function (): BaseParamsContract {
+            $ctrl = $this->factory->provider('params');
+            $ctrl = $ctrl instanceof BaseParamsContract
+                ? $ctrl
+                : new Params();
+
+            $attrs = $this->factory->get('params', []);
+
+            return $ctrl->setTemplateFactory($this->factory)->set(is_array($attrs) ? $attrs : [])->parse();
         });
     }
 

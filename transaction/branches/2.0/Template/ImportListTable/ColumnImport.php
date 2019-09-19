@@ -36,8 +36,10 @@ class ColumnImport extends BaseColumn
      */
     public function value(): string
     {
+        $this->set('item', $this->factory->item());
+
         return (string)view()
             ->setDirectory(Transaction::resourcesDir('/views/import-list-table'))
-            ->make('col-import', ['item' => $this->factory->item()]);
+            ->make('col-import', $this->all());
     }
 }

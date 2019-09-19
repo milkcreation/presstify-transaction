@@ -1,1 +1,1 @@
-.ListTable .column-import{width:100px}
+.ListTable .column-import{width:100px}[data-control="list-table.table"] tr[aria-progress=true]>*{opacity:.5}

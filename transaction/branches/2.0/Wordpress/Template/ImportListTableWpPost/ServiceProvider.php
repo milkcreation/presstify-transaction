@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpPost;
 
-use tiFy\Plugins\Transaction\Template\ImportListTable\ServiceProvider as BaseServiceProvider;
+use tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpBase\ServiceProvider as BaseServiceProvider;
 use tiFy\Template\Templates\ListTable\{
     Contracts\Item as BaseItemContract,
     Contracts\RowAction as BaseRowActionContract
