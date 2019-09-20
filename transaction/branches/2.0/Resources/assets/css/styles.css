@@ -1,1 +1,1 @@
-.ListTable .column-import{width:100px}[data-control="list-table.table"] tr[aria-progress=true]>*{opacity:.5}
+.ListTable .column-import{width:100px}[data-control="list-table.table"] tr[aria-progress=true]>*{opacity:.5}[data-control="list-table.import-rows.handler"]{position:fixed;top:50%;left:50%;z-index:1;transform:translate(-50%, -50%)}.ListTable-ImportHandler{padding:20px;background-color:color(white);text-align:center;width:500px}

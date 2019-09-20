@@ -20,7 +20,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         parent::registerFactoryExtras();
 
-        $this->getContainer()->add($this->getFactoryAlias('extra.full-import'), function (): BaseExtraContract {
+        $this->getContainer()->add($this->getFactoryAlias('extra.import'), function (): BaseExtraContract {
             return (new ExtraImport())->setTemplateFactory($this->factory);
         });
     }

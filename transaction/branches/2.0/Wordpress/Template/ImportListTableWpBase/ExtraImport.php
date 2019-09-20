@@ -3,6 +3,7 @@
 namespace tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpBase;
 
 use tiFy\Plugins\Transaction\Template\ImportListTable\ExtraImport as BaseExtraImport;
+use tiFy\Template\Templates\ListTable\Contracts\Extra as BaseExtraContract;
 
 class ExtraImport extends BaseExtraImport
 {
@@ -15,16 +16,18 @@ class ExtraImport extends BaseExtraImport
     /**
      * @inheritDoc
      */
-    public function defaults(): array
+    public function parse(): BaseExtraContract
     {
-        return array_merge(parent::defaults(), [
-            'button' => [
-                'tag'     => 'a',
-                'attrs'   => [
-                    'class' => 'button-primary'
-                ],
-                'content' => __('Lancer l\'import', 'theme'),
-            ],
-        ]);
+        parent::parse();
+
+        if (!$this->get('button.attrs.class')) {
+            $this->set('button.attrs.class', 'button-primary');
+        }
+
+        if (!$this->get('cancel.attrs.class')) {
+            $this->set('cancel.attrs.class', 'button-primary');
+        }
+
+        return $this;
     }
 }
