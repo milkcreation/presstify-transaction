@@ -1,7 +1,7 @@
 <?php
 /**
- * Colonne des informations d'import.
+ * Interface de lancement de l'import.
  * ---------------------------------------------------------------------------------------------------------------------
- * @var tiFy\Plugins\Transaction\Template\ImportListTable\Contracts\Item $item
+ * @var tiFy\Contracts\View\ViewController $this
  */
-echo partial('tag', $this->get('button', []));
+echo partial('tag', $this->get('button', [])) . $this->get('handler', '');

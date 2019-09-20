@@ -2,14 +2,17 @@
 
 namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 
-use tiFy\Template\Templates\ListTable\{
-    Contracts\Extra as BaseExtraContract,
-    Extra
-};
 use tiFy\Plugins\Transaction\Proxy\Transaction;
+use tiFy\Template\Templates\ListTable\{Contracts\Extra as BaseExtraContract, Extra};
 
 class ExtraImport extends Extra
 {
+    /**
+     * Indicateur d'instanciation de la barre de progression.
+     * @var int
+     */
+    protected static $progress = 0;
+
     /**
      * Instance du gabarit associé.
      * @var Factory
@@ -26,6 +29,12 @@ class ExtraImport extends Extra
                 'tag'     => 'a',
                 'content' => __('Lancer l\'import', 'theme'),
             ],
+            'progress' => [],
+            'cancel'   => [
+                'attrs' => ['type' => 'button'],
+                'content' => __('Annuler', 'tify'),
+                'tag' => 'button'
+            ]
         ]);
     }
 
@@ -38,12 +47,13 @@ class ExtraImport extends Extra
 
         if ($this->factory->ajax()) {
             $this->set([
-                'button.attrs.data-control' => 'list-table.full-import',
-                'button.attrs.href' => url_factory($this->factory->baseUrl() . '/xhr')->with([
-                    'action' => 'import',
-                    'full'   => '1'
+                'button.attrs.data-control' => 'list-table.import-rows',
+                'button.attrs.href'         => url_factory($this->factory->baseUrl() . '/xhr')->with([
+                    'action' => 'import'
                 ])
             ]);
+            $this->set('progress.attrs.data-control', 'list-table.import-rows.progress');
+            $this->set('cancel.attrs.data-control', 'list-table.import-rows.cancel');
         }
 
         return $this;
@@ -54,8 +64,14 @@ class ExtraImport extends Extra
      */
     public function render(): string
     {
-        return (string)view()
-            ->setDirectory(Transaction::resourcesDir('/views/import-list-table'))
-            ->make('extra-import', $this->all());
+        $viewer = view()->setDirectory(Transaction::resourcesDir('/views/import-list-table'));
+
+        if (!static::$progress++) {
+            $this->set('handler', (string)$viewer->make('import-handler', $this->all()));
+        } else {
+            $this->forget('handler');
+        }
+
+        return (string)$viewer->make('extra-import', $this->all());
     }
 }

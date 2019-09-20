@@ -12,9 +12,7 @@ class Params extends BaseParams
     public function defaults(): array
     {
         return array_merge(parent::defaults(), [
-            'extras'       => [
-                'full-import'
-            ],
+            'extras'       => ['import'],
         ]);
     }
 }
