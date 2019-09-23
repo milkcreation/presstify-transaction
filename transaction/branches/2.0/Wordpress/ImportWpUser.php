@@ -130,7 +130,7 @@ class ImportWpUser extends BaseImportRecord implements ImportWpUserContract
     public function fetchUserPass(): ImportWpUserContract
     {
         if ($user_pass = $this->input('user_pass', '')) {
-            $this->output(['user_pass' => wp_hash_password($user_pass)]);
+            $this->output(['user_pass' => $user_pass]);
         }
 
         return $this;
