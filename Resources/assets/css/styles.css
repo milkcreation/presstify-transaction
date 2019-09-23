@@ -1,1 +1,17 @@
-.ListTable .column-import{width:100px}[data-control="list-table.table"] tr[aria-progress=true]>*{opacity:.5}[data-control="list-table.import-rows.handler"]{position:fixed;top:50%;left:50%;z-index:1;transform:translate(-50%, -50%)}.ListTable-ImportHandler{padding:20px;background-color:color(white);text-align:center;width:500px}
+/* Error: Can't find stylesheet to import.
+ *   ,
+ * 1 | @import '~presstify-framework/template/list-table/scss/styles';
+ *   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ *   '
+ *   styles.scss 1:9  root stylesheet */
+
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Can't find stylesheet to import.\a   \2577 \a 1 \2502  @import '~presstify-framework/template/list-table/scss/styles';\a   \2502          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\a   \2575 \a   styles.scss 1:9  root stylesheet";
+}
