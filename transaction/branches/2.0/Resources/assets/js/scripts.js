@@ -1,10 +1,11 @@
 /* global jQuery */
 "use strict";
 
+import 'presstify-framework/template/list-table/js/scripts';
+import 'presstify-framework/partial/progress/js/scripts';
+
 jQuery(function ($) {
-  /**
-   * @param {*} $.tify
-   */
+  /** @param {Object} $.tify */
   $.widget('tify.tifyListTable', $.tify.tifyListTable, {
     // Instanciation de l'élément.
     _create: function () {
@@ -36,6 +37,7 @@ jQuery(function ($) {
       let self = this,
           table = self.dataTable.api(),
           info = table.page.info(),
+          /** @param {number} info.recordsDisplay */
           max = info.recordsDisplay-info.start;
 
       this.importProgress('max', max);
@@ -52,6 +54,9 @@ jQuery(function ($) {
             let info = table.page.info(),
                 paged = info.page+1,
                 idx = index+info.start;
+
+            self.import.xhr.abort();
+            self.import.xhr = undefined;
 
             self.importProgress('increment');
 
