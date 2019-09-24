@@ -1,12 +1,7 @@
 @import '~presstify-framework/template/list-table/scss/styles';
 @import '~presstify-framework/partial/progress/scss/styles';
 
-.ListTable {
-  .column-import {
-    width: 100px;
-  }
-}
-
+/** STYLES DE CONTROLE (recommandé) */
 [data-control="list-table.table"] tr[aria-progress="true"] > * {
   opacity: 0.5;
 }
@@ -17,6 +12,18 @@
   left: 50%;
   z-index: 1;
   transform: translate(-50%, -50%);
+  display: none;
+}
+
+[data-control="list-table.import-rows.handler"][aria-display='true'] {
+  display: inherit;
+}
+
+/** STYLES D'AFFICHAGE */
+.ListTable {
+  .column-import {
+    width: 100px;
+  }
 }
 
 .ListTable-ImportHandler {
