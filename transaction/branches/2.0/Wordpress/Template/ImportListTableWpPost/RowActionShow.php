@@ -3,6 +3,7 @@
 namespace tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpPost;
 
 use tiFy\Plugins\Transaction\Template\ImportListTable\RowActionShow as BaseRowActionShow;
+use tiFy\Support\Proxy\Url;
 
 class RowActionShow extends BaseRowActionShow
 {
@@ -19,7 +20,7 @@ class RowActionShow extends BaseRowActionShow
     {
         return array_merge(parent::defaults(), [
             'url'     => function (Item $item) {
-                return $item->exists() ? url_factory($item->getPermalink()): null;
+                return $item->exists() ? Url::set($item->getPermalink()): null;
             },
         ]);
     }

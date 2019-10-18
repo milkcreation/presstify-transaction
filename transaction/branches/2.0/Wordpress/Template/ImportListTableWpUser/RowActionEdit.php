@@ -3,6 +3,7 @@
 namespace tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpUser;
 
 use tiFy\Plugins\Transaction\Template\ImportListTable\RowActionEdit as BaseRowActionEdit;
+use tiFy\Support\Proxy\Url;
 
 class RowActionEdit extends BaseRowActionEdit
 {
@@ -18,8 +19,8 @@ class RowActionEdit extends BaseRowActionEdit
     public function defaults(): array
     {
         return array_merge(parent::defaults(), [
-            'url'     => function (Item $item) {
-                return $item->exists() ? url_factory(get_edit_user_link($item->getId())): null;
+            'url' => function (Item $item) {
+                return $item->exists() ? Url::set(get_edit_user_link($item->getId())) : null;
             },
         ]);
     }

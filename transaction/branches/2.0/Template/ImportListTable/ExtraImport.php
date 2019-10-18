@@ -3,6 +3,7 @@
 namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 
 use tiFy\Plugins\Transaction\Proxy\Transaction;
+use tiFy\Support\Proxy\Url;
 use tiFy\Template\Templates\ListTable\{Contracts\Extra as BaseExtraContract, Extra};
 
 class ExtraImport extends Extra
@@ -25,16 +26,16 @@ class ExtraImport extends Extra
     public function defaults(): array
     {
         return array_merge(parent::defaults(), [
-            'button' => [
+            'button'   => [
                 'tag'     => 'a',
                 'content' => __('Lancer l\'import', 'theme'),
             ],
             'progress' => [],
             'cancel'   => [
-                'attrs' => ['type' => 'button'],
+                'attrs'   => ['type' => 'button'],
                 'content' => __('Annuler', 'tify'),
-                'tag' => 'button'
-            ]
+                'tag'     => 'button',
+            ],
         ]);
     }
 
@@ -48,9 +49,9 @@ class ExtraImport extends Extra
         if ($this->factory->ajax()) {
             $this->set([
                 'button.attrs.data-control' => 'list-table.import-rows',
-                'button.attrs.href'         => url_factory($this->factory->baseUrl() . '/xhr')->with([
-                    'action' => 'import'
-                ])
+                'button.attrs.href'         => Url::set($this->factory->baseUrl() . '/xhr')->with([
+                    'action' => 'import',
+                ]),
             ]);
             $this->set('progress.attrs.data-control', 'list-table.import-rows.progress');
             $this->set('cancel.attrs.data-control', 'list-table.import-rows.cancel');
