@@ -39,7 +39,7 @@ class TransactionServiceProvider extends ServiceProvider
     {
         $this->getContainer()->share('transaction', function (): TransactionContract {
             return new Transaction(
-                $this->getContainer()->get('console.application'),
+                $this->getContainer()->get('console'),
                 $this->getContainer()->get('app')
             );
         });
