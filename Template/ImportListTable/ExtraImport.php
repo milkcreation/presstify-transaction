@@ -28,7 +28,7 @@ class ExtraImport extends Extra
         return array_merge(parent::defaults(), [
             'button'   => [
                 'tag'     => 'a',
-                'content' => __('Lancer l\'import', 'theme'),
+                'content' => __('Lancer l\'import', 'tify'),
             ],
             'progress' => [],
             'cancel'   => [
