@@ -230,7 +230,7 @@ class ImportWpUser extends BaseImportRecord implements ImportWpUserContract
                         ->setExists(false)
                         ->messages()->error(__('Impossible de récupérer l\'utilisateur importé', 'tify'));
                 } else {
-                    /** @todo
+                    /** @todo EVOLUTION Gestion du multisite
                      * if (is_multisite()) {
                         add_user_to_blog($this->getBlog())
                     } */
