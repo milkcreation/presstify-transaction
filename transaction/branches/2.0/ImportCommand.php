@@ -4,7 +4,11 @@ namespace tiFy\Plugins\Transaction;
 
 use DateTimeZone;
 use Exception;
-use Symfony\Component\Console\{Input\InputInterface, Input\InputOption, Output\OutputInterface};
+use Symfony\Component\Console\{
+    Input\InputInterface,
+    Input\InputOption,
+    Output\OutputInterface
+};
 use tiFy\Console\Command as BaseCommand;
 use tiFy\Plugins\Transaction\Contracts\{ImportCommand as ImportCommandContract, ImportRecord, ImportRecords};
 use tiFy\Support\{DateTime, MessagesBag, ParamsBag};
@@ -39,9 +43,6 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
     public function __construct(string $name = null)
     {
         parent::__construct($name);
-
-        $this->params = new ParamsBag();
-        $this->messagesBag = new ParamsBag();
 
         $this
             ->addOption('url', null, InputOption::VALUE_OPTIONAL, __('Url du site', 'tify'), '')
@@ -100,7 +101,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
                 $manager->summary([
                     'class' => __CLASS__,
                     'type'  => 'cli',
-                    'name'  => $this->getName()
+                    'name'  => $this->getName(),
                 ]);
                 $output->writeln($this->messages(
                     'start',
@@ -109,7 +110,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
                     (int)$manager->summary('count', 0)
                 ));
             })
-            ->setBeforeItem(function (ImportRecords $manager, ImportRecord $record, $key) use ($output)  {
+            ->setBeforeItem(function (ImportRecords $manager, ImportRecord $record, $key) use ($output) {
                 $output->writeln(
                     $this->messages(
                         'item_start',
@@ -120,9 +121,9 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
                     )
                 );
             })
-            ->setAfterItem(function (ImportRecords $manager, ImportRecord $record, $key) use ($output)  {
+            ->setAfterItem(function (ImportRecords $manager, ImportRecord $record, $key) use ($output) {
                 foreach ($manager->summary("items.{$key}.data.messages", []) as $level => $message) {
-                    if ($level >= $this->getLevel()){
+                    if ($level >= $this->getLevel()) {
                         $output->writeln($message);
                     }
                 }
@@ -180,6 +181,10 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
      */
     public function messages($key = null, $default = '', ...$args)
     {
+        if(is_null($this->messagesBag)) {
+            $this->messagesBag = new ParamsBag();
+        }
+
         if (is_string($key)) {
             $message = $this->messagesBag->get($key, $default);
             return array_map(function ($message) use ($args) {
@@ -197,6 +202,10 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
      */
     public function params($key = null, $default = null)
     {
+        if (is_null($this->params)) {
+            $this->params = new ParamsBag();
+        }
+
         if (is_string($key)) {
             return $this->params->get($key, $default);
         } elseif (is_array($key)) {
@@ -219,7 +228,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
      */
     public function setParams(array $params): ImportCommandContract
     {
-        $this->params->set($params);
+        $this->params($params);
 
         if ($description = $this->params()->pull('description')) {
             $this->setDescription($description);

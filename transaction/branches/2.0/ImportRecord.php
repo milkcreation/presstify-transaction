@@ -47,13 +47,13 @@ class ImportRecord implements ImportRecordContract
 
     /**
      * Indicateur de préparation.
-     * @var boolean
+     * @var bool
      */
     protected $prepared = false;
 
     /**
      * Indicateur de succès de la tâche.
-     * @var boolean
+     * @var bool
      */
     protected $success = false;
 
@@ -80,7 +80,7 @@ class ImportRecord implements ImportRecordContract
      */
     public function execute(): ImportRecordContract
     {
-        $this->save();
+        $this->prepare()->save();
 
         return $this;
     }
@@ -174,7 +174,7 @@ class ImportRecord implements ImportRecordContract
     public function prepare(): ImportRecordContract
     {
         if (!$this->prepared) {
-            $this->fetchExists();
+            $this->fetchExists()->messages()->flush();
 
             $this->prepared = true;
         }

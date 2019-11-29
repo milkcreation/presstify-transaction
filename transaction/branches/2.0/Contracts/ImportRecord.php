@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Contracts;
 
-use tiFy\Contracts\Support\ParamsBag;
+use tiFy\Contracts\Support\{MessagesBag, ParamsBag};
 
 interface ImportRecord
 {
@@ -51,7 +51,7 @@ interface ImportRecord
     /**
      * Définition/Récupération des messages de notification.
      *
-     * @return mixed|ParamsBag
+     * @return mixed|MessagesBag
      */
     public function messages();
 
@@ -129,7 +129,7 @@ interface ImportRecord
     /**
      * Définition de la statut de réussite de la tâche.
      *
-     * @param boolean $success Valeur de réussite
+     * @param bool $success Valeur de réussite
      *
      * @return static
      */

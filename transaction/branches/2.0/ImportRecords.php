@@ -533,7 +533,8 @@ class ImportRecords extends Collection implements ImportRecordsContract
         if ($record instanceof ImportRecordContract) {
             $record = clone $record;
         } elseif (($factory = $this->params->get('record')) && ($factory instanceof ImportRecordContract)) {
-            $record = clone $factory->setInput($record);
+            $factory = clone $factory;
+            $record = $factory->setInput($record);
         } else {
             $factory = $this->params->get('record');
             $input = $record;
