@@ -3,7 +3,7 @@
 namespace tiFy\Plugins\Transaction;
 
 use Psr\Container\ContainerInterface as Container;
-use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\{Application as ConsoleApplication, Command\Command as SfCommand};
 use tiFy\Plugins\Transaction\Contracts\{ImportCommand as ImportCommandContract,
     ImportCommandStack as ImportCommandStackContract,
     ImportRecords as ImportRecordsContract,
@@ -14,7 +14,7 @@ use tiFy\Support\Manager;
  * @desc Extension PresstiFy de gestion de données de transaction.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Transaction
- * @version 2.0.39
+ * @version 2.0.40
  *
  * USAGE :
  * Activation :
@@ -113,7 +113,9 @@ class Transaction extends Manager implements TransactionContract
             $concrete->setName($name);
         }
 
-        $command = $this->getConsoleApp()->add($concrete->setRecords($records)->setParams($params));
+        /** @var SfCommand $command */
+        $command = $concrete->setRecords($records)->setParams($params);
+        $command = $this->getConsoleApp()->add($command);
         $name = $command->getName();
         $alias = "import.command.{$name}";
 
@@ -134,7 +136,10 @@ class Transaction extends Manager implements TransactionContract
             $concrete->setName($name);
         }
 
-        $command = $this->getConsoleApp()->add($concrete->setStack($stack));
+        /** @var SfCommand $command */
+        $command = $concrete->setStack($stack);
+
+        $command = $this->getConsoleApp()->add($command);
         $name = $command->getName();
         $alias = "import.command-stack.{$name}";
 
