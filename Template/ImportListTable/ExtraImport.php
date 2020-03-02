@@ -5,6 +5,8 @@ namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 use tiFy\Plugins\Transaction\Proxy\Transaction;
 use tiFy\Support\Proxy\Url;
 use tiFy\Template\Templates\ListTable\{Contracts\Extra as BaseExtraContract, Extra};
+use tiFy\Support\Proxy\View as ProxyView;
+use tiFy\Template\Factory\View;
 
 class ExtraImport extends Extra
 {
@@ -65,14 +67,17 @@ class ExtraImport extends Extra
      */
     public function render(): string
     {
-        $viewer = view()->setDirectory(Transaction::resourcesDir('/views/import-list-table'));
+        $view = ProxyView::getPlatesEngine([
+            'directory' => Transaction::resourcesDir('/views/import-list-table'),
+            'factory'   => View::class
+        ]);
 
         if (!static::$progress++) {
-            $this->set('handler', (string)$viewer->make('import-handler', $this->all()));
+            $this->set('handler', $view->render('import-handler', $this->all()));
         } else {
             $this->forget('handler');
         }
 
-        return (string)$viewer->make('extra-import', $this->all());
+        return $view->render('extra-import', $this->all());
     }
 }

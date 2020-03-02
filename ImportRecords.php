@@ -267,7 +267,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     public function fromPath(string $path): ImportRecordsContract
     {
         try {
-            $this->setReader(Reader::createFromPath($path));
+            $this->setReader(Reader::createFromPath($path, $this->params('reader', [])));
         } catch (ReaderException $e) {
             if ($this->params('asserts', true)) {
                 throw $e;

@@ -24,6 +24,7 @@ class Source extends BaseSource
         if (is_null($reader)) {
             $reader = $this->factory->records()->fetch()->reader();
         }
+
         $this->reader = $reader;
 
         return $this;
