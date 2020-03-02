@@ -31,11 +31,11 @@ class Item extends BaseItem
      */
     public function parse(): ItemContract
     {
-        parent::parse();
-
-        if ($this->exists() instanceof WP_Term) {
+        if (is_null($this->delegate) && $this->exists() instanceof WP_Term) {
             $this->setDelegate(QueryTerm::createFromId($this->exists()->term_id));
         }
+
+        parent::parse();
 
         return $this;
     }

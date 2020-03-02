@@ -2,7 +2,7 @@
 /**
  * Interface de progression de l'import.
  * ---------------------------------------------------------------------------------------------------------------------
- * @var tiFy\Contracts\View\ViewController $this
+ * @var tiFy\Contracts\Template\FactoryViewer $this
  */
 ?>
 <div class="ListTable-ImportHandler" data-control="list-table.import-rows.handler">

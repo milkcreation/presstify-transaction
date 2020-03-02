@@ -23,11 +23,11 @@ class Item extends BaseItem
      */
     public function parse(): ItemContract
     {
-        parent::parse();
-
-        if ($this->exists() instanceof WP_Post) {
+        if (is_null($this->delegate) && $this->exists() instanceof WP_Post) {
             $this->setDelegate(QueryProduct::createFromId($this->exists()->ID));
         }
+
+        parent::parse();
 
         return $this;
     }
