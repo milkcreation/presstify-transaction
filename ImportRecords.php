@@ -252,7 +252,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
             $this->set(
                 $reader
                     ->setOffset($this->getOffset())
-                    ->setPage(1)
+                    ->setCurrentPage(1)
                     ->setPerPage($this->getLength())
                     ->fetch()
             );
