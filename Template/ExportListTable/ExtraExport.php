@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Transaction\Template\ImportListTable;
+namespace tiFy\Plugins\Transaction\Template\ExportListTable;
 
 use tiFy\Plugins\Transaction\Proxy\Transaction;
 use tiFy\Template\Templates\ListTable\{Contracts\Extra as BaseExtraContract, Extra};
 use tiFy\Support\Proxy\View as ProxyView;
 use tiFy\Template\Factory\View;
 
-class ExtraImport extends Extra
+class ExtraExport extends Extra
 {
     /**
      * Indicateur d'instanciation de la barre de progression.
@@ -28,8 +28,13 @@ class ExtraImport extends Extra
     {
         return array_merge(parent::defaults(), [
             'button'   => [
-                'tag'     => 'a',
-                'content' => __('Lancer l\'import', 'tify'),
+                'attrs'   => [
+                    'type' => 'submit',
+                    'name' => $this->factory->actions()->getIndex(),
+                    'value' => 'export'
+                ],
+                'tag'     => 'button',
+                'content' => __('Lancer l\'export', 'tify'),
             ],
             'progress' => [],
             'cancel'   => [
@@ -49,13 +54,10 @@ class ExtraImport extends Extra
 
         if ($this->factory->ajax()) {
             $this->set([
-                'button.attrs.data-control' => 'list-table.import-rows',
-                'button.attrs.href'         => (string)$this->factory->url()->set($this->factory->url()->xhr())->with([
-                    $this->factory->actions()->getIndex() => 'import',
-                ]),
+                'button.attrs.data-control'   => 'list-table.export-rows',
+                'cancel.attrs.data-control'   => 'list-table.export-rows.cancel',
+                'progress.attrs.data-control' => 'list-table.export-rows.progress',
             ]);
-            $this->set('progress.attrs.data-control', 'list-table.import-rows.progress');
-            $this->set('cancel.attrs.data-control', 'list-table.import-rows.cancel');
         }
 
         return $this;
@@ -67,16 +69,16 @@ class ExtraImport extends Extra
     public function render(): string
     {
         $view = ProxyView::getPlatesEngine([
-            'directory' => Transaction::resourcesDir('/views/import-list-table'),
-            'factory'   => View::class
+            'directory' => Transaction::resourcesDir('/views/export-list-table'),
+            'factory'   => View::class,
         ]);
 
-        if (!static::$progress++) {
-            $this->set('handler', $view->render('import-handler', $this->all()));
+        if ($this->factory->ajax() && !static::$progress++) {
+            $this->set('handler', $view->render('export-handler', $this->all()));
         } else {
             $this->forget('handler');
         }
 
-        return $view->render('extra-import', $this->all());
+        return $view->render('extra-export', $this->all());
     }
 }

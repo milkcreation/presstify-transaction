@@ -1,6 +1,7 @@
 @import '~presstify-framework/template/list-table/scss/styles';
 @import '~presstify-framework/partial/progress/scss/styles';
 
+// Personnalisation
 /** STYLES DE CONTROLE (recommandé) */
 [data-control="list-table.table"] tr[aria-progress="true"] > * {
   opacity: 0.5;
