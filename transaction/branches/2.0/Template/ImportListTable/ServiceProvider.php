@@ -177,7 +177,7 @@ class ServiceProvider extends BaseServiceProvider
                 return null;
             } else {
                 $ctrl = $ctrl instanceof BaseSourceContract
-                    ? clone $ctrl
+                    ? $ctrl
                     : new Source();
             }
 

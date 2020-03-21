@@ -2,6 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Template\ImportListTable;
 
+use Exception;
 use tiFy\Template\Templates\ListTable\Actions as BaseActions;
 use tiFy\Plugins\Transaction\Template\ImportListTable\Contracts\Actions as ActionsContract;
 
@@ -19,6 +20,8 @@ class Actions extends BaseActions implements ActionsContract
     public function executeImport()
     {
         if ($id = $this->factory->request()->input('id')) {
+            $this->factory->prepare();
+
             if ($item = $this->factory->builder()->getItem($this->factory->request()->input('id'))) {
                 $records = $this->factory->records()->executeRecord($item->getOffset());
 
@@ -29,12 +32,11 @@ class Actions extends BaseActions implements ActionsContract
                     ]
                 ];
             } else {
-                return [
-                    'success' => false,
-                    'data'    => __('Impossible de récupérer l\'élément associé.', 'tify')
-                ];
+                throw new Exception(__('Impossible de récupérer l\'élément associé.', 'tify'));
             }
         } elseif ($this->factory->request()->has('idx')) {
+            $this->factory->prepare();
+
             $offset = $this->factory->request()->get('idx');
             $records = $this->factory->records()->executeRecord($offset);
 
@@ -45,9 +47,7 @@ class Actions extends BaseActions implements ActionsContract
                 ]
             ];
         }
-        return [
-            'success' => false,
-            'data'    => 'erreur lors de l\import.'
-        ];
+
+        throw new Exception(__('Impossible de récupérer l\'élément associé.', 'tify'));
     }
 }

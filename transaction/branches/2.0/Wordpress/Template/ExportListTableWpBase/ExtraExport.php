@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace tiFy\Plugins\Transaction\Wordpress\Template\ImportListTableWpBase;
+namespace tiFy\Plugins\Transaction\Wordpress\Template\ExportListTableWpBase;
 
-use tiFy\Plugins\Transaction\Template\ImportListTable\ExtraImport as BaseExtraImport;
+use tiFy\Plugins\Transaction\Template\ExportListTable\ExtraExport as BaseExtraExport;
 use tiFy\Template\Templates\ListTable\Contracts\Extra as BaseExtraContract;
 
-class ExtraImport extends BaseExtraImport
+class ExtraExport extends BaseExtraExport
 {
     /**
      * Instance du gabarit associé.
