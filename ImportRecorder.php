@@ -2,17 +2,21 @@
 
 namespace tiFy\Plugins\Transaction;
 
-use tiFy\Contracts\{Log\Logger as LoggerContract,
+use tiFy\Contracts\{
+    Log\Logger as LoggerContract,
     Support\LabelsBag as LabelsBagContract,
-    Support\MessagesBag as MessagesBagContract};
+    Support\MessagesBag as MessagesBagContract
+};
 use tiFy\Log\Logger;
 use tiFy\Plugins\Parser\{Contracts\Reader as ReaderContract, Exceptions\ReaderException, Reader};
-use tiFy\Plugins\Transaction\{Contracts\ImportRecord as ImportRecordContract,
-    Contracts\ImportRecords as ImportRecordsContract,
-    Contracts\Transaction};
+use tiFy\Plugins\Transaction\Contracts\{
+    ImportRecord as ImportRecordContract,
+    ImportRecorder as ImportRecorderContract,
+    Transaction
+};
 use tiFy\Support\{Collection, DateTime, LabelsBag, MessagesBag, ParamsBag};
 
-class ImportRecords extends Collection implements ImportRecordsContract
+class ImportRecorder extends Collection implements ImportRecorderContract
 {
     /**
      * Liste des fonctions de traitement de l'import.
@@ -100,23 +104,31 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public static function createFromPath(string $path, $params = []): ImportRecordsContract
+    public static function createFromPath(string $path, array $params = []): ?ImportRecorderContract
     {
-        return (new static($params))->fromPath($path);
+        try {
+            return (new static($params))->fromPath($path);
+        } catch (ReaderException $e) {
+            return null;
+        }
     }
 
     /**
      * @inheritDoc
      */
-    public static function createFromReader(ReaderContract $reader, $params = []): ImportRecordsContract
+    public static function createFromReader(ReaderContract $reader, array $params = []): ?ImportRecorderContract
     {
-        return (new static())->setParams($params)->setReader($reader);
+        try {
+            return (new static())->setParams($params)->setReader($reader);
+        } catch (ReaderException $e) {
+            return null;
+        }
     }
 
     /**
      * @inheritDoc
      */
-    public function callAfter(): ImportRecordsContract
+    public function callAfter(): ImportRecorderContract
     {
         foreach ($this->callable['after'] as $callable) {
             $callable($this);
@@ -128,7 +140,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function callAfterItem(ImportRecordContract $record, $key): ImportRecordsContract
+    public function callAfterItem(ImportRecordContract $record, $key): ImportRecorderContract
     {
         foreach ($this->callable['after_item'] as $callable) {
             $callable($this, $record, $key);
@@ -140,7 +152,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function callBefore(): ImportRecordsContract
+    public function callBefore(): ImportRecorderContract
     {
         foreach ($this->callable['before'] as $callable) {
             $callable($this);
@@ -152,7 +164,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function callBeforeItem(ImportRecordContract $record, $key): ImportRecordsContract
+    public function callBeforeItem(ImportRecordContract $record, $key): ImportRecorderContract
     {
         foreach ($this->callable['before_item'] as $callable) {
             $callable($this, $record, $key);
@@ -164,7 +176,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function execute(): ImportRecordsContract
+    public function execute(): ImportRecorderContract
     {
         $start = time() + (new DateTime())->getOffset();
 
@@ -212,7 +224,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function executeRecord($key): ImportRecordsContract
+    public function executeRecord($key): ImportRecorderContract
     {
         if ($record = $this->get($key)) {
             $this->callBeforeItem($record, $key);
@@ -246,7 +258,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function fetch(): ImportRecordsContract
+    public function fetch(): ImportRecorderContract
     {
         if ($reader = $this->reader()) {
             $this->set(
@@ -264,7 +276,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function fromPath(string $path): ImportRecordsContract
+    public function fromPath(string $path): ImportRecorderContract
     {
         try {
             $this->setReader(Reader::createFromPath($path, $this->params('reader', [])));
@@ -374,7 +386,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setAfter(callable $func): ImportRecordsContract
+    public function setAfter(callable $func): ImportRecorderContract
     {
         array_push($this->callable['after'], $func);
 
@@ -384,7 +396,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setAfterItem(callable $func): ImportRecordsContract
+    public function setAfterItem(callable $func): ImportRecorderContract
     {
         array_push($this->callable['after_item'], $func);
 
@@ -394,7 +406,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setBefore(callable $func): ImportRecordsContract
+    public function setBefore(callable $func): ImportRecorderContract
     {
         array_push($this->callable['before'], $func);
 
@@ -404,7 +416,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setBeforeItem(callable $func): ImportRecordsContract
+    public function setBeforeItem(callable $func): ImportRecorderContract
     {
         array_push($this->callable['before_item'], $func);
 
@@ -414,7 +426,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setLabels(LabelsBagContract $labels): ImportRecordsContract
+    public function setLabels(LabelsBagContract $labels): ImportRecorderContract
     {
         $this->labels = $labels->parse();
 
@@ -424,7 +436,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setLength(int $length): ImportRecordsContract
+    public function setLength(int $length): ImportRecorderContract
     {
         $this->length = $length > 0 ? $length : null;
 
@@ -434,7 +446,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setLogger(LoggerContract $logger): ImportRecordsContract
+    public function setLogger(LoggerContract $logger): ImportRecorderContract
     {
         $this->logger = $logger;
 
@@ -444,7 +456,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setOffset(int $offset): ImportRecordsContract
+    public function setOffset(int $offset): ImportRecorderContract
     {
         $this->offset = $offset > 0 ? $offset : 0;
 
@@ -454,7 +466,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setParams(array $params): ImportRecordsContract
+    public function setParams(array $params): ImportRecorderContract
     {
         $this->params = (new ParamsBag())->set($params);
 
@@ -476,7 +488,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setManager(Transaction $manager): ImportRecordsContract
+    public function setManager(Transaction $manager): ImportRecorderContract
     {
         $this->manager = $manager;
 
@@ -486,7 +498,7 @@ class ImportRecords extends Collection implements ImportRecordsContract
     /**
      * @inheritDoc
      */
-    public function setReader(ReaderContract $reader): ImportRecordsContract
+    public function setReader(ReaderContract $reader): ImportRecorderContract
     {
         $this->reader = $reader;
 
@@ -542,6 +554,6 @@ class ImportRecords extends Collection implements ImportRecordsContract
             $record = (class_exists($factory) ? new $factory() : new ImportRecord())->setInput($input);
         }
 
-        return $this->items[$key] = $record->setRecords($this);
+        return $this->items[$key] = $record->setRecorder($this);
     }
 }

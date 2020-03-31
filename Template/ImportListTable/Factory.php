@@ -7,7 +7,7 @@ use tiFy\Plugins\Transaction\Template\ImportListTable\Contracts\{
     Item as ItemContract,
     Factory as FactoryContract
 };
-use tiFy\Plugins\Transaction\Contracts\ImportRecords;
+use tiFy\Plugins\Transaction\Contracts\ImportRecorder;
 use tiFy\Template\Templates\ListTable\Contracts\Item as BaseItem;
 
 class Factory extends BaseFactory implements FactoryContract
@@ -33,8 +33,8 @@ class Factory extends BaseFactory implements FactoryContract
     /**
      * @inheritDoc
      */
-    public function records(): ImportRecords
+    public function recorder(): ImportRecorder
     {
-        return $this->resolve('records');
+        return $this->resolve('recorder');
     }
 }

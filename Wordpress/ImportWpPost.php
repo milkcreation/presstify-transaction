@@ -137,7 +137,7 @@ class ImportWpPost extends BaseImportRecord implements ImportWpPostContract
                             $update
                                 ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
                                 : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                            $this->records()->labels()->singular(),
+                            $this->recorder()->labels()->singular(),
                             html_entity_decode($post->post_title),
                             $post->ID
                         ),
@@ -163,7 +163,7 @@ class ImportWpPost extends BaseImportRecord implements ImportWpPostContract
                         sprintf(__('La métadonnée "%s" n\'a pas été enregistrée.', 'tify'), $meta_key),
                         ['meta_key' => $meta_key, 'meta_value' => $meta_value, 'post' => $post->to_array()]
                     );
-                };
+                }
             }
         }
 

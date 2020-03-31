@@ -10,7 +10,7 @@ use Symfony\Component\Console\{
     Output\OutputInterface
 };
 use tiFy\Console\Command as BaseCommand;
-use tiFy\Plugins\Transaction\Contracts\{ImportCommand as ImportCommandContract, ImportRecord, ImportRecords};
+use tiFy\Plugins\Transaction\Contracts\{ImportCommand as ImportCommandContract, ImportRecord, ImportRecorder};
 use tiFy\Support\{DateTime, MessagesBag, ParamsBag};
 
 class ImportCommand extends BaseCommand implements ImportCommandContract
@@ -23,9 +23,9 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
 
     /**
      * Instance du controleur d'enregistrement.
-     * @var ImportRecords
+     * @var ImportRecorder
      */
-    private $records;
+    private $recorder;
 
     /**
      * Instance des paramètres.
@@ -62,7 +62,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
         $this->messages([
             'start'      => [
                 '=====================================================================================================',
-                sprintf(__('Import des %s.', 'tify'), $this->records()->labels()->plural()),
+                sprintf(__('Import des %s.', 'tify'), $this->recorder()->labels()->plural()),
                 '=====================================================================================================',
                 __('Démarrage des opérations : %1$s', 'tify'),
                 __('Total à traiter : %2$s', 'tify'),
@@ -70,7 +70,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
             ],
             'item_start' => [
                 '-----------------------------------------------------------------------------------------------------',
-                sprintf(__('Import %s :', 'tify'), $this->records()->labels()->singular()) . ' %1$s/%2$s',
+                sprintf(__('Import %s :', 'tify'), $this->recorder()->labels()->singular()) . ' %1$s/%2$s',
                 '-----------------------------------------------------------------------------------------------------',
                 __('Démarrage de l\'opération : %3$s', 'tify'),
                 '',
@@ -83,7 +83,7 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
             'end'        => [
                 '_____________________________________________________________________________________________________',
                 '',
-                sprintf(__('Résumé d\'import des %s :', 'tify'), $this->records()->labels()->plural()),
+                sprintf(__('Résumé d\'import des %s :', 'tify'), $this->recorder()->labels()->plural()),
                 '_____________________________________________________________________________________________________',
                 '',
                 __('Début des opérations : %1$s', 'tify'),
@@ -96,9 +96,9 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
             ],
         ]);
 
-        $this->records()
-            ->setBefore(function (ImportRecords $manager) use ($output) {
-                $manager->summary([
+        $this->recorder()
+            ->setBefore(function (ImportRecorder $recorder) use ($output) {
+                $recorder->summary([
                     'class' => __CLASS__,
                     'type'  => 'cli',
                     'name'  => $this->getName(),
@@ -106,23 +106,23 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
                 $output->writeln($this->messages(
                     'start',
                     '',
-                    $this->getDate((int)$manager->summary('start', 0)),
-                    (int)$manager->summary('count', 0)
+                    $this->getDate((int)$recorder->summary('start', 0)),
+                    (int)$recorder->summary('count', 0)
                 ));
             })
-            ->setBeforeItem(function (ImportRecords $manager, ImportRecord $record, $key) use ($output) {
+            ->setBeforeItem(function (ImportRecorder $recorder, ImportRecord $record, $key) use ($output) {
                 $output->writeln(
                     $this->messages(
                         'item_start',
                         '',
-                        $manager->summary('index', 0) + 1,
-                        $manager->summary('count', 0),
+                        $recorder->summary('index', 0) + 1,
+                        $recorder->summary('count', 0),
                         $this->getDate()
                     )
                 );
             })
-            ->setAfterItem(function (ImportRecords $manager, ImportRecord $record, $key) use ($output) {
-                foreach ($manager->summary("items.{$key}.data.messages", []) as $level => $message) {
+            ->setAfterItem(function (ImportRecorder $recorder, ImportRecord $record, $key) use ($output) {
+                foreach ($recorder->summary("items.{$key}.data.messages", []) as $level => $message) {
                     if ($level >= $this->getLevel()) {
                         $output->writeln($message);
                     }
@@ -130,15 +130,15 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
 
                 $output->writeln($this->messages('item_end', '', $this->getDate()));
             })
-            ->setAfter(function (ImportRecords $manager) use ($output) {
+            ->setAfter(function (ImportRecorder $recorder) use ($output) {
                 $output->writeln($this->messages(
                     'end',
                     '',
-                    $this->getDate((int)$manager->summary('start', 0)),
-                    $this->getDate((int)$manager->summary('end', 0)),
-                    date('H:i:s', $manager->summary('duration', 0)),
-                    $manager->summary('success', 0),
-                    $manager->summary('failed', 0)
+                    $this->getDate((int)$recorder->summary('start', 0)),
+                    $this->getDate((int)$recorder->summary('end', 0)),
+                    date('H:i:s', $recorder->summary('duration', 0)),
+                    $recorder->summary('success', 0),
+                    $recorder->summary('failed', 0)
                 ));
             })
             ->setOffset((int)$input->getOption('offset'))
@@ -218,9 +218,9 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
     /**
      * @inheritDoc
      */
-    public function records(): ?ImportRecords
+    public function recorder(): ?ImportRecorder
     {
-        return $this->records;
+        return $this->recorder;
     }
 
     /**
@@ -240,9 +240,9 @@ class ImportCommand extends BaseCommand implements ImportCommandContract
     /**
      * @inheritDoc
      */
-    public function setRecords(ImportRecords $records): ImportCommandContract
+    public function setRecorder(ImportRecorder $recorder): ImportCommandContract
     {
-        $this->records = $records;
+        $this->recorder = $recorder;
 
         return $this;
     }

@@ -8,7 +8,7 @@ use tiFy\Plugins\Parser\{
     Exceptions\ReaderException
 };
 
-interface ImportRecords extends Collection
+interface ImportRecorder extends Collection
 {
     /**
      * Création d'une instance de la classe basée sur un chemin vers un fichier.
@@ -16,11 +16,9 @@ interface ImportRecords extends Collection
      * @param string $path
      * @param array $params Liste des paramètres.
      *
-     * @return static
-     *
-     * @throws ReaderException
+     * @return static|null
      */
-    public static function createFromPath(string $path, $params = []): ImportRecords;
+    public static function createFromPath(string $path, array $params = []): ?ImportRecorder;
 
     /**
      * Création d'un instance de la classe.
@@ -28,16 +26,16 @@ interface ImportRecords extends Collection
      * @param Reader $reader
      * @param array $params Liste des paramètres.
      *
-     * @return static
+     * @return static|null
      */
-    public static function createFromReader(Reader $reader, $params = []): ImportRecords;
+    public static function createFromReader(Reader $reader, array $params = []): ?ImportRecorder;
 
     /**
      * Execution des fonctions de rappel à l'issue du traitement de l'import.
      *
      * @return static
      */
-    public function callAfter(): ImportRecords;
+    public function callAfter(): ImportRecorder;
 
     /**
      * Execution des fonctions de rappel à l'issue du traitement de l'import d'un élément.
@@ -47,14 +45,14 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function callAfterItem(ImportRecord $record, $key): ImportRecords;
+    public function callAfterItem(ImportRecord $record, $key): ImportRecorder;
 
     /**
      * Execution des fonctions de rappel au démarrage du traitement de l'import.
      *
      * @return static
      */
-    public function callBefore(): ImportRecords;
+    public function callBefore(): ImportRecorder;
 
     /**
      * Execution des fonctions de rappel au démarrage  du traitement de l'import d'un élément.
@@ -64,14 +62,14 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function callBeforeItem(ImportRecord $record, $key): ImportRecords;
+    public function callBeforeItem(ImportRecord $record, $key): ImportRecorder;
 
     /**
      * Traitement de l'import de la liste des éléments.
      *
      * @return static
      */
-    public function execute(): ImportRecords;
+    public function execute(): ImportRecorder;
 
     /**
      * Traitement de l'import d'un élément.
@@ -80,14 +78,14 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function executeRecord($key): ImportRecords;
+    public function executeRecord($key): ImportRecorder;
 
     /**
      * Retrouve la liste des éléments.
      *
      * @return static
      */
-    public function fetch(): ImportRecords;
+    public function fetch(): ImportRecorder;
 
     /**
      * Définition du chemin de récupération des enregistrements.
@@ -98,7 +96,7 @@ interface ImportRecords extends Collection
      *
      * @throws ReaderException
      */
-    public function fromPath(string $path): ImportRecords;
+    public function fromPath(string $path): ImportRecorder;
 
     /**
      * @inheritDoc
@@ -180,7 +178,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setAfter(callable $func): ImportRecords;
+    public function setAfter(callable $func): ImportRecorder;
 
     /**
      * Définition d'une fonction de rappel à l'issue du traitement de l'import d'un élément.
@@ -189,7 +187,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setAfterItem(callable $func): ImportRecords;
+    public function setAfterItem(callable $func): ImportRecorder;
 
     /**
      * Définition d'une fonction de rappel au démarrage du traitement de l'import.
@@ -198,7 +196,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setBefore(callable $func): ImportRecords;
+    public function setBefore(callable $func): ImportRecorder;
 
     /**
      * Définition d'une fonction de rappel au démarrage du traitement de l'import d'un élément.
@@ -207,7 +205,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setBeforeItem(callable $func): ImportRecords;
+    public function setBeforeItem(callable $func): ImportRecorder;
 
     /**
      * Définition du gestionnaire d'intitulés.
@@ -216,7 +214,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setLabels(LabelsBag $labels): ImportRecords;
+    public function setLabels(LabelsBag $labels): ImportRecorder;
 
     /**
      * Définition du nombre d'enregistrements à traiter lors de l'import.
@@ -225,7 +223,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setLength(int $length): ImportRecords;
+    public function setLength(int $length): ImportRecorder;
 
     /**
      * Définition du gestionnaire de journalisation.
@@ -234,7 +232,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setLogger(Logger $logger): ImportRecords;
+    public function setLogger(Logger $logger): ImportRecorder;
 
     /**
      * Définition de l'instance du gestionnaire de transaction.
@@ -243,7 +241,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setManager(Transaction $manager): ImportRecords;
+    public function setManager(Transaction $manager): ImportRecorder;
 
     /**
      * Définition de l'enregistrement de démarrage lors du traitement de l'import.
@@ -252,7 +250,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setOffset(int $offset): ImportRecords;
+    public function setOffset(int $offset): ImportRecorder;
 
     /**
      * Définition de la liste des paramètres.
@@ -263,7 +261,7 @@ interface ImportRecords extends Collection
      *
      * @throws ReaderException
      */
-    public function setParams(array $params): ImportRecords;
+    public function setParams(array $params): ImportRecorder;
 
     /**
      * Définition de l'instance du lecteur d'enregistrements.
@@ -272,7 +270,7 @@ interface ImportRecords extends Collection
      *
      * @return static
      */
-    public function setReader(Reader $reader): ImportRecords;
+    public function setReader(Reader $reader): ImportRecorder;
 
     /**
      * Récupération d'info|Définition d'infos|Instance du gestionnaire d'information de traitement.

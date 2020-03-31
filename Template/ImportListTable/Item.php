@@ -19,7 +19,7 @@ class Item extends BaseItem implements ItemContract
      */
     public function exists()
     {
-        return ($record = $this->factory->records()->get($this->getOffset()))
+        return ($record = $this->factory->recorder()->get($this->getOffset()))
             ? $record->prepare()->exists()
             : null;
     }

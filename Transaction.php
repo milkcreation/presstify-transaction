@@ -2,19 +2,16 @@
 
 namespace tiFy\Plugins\Transaction;
 
+use Exception;
 use Psr\Container\ContainerInterface as Container;
-use Symfony\Component\Console\{Application as ConsoleApplication, Command\Command as SfCommand};
-use tiFy\Plugins\Transaction\Contracts\{ImportCommand as ImportCommandContract,
-    ImportCommandStack as ImportCommandStackContract,
-    ImportRecords as ImportRecordsContract,
-    Transaction as TransactionContract};
-use tiFy\Support\Manager;
+use Symfony\Component\Console\Application as ConsoleApplication;
+use tiFy\Plugins\Transaction\Contracts\{ImportManager as ImportManagerContract, Transaction as TransactionContract};
 
 /**
  * @desc Extension PresstiFy de gestion de données de transaction.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Transaction
- * @version 2.0.43
+ * @version 2.0.44
  *
  * USAGE :
  * Activation :
@@ -41,13 +38,30 @@ use tiFy\Support\Manager;
  * Dans le dossier de config, créer le fichier transaction.php
  * @see /vendor/presstify-plugins/transaction/Resources/config/transaction.php Exemple de configuration
  */
-class Transaction extends Manager implements TransactionContract
+class Transaction implements TransactionContract
 {
+    /**
+     * Cartographie des services.
+     * @var array
+     */
+    protected $builtInClasses = [
+        'import'               => ImportManager::class,
+        'import.command'       => ImportCommand::class,
+        'import.command-stack' => ImportCommandStack::class,
+        'import.recorder'      => ImportRecorder::class,
+    ];
+
     /**
      * Instance du controleur d'application de commande console cli.
      * @var ConsoleApplication
      */
     protected $consoleApp;
+
+    /**
+     * Instance du conteneur d'injection de dépendances.
+     * @var Container
+     */
+    protected $container;
 
     /**
      * CONSTRUCTEUR.
@@ -61,7 +75,23 @@ class Transaction extends Manager implements TransactionContract
     {
         $this->consoleApp = $consoleApp;
 
-        parent::__construct($container);
+        if ($container) {
+            $this->setContainer($container);
+        }
+
+        $this->import();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function dir(string $path = null): string
+    {
+        $path = $path ? '/' . ltrim($path, '/') : '';
+
+        return (file_exists(__DIR__ . "/Resources{$path}"))
+            ? __DIR__ . "/Resources{$path}"
+            : '';
     }
 
     /**
@@ -75,107 +105,52 @@ class Transaction extends Manager implements TransactionContract
     /**
      * @inheritDoc
      */
-    public function getImportCommand(string $name): ?ImportCommandContract
+    public function getContainer(): ?Container
     {
-        return $this->get("import.command.{$name}", null);
+        return $this->container;
     }
 
     /**
      * @inheritDoc
      */
-    public function getImportCommandStack(string $name): ?ImportCommandStackContract
+    public function import(): ?ImportManagerContract
     {
-        return $this->get("import.command-stack.{$name}", null);
+        try {
+            return $this->resolve('import')->setTransaction($this);
+        } catch (Exception $e) {
+            return null;
+        }
     }
 
     /**
      * @inheritDoc
      */
-    public function getImportRecords(string $name): ?ImportRecordsContract
+    public function resolve(string $alias): object
     {
-        return $this->get("import.records.{$name}", null);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function registerImportCommand(
-        ?string $name = null,
-        ?ImportRecordsContract $records = null,
-        array $params = []
-    ): ?ImportCommandContract {
-        /** @var ImportCommandContract $concrete */
         $concrete = $this->getContainer()
-            ? $this->getContainer()->get('transaction.import.command')
-            : new ImportCommand();
+            ? $this->getContainer()->get("transaction.{$alias}") : (($classname = $this->builtInClasses[$alias] ?? null) ? new $classname : null);
 
-        if ($name) {
-            $concrete->setName($name);
+        if ($concrete) {
+            return $concrete;
         }
 
-        /** @var SfCommand $command */
-        $command = $concrete->setRecords($records)->setParams($params);
-        $command = $this->getConsoleApp()->add($command);
-        $name = $command->getName();
-        $alias = "import.command.{$name}";
-
-        return $this->set($alias, $command)->get($alias, null);
+        throw new Exception(sprintf(__('Impossible de retrouver le service de transaction [%s]'), $alias));
     }
 
     /**
      * @inheritDoc
      */
-    public function registerImportCommandStack(?string $name = null, array $stack = []): ?ImportCommandStackContract
+    public function setContainer(Container $container): TransactionContract
     {
-        /** @var ImportCommandStackContract $concrete */
-        $concrete = $this->getContainer()
-            ? $this->getContainer()->get('transaction.import.command-stack')
-            : new ImportCommandStack();
+        $this->container = $container;
 
-        if ($name) {
-            $concrete->setName($name);
-        }
-
-        /** @var SfCommand $command */
-        $command = $concrete->setStack($stack);
-
-        $command = $this->getConsoleApp()->add($command);
-        $name = $command->getName();
-        $alias = "import.command-stack.{$name}";
-
-        return $this->set($alias, $command)->get($alias, null);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function registerImportRecords(string $name, array $params = []): ?ImportRecordsContract {
-        /** @var ImportRecordsContract $concrete */
-        $concrete = $this->getContainer()
-            ? $this->getContainer()->get('transaction.import.records')
-            : new ImportRecords();
-
-        $alias = "import.records.{$name}";
-
-        return $this->set($alias, $concrete->setManager($this)->setParams($params))->get($alias, null);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function resourcesDir(string $path = null): string
-    {
-        $path = $path ? '/' . ltrim($path, '/') : '';
-
-        return (file_exists(__DIR__ . "/Resources{$path}"))
-            ? __DIR__ . "/Resources{$path}"
-            : '';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function resourcesUrl(string $path = null): string
+    public function url(string $path = null): string
     {
         $cinfo = class_info($this);
         $path = $path ? '/' . ltrim($path, '/') : '';

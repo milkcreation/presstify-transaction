@@ -243,7 +243,7 @@ class ImportWpUser extends BaseImportRecord implements ImportWpUserContract
                                 $update
                                     ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
                                     : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                                $this->records()->labels()->singular(),
+                                $this->recorder()->labels()->singular(),
                                 html_entity_decode($user->display_name),
                                 $user->ID
                             ),

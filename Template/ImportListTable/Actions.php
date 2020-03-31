@@ -23,12 +23,12 @@ class Actions extends BaseActions implements ActionsContract
             $this->factory->prepare();
 
             if ($item = $this->factory->builder()->getItem($this->factory->request()->input('id'))) {
-                $records = $this->factory->records()->executeRecord($item->getOffset());
+                $recorder = $this->factory->recorder()->executeRecord($item->getOffset());
 
                 return [
                     'success' => true,
                     'data'    => [
-                        $records->messages($item->getOffset())->fetch()
+                        $recorder->messages($item->getOffset())->fetch()
                     ]
                 ];
             } else {
@@ -38,12 +38,12 @@ class Actions extends BaseActions implements ActionsContract
             $this->factory->prepare();
 
             $offset = $this->factory->request()->get('idx');
-            $records = $this->factory->records()->executeRecord($offset);
+            /*$recorder = */$this->factory->recorder()->executeRecord($offset);
 
             return [
                 'success' => true,
                 'data'    => [
-                    $offset//$records->messages($offset)->fetch()
+                    $offset//$recorder->messages($offset)->fetch()
                 ]
             ];
         }

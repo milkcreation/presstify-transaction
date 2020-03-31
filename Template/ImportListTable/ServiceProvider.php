@@ -7,8 +7,8 @@ use tiFy\Plugins\Parser\Template\FileListTable\{
     ServiceProvider as BaseServiceProvider
 };
 use tiFy\Plugins\Transaction\{
-    Contracts\ImportRecords as ImportRecordsContract,
-    ImportRecords
+    Contracts\ImportRecorder as ImportRecorderContract,
+    ImportRecorder
 };
 use tiFy\Template\Templates\ListTable\{
     Contracts\Column as BaseColumnContract,
@@ -35,7 +35,7 @@ class ServiceProvider extends BaseServiceProvider
     public function registerFactories(): void
     {
         parent::registerFactories();
-        $this->registerFactoryRecords();
+        $this->registerFactoryRecorder();
     }
 
     /**
@@ -149,17 +149,17 @@ class ServiceProvider extends BaseServiceProvider
     }
 
     /**
-     * Déclaration des gestionnaires d'import des enregistrements.
+     * Déclaration des gestionnaires d'enregistrements.
      *
      * @return void
      */
-    public function registerFactoryRecords(): void
+    public function registerFactoryRecorder(): void
     {
-        $this->getContainer()->share($this->getFactoryAlias('records'), function (): ImportRecordsContract {
-            $ctrl = $this->factory->provider('records');
-            $ctrl = $ctrl instanceof ImportRecordsContract
+        $this->getContainer()->share($this->getFactoryAlias('recorder'), function (): ImportRecorderContract {
+            $ctrl = $this->factory->provider('recorder');
+            $ctrl = $ctrl instanceof ImportRecorderContract
                 ? $ctrl
-                : new ImportRecords();
+                : new ImportRecorder();
 
             return $ctrl;
         });

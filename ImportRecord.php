@@ -3,7 +3,7 @@
 namespace tiFy\Plugins\Transaction;
 
 use Traversable;
-use tiFy\Plugins\Transaction\Contracts\{ImportRecord as ImportRecordContract, ImportRecords};
+use tiFy\Plugins\Transaction\Contracts\{ImportRecord as ImportRecordContract, ImportRecorder};
 use tiFy\Support\{MessagesBag, ParamsBag};
 
 class ImportRecord implements ImportRecordContract
@@ -28,10 +28,10 @@ class ImportRecord implements ImportRecordContract
     protected $input;
 
     /**
-     * Instance du gestionnaire d'import.
-     * @var ImportRecords
+     * Instance du gestionnaire d'enregistrement.
+     * @var ImportRecorder
      */
-    protected $records;
+    protected $recorder;
 
     /**
      * Instance de la classe de traitement des messages de notification.
@@ -185,9 +185,9 @@ class ImportRecord implements ImportRecordContract
     /**
      * @inheritDoc
      */
-    public function records(): ImportRecords
+    public function recorder(): ImportRecorder
     {
-        return $this->records;
+        return $this->recorder;
     }
 
     /**
@@ -243,9 +243,9 @@ class ImportRecord implements ImportRecordContract
     /**
      * @inheritDoc
      */
-    public function setRecords(ImportRecords $records): ImportRecordContract
+    public function setRecorder(ImportRecorder $recorder): ImportRecordContract
     {
-        $this->records = $records;
+        $this->recorder = $recorder;
 
         return $this;
     }

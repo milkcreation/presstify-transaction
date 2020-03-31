@@ -69,7 +69,7 @@ class ExtraExport extends Extra
     public function render(): string
     {
         $view = ProxyView::getPlatesEngine([
-            'directory' => Transaction::resourcesDir('/views/export-list-table'),
+            'directory' => Transaction::dir('/views/export-list-table'),
             'factory'   => View::class,
         ]);
 

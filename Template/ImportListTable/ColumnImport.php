@@ -66,7 +66,7 @@ class ColumnImport extends BaseColumn
                 return call_user_func_array($content, $args);
             } else {
                 $view = ProxyView::getPlatesEngine([
-                    'directory' => Transaction::resourcesDir('/views/import-list-table'),
+                    'directory' => Transaction::dir('/views/import-list-table'),
                     'factory'   => View::class
                 ]);
 
