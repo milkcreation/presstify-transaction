@@ -2,20 +2,29 @@
 
 namespace tiFy\Plugins\Transaction\Proxy;
 
-use tiFy\Plugins\Transaction\Contracts\{ImportCommand, ImportCommandStack, ImportRecords};
+use tiFy\Plugins\Transaction\Contracts\{ImportManager, Transaction as TransactionContract};
 use tiFy\Support\Proxy\AbstractProxy;
 
 /**
- * @method static ImportCommand|null getImportCommand(string $name)
- * @method static ImportCommandStack|null getImportCommandStack(string $name)
- * @method static ImportRecords|null getImportRecords(string $name)
- * @method static ImportCommand|null registerImportCommand(string|null $name = null, ImportRecords|null $records = null, array $params = [])
- * @method static ImportCommandStack|null registerImportCommandStack(string|null $name = null, array $stack = [])
- * @method static ImportRecords|null registerImportRecords(string|null $name = null, array $params = [], string|null $path = null)
- * @method static string resourcesDir(string|null $path = null)
+ * @method static ImportManager import()
+ * @method static string dir(string|null $path = null)
+ * @method static string url(string|null $path = null)
  */
 class Transaction extends AbstractProxy
 {
+    /**
+     * {@inheritDoc}
+     *
+     * @return TransactionContract
+     */
+    public static function getInstance()
+    {
+        return parent::getInstance();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public static function getInstanceIdentifier()
     {
         return 'transaction';

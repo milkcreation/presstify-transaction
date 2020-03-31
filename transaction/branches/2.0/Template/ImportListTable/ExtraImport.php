@@ -67,7 +67,7 @@ class ExtraImport extends Extra
     public function render(): string
     {
         $view = ProxyView::getPlatesEngine([
-            'directory' => Transaction::resourcesDir('/views/import-list-table'),
+            'directory' => Transaction::dir('/views/import-list-table'),
             'factory'   => View::class
         ]);
 

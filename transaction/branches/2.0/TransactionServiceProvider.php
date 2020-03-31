@@ -3,10 +3,13 @@
 namespace tiFy\Plugins\Transaction;
 
 use tiFy\Container\ServiceProvider;
-use tiFy\Plugins\Transaction\{ImportCommand as ImportCommandContract,
+use tiFy\Plugins\Transaction\{
+    ImportCommand as ImportCommandContract,
     ImportCommandStack as ImportCommandStackContract,
-    ImportRecords as ImportRecordsContract,
-    Transaction as TransactionContract};
+    ImportManager as ImportManagerContract,
+    ImportRecorder as ImportRecorderContract,
+    Transaction as TransactionContract
+};
 
 class TransactionServiceProvider extends ServiceProvider
 {
@@ -17,9 +20,10 @@ class TransactionServiceProvider extends ServiceProvider
      */
     protected $provides = [
         'transaction',
+        'transaction.import',
         'transaction.import.command',
         'transaction.import.command-stack',
-        'transaction.import.records',
+        'transaction.import.recorder',
     ];
 
     /**
@@ -38,10 +42,11 @@ class TransactionServiceProvider extends ServiceProvider
     public function register()
     {
         $this->getContainer()->share('transaction', function (): TransactionContract {
-            return new Transaction(
-                $this->getContainer()->get('console'),
-                $this->getContainer()->get('app')
-            );
+            return new Transaction($this->getContainer()->get('console'), $this->getContainer()->get('app'));
+        });
+
+        $this->getContainer()->share('transaction.import', function (): ImportManagerContract {
+            return new ImportManager();
         });
 
         $this->getContainer()->add('transaction.import.command', function (): ImportCommandContract {
@@ -49,11 +54,11 @@ class TransactionServiceProvider extends ServiceProvider
         });
 
         $this->getContainer()->add('transaction.import.command-stack', function (): ImportCommandStackContract {
-                return new ImportCommandStack();
-            });
+            return new ImportCommandStack();
+        });
 
-        $this->getContainer()->add('transaction.import.records', function (): ImportRecordsContract {
-                return new ImportRecords();
-            });
+        $this->getContainer()->add('transaction.import.recorder', function (): ImportRecorderContract {
+            return new ImportRecorder();
+        });
     }
 }

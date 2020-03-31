@@ -56,11 +56,11 @@ interface ImportCommand extends Command
     public function params($key = null, $default = null);
 
     /**
-     * Récupération de l'instance du controleur d'enregistrements.
+     * Récupération de l'instance du gestionnaire d'enregistrements.
      *
-     * @return ImportRecords|null
+     * @return ImportRecorder|null
      */
-    public function records(): ?ImportRecords;
+    public function recorder(): ?ImportRecorder;
 
     /**
      * Définition de la liste des paramètres.
@@ -72,11 +72,11 @@ interface ImportCommand extends Command
     public function setParams(array $params): ImportCommand;
 
     /**
-     * Définition de l'instance des enregistrements.
+     * Définition de l'instance du gestionnaire d'enregistrements.
      *
-     * @param ImportRecords $records
+     * @param ImportRecorder $recorder
      *
      * @return static
      */
-    public function setRecords(ImportRecords $records): ImportCommand;
+    public function setRecorder(ImportRecorder $recorder): ImportCommand;
 }

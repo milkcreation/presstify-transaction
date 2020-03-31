@@ -70,11 +70,11 @@ interface ImportRecord
     public function output();
 
     /**
-     * Récupération de l'instance du gestionnaire d'import.
+     * Récupération de l'instance du gestionnaire d'enregistrement.
      *
-     * @return ImportRecords
+     * @return ImportRecorder
      */
-    public function records(): ImportRecords;
+    public function recorder(): ImportRecorder;
 
     /**
      * Enregistrement des données d'import.
@@ -118,13 +118,13 @@ interface ImportRecord
     public function setInput(iterable $input): ImportRecord;
 
     /**
-     * Définition de l'instance du gestionnaire d'import.
+     * Définition de l'instance du gestionnaire d'enregistrements.
      *
-     * @param ImportRecords $records
+     * @param ImportRecorder $recorder
      *
      * @return static
      */
-    public function setRecords(ImportRecords $records): ImportRecord;
+    public function setRecorder(ImportRecorder $recorder): ImportRecord;
 
     /**
      * Définition de la statut de réussite de la tâche.

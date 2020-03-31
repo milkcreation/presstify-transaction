@@ -22,7 +22,7 @@ class Source extends BaseSource
     public function setReader(?ReaderContract $reader = null): SourceContract
     {
         if (is_null($reader)) {
-            $reader = $this->factory->records()->fetch()->reader();
+            $reader = $this->factory->recorder()->fetch()->reader();
         }
 
         $this->reader = $reader;
