@@ -14,6 +14,9 @@ use tiFy\Plugins\Transaction\Contracts\{
 use tiFy\Support\{Arr, DateTime, Str};
 use tiFy\Support\Proxy\{Database, Schema};
 use Symfony\Component\Console\Command\Command as SfCommand;
+use WP_Post;
+use WP_Term;
+use WP_User;
 
 class ImportManager implements ImportManagerContract
 {
@@ -163,6 +166,22 @@ class ImportManager implements ImportManagerContract
         } else {
             return null;
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFromWpObject(object $object): ?object
+    {
+        if ($object instanceof WP_Post) {
+            return $this->getFromObjectId('wp:post', (int)$object->ID);
+        } elseif ($object instanceof WP_Term) {
+            return $this->getFromObjectId('wp:term', (int)$object->term_id);
+        } elseif ($object instanceof WP_User) {
+            return $this->getFromObjectId('wp:user', (int)$object->ID);
+        }
+
+        return null;
     }
 
     /**

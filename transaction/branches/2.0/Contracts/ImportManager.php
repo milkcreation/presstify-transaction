@@ -70,6 +70,15 @@ interface ImportManager
     public function getFromObjectId(string $object_type, int $object_id): ?object;
 
     /**
+     * Récupération d'un import existant basé sur un objet Wordpress.
+     *
+     * @param \WP_Post|\WP_Term|\WP_User|object $object Type de relation.
+     *
+     * @return object|null
+     */
+    public function getFromWpObject(object $object): ?object;
+
+    /**
      * Récupération de l'identifiant de qualification d'un élément associé à le type et l'identifiant relationnel.
      *
      * @param string $object_type Type de relation.

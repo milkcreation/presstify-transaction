@@ -3,12 +3,11 @@
 namespace tiFy\Plugins\Transaction\Wordpress\Command;
 
 use Exception;
-use Illuminate\Database\Eloquent\Model as BaseModel;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use Illuminate\Database\Eloquent\{Builder, Model as BaseModel};
+use Symfony\Component\Console\{Input\InputInterface, Input\InputOption, Output\OutputInterface};
 use tiFy\Console\Command;
 use tiFy\Support\{MessagesBag, ParamsBag};
+use tiFy\Plugins\Transaction\Contracts\ImportManager;
 use tiFy\Plugins\Transaction\Proxy\Transaction;
 
 abstract class ImportWpBaseCommand extends Command
@@ -18,6 +17,18 @@ abstract class ImportWpBaseCommand extends Command
      * @var int
      */
     protected $chunk = 100;
+
+    /**
+     * Liste des identifiants de qualification de limitation de la requête de récupération des éléments.
+     * @var int[]|array
+     */
+    protected $contraintIds = [];
+
+    /**
+     * Compteur d'occurence.
+     * @var int
+     */
+    protected $counter = 0;
 
     /**
      * Données d'enregistrement de l'élément.
@@ -56,6 +67,12 @@ abstract class ImportWpBaseCommand extends Command
     protected $queryArgs = [];
 
     /**
+     * Indicateur d'enregistrement des données d'origine (en cache).
+     * @var bool
+     */
+    protected $withCache = false;
+
+    /**
      * CONSTRUCTEUR.
      *
      * @param string|null $name
@@ -68,6 +85,13 @@ abstract class ImportWpBaseCommand extends Command
 
         $this
             ->addOption('url', null, InputOption::VALUE_OPTIONAL, __('Url du site', 'tify'), '')
+            ->addOption(
+                'id',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                __('Identifiant(s) de qualification (séparateur virgule)', 'tify'),
+                0
+            )
             ->addOption(
                 'offset', null, InputOption::VALUE_OPTIONAL, __('Numéro d\'enregistrement de démarrage', 'tify'), 0
             )
@@ -84,7 +108,34 @@ abstract class ImportWpBaseCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($ids = $input->getOption('id')) {
+            $ids = array_map('intval', explode(',', $ids));
+            foreach($ids as $id) {
+                $this->setContraintId($id);
+            }
+        }
+
         $this->setOffset((int)($input->getOption('offset') ?: 0));
+        $this->counter = $this->getOffset();
+        $this->parseQueryArgs();
+    }
+
+    /**
+     * Requête de récupération de la liste des éléments.
+     *
+     * @return Builder
+     */
+    public function buildQuery(): Builder
+    {
+        $collect = $this->getInModel()->offset($this->getOffset());
+
+        if ($ids = $this->contraintIds) {
+            $collect->whereIn($this->getInModel()->getKeyName(), $ids);
+        } else {
+            $collect->where($this->queryArgs);
+        }
+
+        return $collect;
     }
 
     /**
@@ -113,7 +164,7 @@ abstract class ImportWpBaseCommand extends Command
     /**
      * Récupération de l'instance du modèle d'origine (entrée).
      *
-     * @return BaseModel
+     * @return BaseModel|Builder
      */
     public function getInModel(): ?BaseModel
     {
@@ -145,15 +196,15 @@ abstract class ImportWpBaseCommand extends Command
     }
 
     /**
-     * Récupération de l'identifiant de qualification d'un terme de taxonomie depuis son identifiant relationnem.
+     * Récupération de l'identifiant de qualification d'un terme de taxonomie depuis son identifiant relationnel.
      *
      * @param int $rel_term_id Identifiant relationnel.
      *
      * @return int
      */
-    public function getRelTermId(int $rel_term_id): int
+    public function getRelatedTermId(int $rel_term_id): int
     {
-        return Transaction::import()->getWpTermId($rel_term_id);
+        return $this->importer()->getWpTermId($rel_term_id);
     }
 
     /**
@@ -163,9 +214,9 @@ abstract class ImportWpBaseCommand extends Command
      *
      * @return int
      */
-    public function getRelPostId(int $rel_post_id): int
+    public function getRelatedPostId(int $rel_post_id): int
     {
-        return Transaction::import()->getWpPostId($rel_post_id);
+        return $this->importer()->getWpPostId($rel_post_id);
     }
 
     /**
@@ -175,9 +226,9 @@ abstract class ImportWpBaseCommand extends Command
      *
      * @return int
      */
-    public function getRelUserId(int $rel_user_id): int
+    public function getRelatedUserId(int $rel_user_id): int
     {
-        return Transaction::import()->getWpUserId($rel_user_id);
+        return $this->importer()->getWpUserId($rel_user_id);
     }
 
     /**
@@ -226,6 +277,16 @@ abstract class ImportWpBaseCommand extends Command
     }
 
     /**
+     * Récupération de l'instance du gestionnaire d'import.
+     *
+     * @return ImportManager
+     */
+    public function importer(): ImportManager
+    {
+        return Transaction::import();
+    }
+
+    /**
      * @inheritDoc
      */
     public function message($level = null, string $message = null, ?array $data = [], ?string $code = null)
@@ -256,6 +317,30 @@ abstract class ImportWpBaseCommand extends Command
     }
 
     /**
+     * Traitement des arguments de requête.
+     *
+     * @return static
+     */
+    public function parseQueryArgs(): self
+    {
+        return $this;
+    }
+
+    /**
+     * Définition d'un identifiant de qualification de contrainte de requête de récupération des éléments.
+     *
+     * @param int $id
+     *
+     * @return static
+     */
+    public function setContraintId(int $id = 0): self
+    {
+        $this->contraintIds[] = $id;
+
+        return $this;
+    }
+
+    /**
      * Définition de la classe du modèle d'origine (entrée).
      *
      * @param string $classname
@@ -279,6 +364,20 @@ abstract class ImportWpBaseCommand extends Command
     public function setOffset(int $offset = 0): self
     {
         $this->offset = $offset;
+
+        return $this;
+    }
+
+    /**
+     * Définition de l'enregistrement des données d'origine.
+     *
+     * @param bool $cache
+     *
+     * @return static
+     */
+    public function setWithCache(bool $cache = true): self
+    {
+        $this->withCache = $cache;
 
         return $this;
     }
