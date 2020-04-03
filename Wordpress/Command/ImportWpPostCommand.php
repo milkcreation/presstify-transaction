@@ -3,10 +3,9 @@
 namespace tiFy\Plugins\Transaction\Wordpress\Command;
 
 use Exception;
-use Illuminate\Database\Eloquent\{Collection as BaseCollection, Model as BaseModel};
+use Illuminate\Database\Eloquent\{Builder, Collection as BaseCollection, Model as BaseModel};
 use Symfony\Component\Console\{Input\InputInterface, Output\OutputInterface};
 use tiFy\Wordpress\Database\Model\Post as PostModel;
-use tiFy\Plugins\Transaction\Proxy\Transaction;
 use WP_Error;
 
 class ImportWpPostCommand extends ImportWpBaseCommand
@@ -38,20 +37,11 @@ class ImportWpPostCommand extends ImportWpBaseCommand
     {
         $this->handleBefore();
 
-        $args = [];
+        parent::execute($input, $output);
 
-        if ($this->isHierarchical()) {
-            $args['post_parent'] = 0;
-        }
-
-        $args = array_merge($args, $this->queryArgs, [
-            'post_type' => $this->getInPostType(),
-        ]);
-
-        $this->getInModel()->where($args)->offset($this->getOffset())
-            ->chunkById($this->chunk, function (BaseCollection $collect) use ($output) {
-                $this->handleCollection($collect, 0, $output);
-            });
+        $this->buildQuery()->chunkById($this->chunk, function (BaseCollection $collect) use ($output) {
+            $this->handleCollection($collect, $output, null);
+        });
 
         $this->handleAfter();
     }
@@ -60,20 +50,24 @@ class ImportWpPostCommand extends ImportWpBaseCommand
      * Traitement des résultats de requête.
      *
      * @param BaseCollection $collect
-     * @param int $parent
      * @param OutputInterface $output
+     * @param int $parent
      *
      * @return void
      *
      * @throws Exception
      */
-    protected function handleCollection(BaseCollection $collect, int $parent, OutputInterface $output)
+    protected function handleCollection(BaseCollection $collect, OutputInterface $output, ?int $parent = null)
     {
         foreach ($collect as $model) {
+            $this->counter++;
+
             $this->handleItemBefore($model);
 
             try {
-                $id = $this->insertOrUpdate($model, $parent);
+                $id = $this->insertOrUpdate(
+                    $model, is_null($parent) ? $this->getRelatedPostId($model->post_parent) : $parent
+                );
 
                 if ($this->isHierarchical()) {
                     $args = array_merge($this->queryArgs, [
@@ -83,7 +77,7 @@ class ImportWpPostCommand extends ImportWpBaseCommand
 
                     $this->getInModel()->where($args)
                         ->chunkById($this->chunk, function (BaseCollection $collect) use ($output, $id) {
-                            $this->handleCollection($collect, $id, $output);
+                            $this->handleCollection($collect, $output, $id);
                         });
                 }
 
@@ -112,42 +106,42 @@ class ImportWpPostCommand extends ImportWpBaseCommand
 
         $this->parsePostdata($model, ['post_parent' => $parent]);
 
-        if ($id = $this->getRelPostId($model->ID)) {
+        if ($id = $this->getRelatedPostId($model->ID)) {
             $this->data(['ID' => $id]);
 
             $post_id = wp_update_post($this->data()->all(), true);
 
             if (!$post_id instanceof WP_Error) {
-                Transaction::import()->addWpPost($post_id, $model->ID, $model->toArray());
+                $this->importer()->addWpPost($post_id, $model->ID, $this->withCache ? $model->toArray() : []);
 
                 $this->message()->success(sprintf(
-                    __('SUCCES: Mise à jour de la publication [#%d - %s] depuis [#%d].', 'tify'),
-                    $post_id, htmlentities($model->post_title), $model->ID
+                    __('%d -- SUCCES: Mise à jour de la publication [#%d - %s] depuis [#%d].', 'tify'),
+                    $this->counter, $post_id, html_entity_decode($model->post_title), $model->ID
                 ));
 
                 return $post_id;
             } else {
                 throw new Exception(sprintf(
                     __('ERREUR: Mise à jour la publication [#%d] depuis [#%d - %s] >> %s - %s.', 'tify'),
-                    $id, $model->ID, htmlentities($model->post_title), $post_id->get_error_message(), $model->toJson()
+                    $id, $model->ID, html_entity_decode($model->post_title), $post_id->get_error_message(), $model->toJson()
                 ));
             }
         } else {
             $post_id = wp_insert_post($this->data()->all(), true);
 
             if (!$post_id instanceof WP_Error) {
-                Transaction::import()->addWpPost($post_id, $model->ID, $model->toArray());
+                $this->importer()->addWpPost($post_id, $model->ID, $this->withCache ? $model->toArray() : []);
 
                 $this->message()->success(sprintf(
-                    __('SUCCES: Création de la publication [#%d - %s] depuis [#%d].', 'tify'),
-                    $post_id, htmlentities($model->post_title), $model->ID
+                    __('%d -- SUCCES: Création de la publication [#%d - %s] depuis [#%d].', 'tify'),
+                    $this->counter, $post_id, html_entity_decode($model->post_title), $model->ID
                 ));
 
                 return $post_id;
             } else {
                 throw new Exception(sprintf(
                     __('ERREUR: Création de la publication depuis [#%d - %s] >> %s - %s.', 'tify'),
-                    $model->ID, htmlentities($model->post_title), $post_id->get_error_message(), $model->toJson()
+                    $model->ID, html_entity_decode($model->post_title), $post_id->get_error_message(), $model->toJson()
                 ));
             }
         }
@@ -156,7 +150,7 @@ class ImportWpPostCommand extends ImportWpBaseCommand
     /**
      * {@inheritDoc}
      *
-     * @return PostModel
+     * @return PostModel|Builder
      */
     public function getInModel(): ?BaseModel
     {
@@ -178,7 +172,7 @@ class ImportWpPostCommand extends ImportWpBaseCommand
     /**
      * {@inheritDoc}
      *
-     * @return PostModel
+     * @return PostModel|Builder
      */
     public function getOutModel(): ?BaseModel
     {
@@ -221,7 +215,7 @@ class ImportWpPostCommand extends ImportWpBaseCommand
             'post_date'             => (string)$model->post_date,
             'post_date_gmt'         => (string)$model->post_date_gmt,
             'post_content'          => $model->post_content,
-            'post_title'            => htmlentities($model->post_title),
+            'post_title'            => $model->post_title,
             'post_excerpt'          => $model->post_excerpt,
             'post_status'           => $model->post_status,
             'comment_status'        => $model->comment_status,
@@ -238,6 +232,26 @@ class ImportWpPostCommand extends ImportWpBaseCommand
             'post_type'             => $this->getOutPostType() ?: $model->post_type,
             'post_mime_type'        => $model->post_mime_type,
         ], $attrs));
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImportWpPostCommand
+     */
+    public function parseQueryArgs(): ImportWpBaseCommand
+    {
+        $args = [];
+
+        if ($this->isHierarchical()) {
+            $args['post_parent'] = 0;
+        }
+
+        $this->queryArgs = array_merge($args, $this->queryArgs, [
+            'post_type' => $this->getInPostType(),
+        ]);
 
         return $this;
     }

@@ -3,10 +3,9 @@
 namespace tiFy\Plugins\Transaction\Wordpress\Command;
 
 use Exception;
-use Illuminate\Database\Eloquent\{Collection as BaseCollection, Model as BaseModel};
+use Illuminate\Database\Eloquent\{Builder, Collection as BaseCollection, Model as BaseModel};
 use Symfony\Component\Console\{Input\InputInterface, Output\OutputInterface};
 use tiFy\Wordpress\Database\Model\TermTaxonomy as TermTaxonomyModel;
-use tiFy\Plugins\Transaction\Proxy\Transaction;
 use WP_Error;
 
 class ImportWpTermCommand extends ImportWpBaseCommand
@@ -38,42 +37,53 @@ class ImportWpTermCommand extends ImportWpBaseCommand
     {
         $this->handleBefore();
 
-        $args = [];
+        parent::execute($input, $output);
 
-        if ($this->isHierarchical()) {
-            $args['parent'] = 0;
-        }
-
-        $args = array_merge($args, $this->queryArgs, [
-            'taxonomy' => $this->getInTaxonomy(),
-        ]);
-
-        $this->getInModel()->where($args)->offset($this->getOffset())
-            ->chunkById($this->chunk, function (BaseCollection $collect) use ($output) {
-                $this->handleCollection($collect, 0, $output);
-            });
+        $this->buildQuery()->chunkById($this->chunk, function (BaseCollection $collect) use ($output) {
+            $this->handleCollection($collect, $output);
+        });
 
         $this->handleAfter();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildQuery(): Builder
+    {
+        $collect = $this->getInModel()->offset($this->getOffset());
+
+        if ($ids = $this->contraintIds) {
+            $collect->whereIn('term_id', $ids);
+        } else {
+            $collect->where($this->queryArgs);
+        }
+
+        return $collect;
     }
 
     /**
      * Traitement des résultats de requête.
      *
      * @param BaseCollection $collect
-     * @param int $parent
      * @param OutputInterface $output
+     * @param int|null $parent
      *
      * @return void
      *
      * @throws Exception
      */
-    protected function handleCollection(BaseCollection $collect, int $parent, OutputInterface $output)
+    protected function handleCollection(BaseCollection $collect, OutputInterface $output, ?int $parent = null)
     {
         foreach ($collect as $model) {
+            $this->counter++;
+
             $this->handleItemBefore($model);
 
             try {
-                $id = $this->insertOrUpdate($model, $parent);
+                $id = $this->insertOrUpdate($model, is_null($parent)
+                    ? $this->getRelatedTermId($model->parent) : $parent
+                );
 
                 if ($this->isHierarchical()) {
                     $args = array_merge($this->queryArgs, [
@@ -83,7 +93,7 @@ class ImportWpTermCommand extends ImportWpBaseCommand
 
                     $this->getInModel()->where($args)
                         ->chunkById($this->chunk, function (BaseCollection $collect) use ($output, $id) {
-                            $this->handleCollection($collect, $id, $output);
+                            $this->handleCollection($collect, $output, $id);
                         });
                 }
 
@@ -112,17 +122,19 @@ class ImportWpTermCommand extends ImportWpBaseCommand
 
         $this->parseTermdata($model, ['parent' => $parent]);
 
-        if ($id = $this->getRelTermId($model->term_id)) {
+        if ($id = $this->getRelatedTermId($model->term_id)) {
             $taxonomy = $this->data()->pull('taxonomy', '');
 
             $res = wp_update_term($id, $taxonomy, $this->data()->all());
 
             if (!$res instanceof WP_Error) {
-                Transaction::import()->addWpTerm($res['term_id'], $model->term_id, $model->toArray());
+                $this->importer()->addWpTerm(
+                    $res['term_id'], $model->term_id, $this->withCache ? $model->toArray() : []
+                );
 
                 $this->message()->success(sprintf(
-                    __('SUCCES: Mise à jour du terme de taxonomie [#%d - %s] depuis [#%d].', 'tify'),
-                    $res['term_id'], $model->name, $model->term_id
+                    __('%d -- SUCCES: Mise à jour du terme de taxonomie [#%d - %s] depuis [#%d].', 'tify'),
+                    $this->counter, $res['term_id'], $model->name, $model->term_id
                 ));
 
                 return $res['term_id'];
@@ -138,11 +150,13 @@ class ImportWpTermCommand extends ImportWpBaseCommand
             $res = wp_insert_term($model->name, $taxonomy, $this->data()->all());
 
             if (!$res instanceof WP_Error && !empty($res['term_id'])) {
-                Transaction::import()->addWpTerm($res['term_id'], $model->term_id, $model->toArray());
+                $this->importer()->addWpTerm(
+                    $res['term_id'], $model->term_id, $this->withCache ? $model->toArray() : []
+                );
 
                 $this->message()->success(sprintf(
-                    __('SUCCES: Création du terme de taxonomie [#%d - %s] depuis [#%d].'),
-                    $res['term_id'], $model->name, $model->term_id
+                    __('%d -- SUCCES: Création du terme de taxonomie [#%d - %s] depuis [#%d].'),
+                    $this->counter, $res['term_id'], $model->name, $model->term_id
                 ));
 
                 return $res['term_id'];
@@ -158,7 +172,7 @@ class ImportWpTermCommand extends ImportWpBaseCommand
     /**
      * {@inheritDoc}
      *
-     * @return TermTaxonomyModel
+     * @return TermTaxonomyModel|Builder
      */
     public function getInModel(): ?BaseModel
     {
@@ -180,7 +194,7 @@ class ImportWpTermCommand extends ImportWpBaseCommand
     /**
      * {@inheritDoc}
      *
-     * @return TermTaxonomyModel
+     * @return TermTaxonomyModel|Builder
      */
     public function getOutModel(): ?BaseModel
     {
@@ -226,6 +240,26 @@ class ImportWpTermCommand extends ImportWpBaseCommand
             'slug'        => $model->slug,
             'taxonomy'    => $this->getOutTaxonomy() ?: $model->taxonomy,
         ], $attrs));
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return ImportWpTermCommand
+     */
+    public function parseQueryArgs(): ImportWpBaseCommand
+    {
+        $args = [];
+
+        if ($this->isHierarchical()) {
+            $args['parent'] = 0;
+        }
+
+        $this->queryArgs = array_merge($args, $this->queryArgs, [
+            'taxonomy' => $this->getInTaxonomy(),
+        ]);
 
         return $this;
     }

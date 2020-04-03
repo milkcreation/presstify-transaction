@@ -3,9 +3,8 @@
 namespace tiFy\Plugins\Transaction\Wordpress\Command;
 
 use Exception;
-use Illuminate\Database\Eloquent\{Collection as BaseCollection, Model as BaseModel};
+use Illuminate\Database\Eloquent\{Builder, Collection as BaseCollection, Model as BaseModel};
 use Symfony\Component\Console\{Input\InputInterface, Output\OutputInterface};
-use tiFy\Plugins\Transaction\Proxy\Transaction;
 use tiFy\Wordpress\Database\Model\User as UserModel;
 use WP_Error;
 
@@ -30,20 +29,17 @@ class ImportWpUserCommand extends ImportWpBaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        parent::execute($input, $output);
-
         $this->handleBefore();
 
-        // Désactivation du mail de notification
+        parent::execute($input, $output);
+
+        // Désactivation du mail de notification Wordpress.
         add_filter('send_password_change_email', '__return_false', 99, 3);
         add_filter('send_email_change_email', '__return_false', 99, 3);
 
-        $args = [];
-
-        $this->getInModel()->where($args)->offset($this->getOffset())
-            ->chunkById($this->chunk, function (BaseCollection $collect) use ($output) {
-                $this->handleCollection($collect, $output);
-            });
+        $this->buildQuery()->chunkById($this->chunk, function (BaseCollection $collect) use ($output) {
+            $this->handleCollection($collect, $output);
+        });
 
         $this->handleAfter();
     }
@@ -61,6 +57,8 @@ class ImportWpUserCommand extends ImportWpBaseCommand
     protected function handleCollection(BaseCollection $collect, OutputInterface $output)
     {
         foreach ($collect as $model) {
+            $this->counter++;
+
             $this->handleItemBefore($model);
 
             try {
@@ -90,17 +88,17 @@ class ImportWpUserCommand extends ImportWpBaseCommand
 
         $this->parseUserdata($model);
 
-        if ($id = $this->getRelUserId($model->ID)) {
+        if ($id = $this->getRelatedUserId($model->ID)) {
             $this->data(['ID' => $id]);
 
             $user_id = wp_update_user($this->data()->all());
 
             if (!$user_id instanceof WP_Error) {
-                Transaction::import()->addWpUser($user_id, $model->ID, $model->toArray());
+                $this->importer()->addWpUser($user_id, $model->ID, $this->withCache ? $model->toArray() : []);
 
                 $this->message()->success(sprintf(
-                    __('SUCCES: Mise à jour de l\'utilisateur [#%d - %s] depuis [#%d].', 'tify'),
-                    $user_id, $model->user_email, $model->ID
+                    __('%d -- SUCCES: Mise à jour de l\'utilisateur [#%d - %s] depuis [#%d].', 'tify'),
+                    $this->counter, $user_id, $model->user_email, $model->ID
                 ));
 
                 return $user_id;
@@ -114,11 +112,11 @@ class ImportWpUserCommand extends ImportWpBaseCommand
             $user_id = wp_insert_user($this->data()->all());
 
             if (!$user_id instanceof WP_Error) {
-                Transaction::import()->addWpUser($user_id, $model->ID, $model->toArray());
+                $this->importer()->addWpUser($user_id, $model->ID, $this->withCache ? $model->toArray() : []);
 
                 $this->message()->success(sprintf(
-                    __('SUCCES: Création de l\'utilisateur [#%d - %s] depuis [#%d].', 'tify'),
-                    $user_id, $model->user_email, $model->ID
+                    __('%d -- SUCCES: Création de l\'utilisateur [#%d - %s] depuis [#%d].', 'tify'),
+                    $this->counter, $user_id, $model->user_email, $model->ID
                 ));
 
                 return $user_id;
@@ -134,7 +132,7 @@ class ImportWpUserCommand extends ImportWpBaseCommand
     /**
      * {@inheritDoc}
      *
-     * @return UserModel
+     * @return UserModel|Builder
      */
     public function getInModel(): ?BaseModel
     {
@@ -156,7 +154,7 @@ class ImportWpUserCommand extends ImportWpBaseCommand
     /**
      * {@inheritDoc}
      *
-     * @return UserModel
+     * @return UserModel|Builder
      */
     public function getOutModel(): ?BaseModel
     {
