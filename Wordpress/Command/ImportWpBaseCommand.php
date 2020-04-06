@@ -198,37 +198,37 @@ abstract class ImportWpBaseCommand extends Command
     /**
      * Récupération de l'identifiant de qualification d'un terme de taxonomie depuis son identifiant relationnel.
      *
-     * @param int $rel_term_id Identifiant relationnel.
+     * @param string|int $relation Identifiant relationnel.
      *
      * @return int
      */
-    public function getRelatedTermId(int $rel_term_id): int
+    public function getRelatedTermId($relation): int
     {
-        return $this->importer()->getWpTermId($rel_term_id);
+        return $this->importer()->getWpTermId($relation);
     }
 
     /**
      * Récupération de l'identifiant de qualification d'une publication depuis son identifiant relationnel.
      *
-     * @param int $rel_post_id Identifiant relationnel.
+     * @param string|int $relation Identifiant relationnel.
      *
      * @return int
      */
-    public function getRelatedPostId(int $rel_post_id): int
+    public function getRelatedPostId($relation): int
     {
-        return $this->importer()->getWpPostId($rel_post_id);
+        return $this->importer()->getWpPostId($relation);
     }
 
     /**
      * Récupération de l'identifiant de qualification d'un utilisateur depuis son identifiant relationnel.
      *
-     * @param int $rel_user_id Identifiant relationnel.
+     * @param string|int $relation Identifiant relationnel.
      *
      * @return int
      */
-    public function getRelatedUserId(int $rel_user_id): int
+    public function getRelatedUserId($relation): int
     {
-        return $this->importer()->getWpUserId($rel_user_id);
+        return $this->importer()->getWpUserId($relation);
     }
 
     /**
