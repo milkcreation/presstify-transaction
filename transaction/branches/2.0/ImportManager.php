@@ -58,19 +58,19 @@ class ImportManager implements ImportManagerContract
     public function __construct()
     {
         add_action('deleted_post', function ($post_id) {
-            if ($res = $this->getFromObjectId('wp:post', (int)$post_id)) {
+            if ($res = $this->getFromObjectId((int)$post_id, 'wp:post')) {
                 Database::table($this->table)->delete($res->id);
             }
         });
 
         add_action('delete_term', function ($term_id) {
-            if ($res = $this->getFromObjectId('wp:term', (int)$term_id)) {
+            if ($res = $this->getFromObjectId((int)$term_id, 'wp:term')) {
                 Database::table($this->table)->delete($res->id);
             }
         });
 
         add_action('deleted_user', function ($user_id) {
-            if ($res = $this->getFromObjectId('wp:user', (int)$user_id)) {
+            if ($res = $this->getFromObjectId((int)$user_id, 'wp:user')) {
                 Database::table($this->table)->delete($res->id);
             }
         });
@@ -86,7 +86,7 @@ class ImportManager implements ImportManagerContract
                 $table->increments('id');
                 $table->string('object_type', 255);
                 $table->bigInteger('object_id', false, true);
-                $table->bigInteger('rel_id', false, true);
+                $table->string('relation', 255);
                 $table->timestamps();
                 $table->longText('data');
             });
@@ -96,22 +96,22 @@ class ImportManager implements ImportManagerContract
     /**
      * @inheritDoc
      */
-    public function add(string $object_type, int $object_id, int $rel_id, array $data = []): bool
+    public function add(string $object_type, int $object_id, $relation, array $data = []): bool
     {
         $data = Arr::serialize($data);
 
-        if ($res = $this->get($object_type, $rel_id)) {
+        if ($res = $this->getFromRelation($relation, $object_type)) {
             $updated_at = DateTime::now();
 
             return !!Database::table($this->table)->where('id', $res->id)->update(compact(
-                'object_type', 'object_id', 'rel_id', 'updated_at', 'data'
+                'object_type', 'object_id', 'relation', 'updated_at', 'data'
             ));
         } else {
             $created_at = DateTime::now();
             $updated_at = DateTime::now();
 
             return Database::table($this->table)->insert(compact(
-                'object_type', 'object_id', 'rel_id', 'created_at', 'updated_at', 'data'
+                'object_type', 'object_id', 'relation', 'created_at', 'updated_at', 'data'
             ));
         }
     }
@@ -119,33 +119,33 @@ class ImportManager implements ImportManagerContract
     /**
      * @inheritDoc
      */
-    public function addWpPost(int $object_id, int $rel_id, array $data = []): bool
+    public function addWpPost(int $object_id, $relation, array $data = []): bool
     {
-        return $this->add('wp:post', $object_id, $rel_id, $data);
+        return $this->add('wp:post', $object_id, $relation, $data);
     }
 
     /**
      * @inheritDoc
      */
-    public function addWpTerm(int $object_id, int $rel_id, array $data = []): bool
+    public function addWpTerm(int $object_id, $relation, array $data = []): bool
     {
-        return $this->add('wp:term', $object_id, $rel_id, $data);
+        return $this->add('wp:term', $object_id, $relation, $data);
     }
 
     /**
      * @inheritDoc
      */
-    public function addWpUser(int $object_id, int $rel_id, array $data = []): bool
+    public function addWpUser(int $object_id, $relation, array $data = []): bool
     {
-        return $this->add('wp:user', $object_id, $rel_id, $data);
+        return $this->add('wp:user', $object_id, $relation, $data);
     }
 
     /**
      * @inheritDoc
      */
-    public function get(string $object_type, int $rel_id): ?object
+    public function getFromRelation($relation, string $object_type): ?object
     {
-        if ($res = Database::table($this->table)->where(compact('object_type', 'rel_id'))->first()) {
+        if ($res = Database::table($this->table)->where(compact('object_type', 'relation'))->first()) {
             $res->data = Str::unserialize((string)$res->data);
 
             return $res;
@@ -157,7 +157,7 @@ class ImportManager implements ImportManagerContract
     /**
      * @inheritDoc
      */
-    public function getFromObjectId(string $object_type, int $object_id): ?object
+    public function getFromObjectId(int $object_id, string $object_type): ?object
     {
         if ($res = Database::table($this->table)->where(compact('object_type', 'object_id'))->first()) {
             $res->data = Str::unserialize((string)$res->data);
@@ -174,11 +174,11 @@ class ImportManager implements ImportManagerContract
     public function getFromWpObject(object $object): ?object
     {
         if ($object instanceof WP_Post) {
-            return $this->getFromObjectId('wp:post', (int)$object->ID);
+            return $this->getFromObjectId((int)$object->ID, 'wp:post');
         } elseif ($object instanceof WP_Term) {
-            return $this->getFromObjectId('wp:term', (int)$object->term_id);
+            return $this->getFromObjectId((int)$object->term_id, 'wp:term');
         } elseif ($object instanceof WP_User) {
-            return $this->getFromObjectId('wp:user', (int)$object->ID);
+            return $this->getFromObjectId((int)$object->ID, 'wp:user');
         }
 
         return null;
@@ -187,33 +187,33 @@ class ImportManager implements ImportManagerContract
     /**
      * @inheritDoc
      */
-    public function getObjectId(string $object_type, int $rel_id): int
+    public function getObjectId($relation, string $object_type): int
     {
-        return ($res = $this->get($object_type, $rel_id)) ? $res->object_id : 0;
+        return ($res = $this->getFromRelation($relation, $object_type)) ? $res->object_id : 0;
     }
 
     /**
      * @inheritDoc
      */
-    public function getWpPostId(int $rel_id): int
+    public function getWpPostId($relation): int
     {
-        return $this->getObjectId('wp:post', $rel_id);
+        return $this->getObjectId($relation, 'wp:post');
     }
 
     /**
      * @inheritDoc
      */
-    public function getWpTermId(int $rel_id): int
+    public function getWpTermId($relation): int
     {
-        return $this->getObjectId('wp:term', $rel_id);
+        return $this->getObjectId($relation, 'wp:term');
     }
 
     /**
      * @inheritDoc
      */
-    public function getWpUserId(int $rel_id): int
+    public function getWpUserId($relation): int
     {
-        return $this->getObjectId('wp:user', $rel_id);
+        return $this->getObjectId($relation, 'wp:user');
     }
 
     /**

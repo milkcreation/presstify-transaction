@@ -9,65 +9,65 @@ interface ImportManager
      *
      * @param string $object_type Type de relation.
      * @param int $object_id Identifiant de qualification de l'élément.
-     * @param int $rel_id Identifiant relationnel de l'élément.
+     * @param string|int $relation Identifiant relationnel de l'élément.
      * @param array $data Liste des données complémentaires
      *
      * @return bool
      */
-    public function add(string $object_type, int $object_id, int $rel_id, array $data = []): bool;
+    public function add(string $object_type, int $object_id, $relation, array $data = []): bool;
 
     /**
      * Création ou mise à jour d'une relation d'import d'un post Wordpress.
      *
      * @param int $object_id Identifiant de qualification de l'élément.
-     * @param int $rel_id Identifiant relationnel de l'élément.
+     * @param string|int $relation Identifiant relationnel de l'élément.
      * @param array $data Liste des données complémentaires
      *
      * @return bool
      */
-    public function addWpPost(int $object_id, int $rel_id, array $data = []): bool;
+    public function addWpPost(int $object_id, $relation, array $data = []): bool;
 
     /**
      * Création ou mise à jour d'une relation d'import d'un terme de taxonomie Wordpress.
      *
      * @param int $object_id Identifiant de qualification de l'élément.
-     * @param int $rel_id Identifiant relationnel de l'élément.
+     * @param string|int $relation Identifiant relationnel de l'élément.
      * @param array $data Liste des données complémentaires
      *
      * @return bool
      */
-    public function addWpTerm(int $object_id, int $rel_id, array $data = []): bool;
+    public function addWpTerm(int $object_id, $relation, array $data = []): bool;
 
     /**
      * Création ou mise à jour d'une relation d'import d'un utilisateur Wordpress.
      *
      * @param int $object_id Identifiant de qualification de l'élément.
-     * @param int $rel_id Identifiant relationnel de l'élément.
+     * @param string|int $relation Identifiant relationnel de l'élément.
      * @param array $data Liste des données complémentaires
      *
      * @return bool
      */
-    public function addWpUser(int $object_id, int $rel_id, array $data = []): bool;
+    public function addWpUser(int $object_id, $relation, array $data = []): bool;
 
     /**
      * Récupération d'un import existant basé sur le type et l'identifiant relationnel.
      *
+     * @param string|int $relation Identifiant relationnel de l'élément.
      * @param string $object_type Type de relation.
-     * @param int $rel_id Identifiant relationnel de l'élément.
      *
      * @return object|null
      */
-    public function get(string $object_type, int $rel_id): ?object;
+    public function getFromRelation($relation, string $object_type): ?object;
 
     /**
      * Récupération d'un import existant basé sur le type et l'identifiant de qualification de l'élément.
      *
-     * @param string $object_type Type de relation.
      * @param int $object_id Identifiant relationnel de l'élément.
+     * @param string $object_type Type de relation.
      *
      * @return object|null
      */
-    public function getFromObjectId(string $object_type, int $object_id): ?object;
+    public function getFromObjectId(int $object_id, string $object_type): ?object;
 
     /**
      * Récupération d'un import existant basé sur un objet Wordpress.
@@ -81,39 +81,39 @@ interface ImportManager
     /**
      * Récupération de l'identifiant de qualification d'un élément associé à le type et l'identifiant relationnel.
      *
+     * @param string|int $relation Identifiant relationnel de l'élément.
      * @param string $object_type Type de relation.
-     * @param int $rel_id Identifiant relationnel de l'élément.
      *
      * @return int
      */
-    public function getObjectId(string $object_type, int $rel_id): int;
+    public function getObjectId($relation, string $object_type): int;
 
     /**
      * Récupération de l'identifiant de qualification d'un post Wordpress selon l'identifiant relationnel.
      *
-     * @param int $rel_id Identifiant relationnel.
+     * @param string|int $relation Identifiant relationnel de l'élément.
      *
      * @return int
      */
-    public function getWpPostId(int $rel_id): int;
+    public function getWpPostId($relation): int;
 
     /**
      * Récupération de l'identifiant de qualification d'un terme de taxonomie Wordpress selon l'identifiant relationnel.
      *
-     * @param int $rel_id Identifiant relationnel.
+     * @param string|int $relation Identifiant relationnel de l'élément.
      *
      * @return int
      */
-    public function getWpTermId(int $rel_id): int;
+    public function getWpTermId($relation): int;
 
     /**
      * Récupération de l'identifiant de qualification d'un utilisateur Wordpress selon l'identifiant relationnel.
      *
-     * @param int $rel_id Identifiant relationnel.
+     * @param string|int $relation Identifiant relationnel de l'élément.
      *
      * @return int
      */
-    public function getWpUserId(int $rel_id): int;
+    public function getWpUserId($relation): int;
 
     /**
      * Récupération de l'instance d'une commande d'import.

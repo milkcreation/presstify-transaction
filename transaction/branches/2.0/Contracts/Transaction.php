@@ -52,6 +52,8 @@ interface Transaction
     /**
      * Définition de l'instance du conteneur d'injection de dépendances.
      *
+     * @param Container $container
+     *
      * @return static
      */
     public function setContainer(Container $container): Transaction;
