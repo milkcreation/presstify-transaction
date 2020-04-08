@@ -4,14 +4,14 @@ namespace tiFy\Plugins\Transaction;
 
 use Exception;
 use Psr\Container\ContainerInterface as Container;
-use Symfony\Component\Console\Application as ConsoleApplication;
+use tiFy\Contracts\Console\Console;
 use tiFy\Plugins\Transaction\Contracts\{ImportManager as ImportManagerContract, Transaction as TransactionContract};
 
 /**
  * @desc Extension PresstiFy de gestion de données de transaction.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\Transaction
- * @version 2.0.46
+ * @version 2.0.47
  *
  * USAGE :
  * Activation :
@@ -53,9 +53,9 @@ class Transaction implements TransactionContract
 
     /**
      * Instance du controleur d'application de commande console cli.
-     * @var ConsoleApplication
+     * @var Console
      */
-    protected $consoleApp;
+    protected $console;
 
     /**
      * Instance du conteneur d'injection de dépendances.
@@ -66,14 +66,14 @@ class Transaction implements TransactionContract
     /**
      * CONSTRUCTEUR.
      *
-     * @param ConsoleApplication $consoleApp
+     * @param Console $console
      * @param Container|null $container
      *
      * @return void
      */
-    public function __construct(ConsoleApplication $consoleApp, ?Container $container = null)
+    public function __construct(Console $console, ?Container $container = null)
     {
-        $this->consoleApp = $consoleApp;
+        $this->console = $console;
 
         if ($container) {
             $this->setContainer($container);
@@ -97,9 +97,9 @@ class Transaction implements TransactionContract
     /**
      * @inheritDoc
      */
-    public function getConsoleApp(): ConsoleApplication
+    public function getConsole(): Console
     {
-        return $this->consoleApp;
+        return $this->console;
     }
 
     /**
