@@ -4,16 +4,16 @@ namespace tiFy\Plugins\Transaction\Contracts;
 
 use Exception;
 use Psr\Container\ContainerInterface as Container;
-use Symfony\Component\Console\Application as ConsoleApplication;
+use tiFy\Contracts\Console\Console;
 
 interface Transaction
 {
     /**
      * Récupération de l'instance du gestionnaire d'application CLI.
      *
-     * @return ConsoleApplication
+     * @return Console
      */
-    public function getConsoleApp(): ConsoleApplication;
+    public function getConsole(): Console;
 
     /**
      * Récupération de l'instance du conteneur d'injection de dépendances.

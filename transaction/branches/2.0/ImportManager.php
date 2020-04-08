@@ -257,7 +257,7 @@ class ImportManager implements ImportManagerContract
 
         /** @var SfCommand|ImportCommand $command */
         $command = $concrete->setRecorder($recorder)->setParams($params);
-        $command = $this->transaction->getConsoleApp()->add($command);
+        $command = $this->transaction->getConsole()->add($command);
 
         return $this->command[$command->getName()] = $command;
     }
@@ -280,7 +280,7 @@ class ImportManager implements ImportManagerContract
 
         /** @var SfCommand|ImportCommandStack $command */
         $command = $concrete->setStack($stack);
-        $command = $this->transaction->getConsoleApp()->add($command);
+        $command = $this->transaction->getConsole()->add($command);
 
         return $this->commandStack[$command->getName()] = $command;
     }
