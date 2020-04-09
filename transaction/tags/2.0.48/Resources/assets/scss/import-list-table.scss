@@ -1,0 +1,35 @@
+@import '~presstify-framework/template/list-table/scss/styles';
+@import '~presstify-framework/partial/progress/scss/styles';
+
+// Personnalisation
+/** STYLES DE CONTROLE (recommandé) */
+[data-control="list-table.table"] tr[aria-progress="true"] > * {
+  opacity: 0.5;
+}
+
+[data-control="list-table.import-rows.handler"] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  display: none;
+}
+
+[data-control="list-table.import-rows.handler"][aria-display='true'] {
+  display: inherit;
+}
+
+/** STYLES D'AFFICHAGE */
+.ListTable {
+  .column-import {
+    width: 100px;
+  }
+}
+
+.ListTable-ImportHandler {
+  padding: 20px;
+  background-color: color(white);
+  text-align: center;
+  width: 500px;
+}
