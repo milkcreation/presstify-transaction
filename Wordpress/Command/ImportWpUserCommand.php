@@ -78,10 +78,12 @@ class ImportWpUserCommand extends ImportWpBaseCommand
     {
         if ($id = $this->getRelatedUserId($item->ID)) {
             if (!$this->isUpdatable()) {
-                throw new Exception(sprintf(
+                $this->message()->info(sprintf(
                     __('%s > INFO: L\'utilisateur a déjà été importé [#%d - %s] depuis [#%d].', 'tify'),
                     $this->getCounter(), $id, $item->user_email, $item->ID
                 ));
+
+                return $id;
             }
 
             $this->parseUserdata($item, ['ID' => $id]);

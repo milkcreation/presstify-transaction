@@ -136,10 +136,12 @@ class ImportWpAttachmentCommand extends ImportWpPostCommand
 
         if ($id = $this->getRelatedPostId($item->ID)) {
             if (!$this->isUpdatable()) {
-                throw new Exception(sprintf(
+                $this->message()->info(sprintf(
                     __('%s > INFO: Le fichier média a déjà été importé [#%d - %s] depuis [#%d].', 'tify'),
                     $this->getCounter(), $id, basename($item->guid), $item->ID
                 ));
+
+                return $id;
             }
 
             if (! $file = $this->fetchTmpFile($path, $item)) {

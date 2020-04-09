@@ -20,7 +20,7 @@ class RowActionEdit extends BaseRowActionEdit
     {
         return array_merge(parent::defaults(), [
             'url'     => function (Item $item) {
-                return $item->exists() ? Url::set($item->getEditLink()): null;
+                return $item->exists() ? Url::set($item->getEditUrl()): null;
             },
         ]);
     }
