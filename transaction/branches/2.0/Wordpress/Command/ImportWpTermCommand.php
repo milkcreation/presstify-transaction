@@ -108,10 +108,12 @@ class ImportWpTermCommand extends ImportWpBaseCommand
     {
         if ($id = $this->getRelatedTermId($item->term_id)) {
             if (!$this->isUpdatable()) {
-                throw new Exception(sprintf(
+                $this->message()->info(sprintf(
                     __('%s > INFO: Le terme de taxonomie a déjà été importé [#%d - %s] depuis [#%d].', 'tify'),
                     $this->getCounter(), $id, $item->name, $item->term_id
                 ));
+
+                return $id;
             }
 
             $this->parseTermdata($item, ['parent' => $parent]);

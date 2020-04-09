@@ -102,10 +102,12 @@ class ImportWpPostCommand extends ImportWpBaseCommand
     {
         if ($id = $this->getRelatedPostId($item->ID)) {
             if (!$this->isUpdatable()) {
-                throw new Exception(sprintf(
+                $this->message()->info(sprintf(
                     __('%s > INFO: La publication a déjà été importée [#%d - %s] depuis [#%d].', 'tify'),
                     $this->getCounter(), $id, html_entity_decode($item->post_title), $item->ID
                 ));
+
+                return $id;
             }
 
             $this->parsePostdata($item, ['ID' => $id, 'post_parent' => $parent]);
