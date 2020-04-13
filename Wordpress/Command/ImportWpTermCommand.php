@@ -67,7 +67,7 @@ class ImportWpTermCommand extends ImportWpBaseCommand
             $this->handleItemBefore($item);
 
             try {
-                $id = $this->insertOrUpdate($item, is_null($parent)
+                $res = $this->insertOrUpdate($item, is_null($parent)
                     ? $this->getRelatedTermId($item->parent) : $parent
                 );
 
@@ -77,16 +77,18 @@ class ImportWpTermCommand extends ImportWpBaseCommand
                         'parent'   => $item->term_id,
                     ]);
 
+                    $insert_id = $res['insert_id'] ?? 0;
+
                     $this->getBuilder()->where($args)
-                        ->chunkById($this->getChunk(), function (BaseCollection $collect) use ($output, $id) {
-                            $this->handleItems($collect, $output, $id);
+                        ->chunkById($this->getChunk(), function (BaseCollection $collect) use ($output, $insert_id) {
+                            $this->handleItems($collect, $output, $insert_id);
                         });
                 }
             } catch (Exception $e) {
                 $this->message()->error($e->getMessage());
             }
 
-            $this->itemDatas()->set(['insert_id' => $id ?? 0]);
+            $this->itemDatas()->set($res ?? []);
 
             $this->handleItemAfter($item);
 
@@ -100,11 +102,14 @@ class ImportWpTermCommand extends ImportWpBaseCommand
      * @param TermTaxonomyModel $item
      * @param int $parent
      *
-     * @return int
+     * @return array {
+     *  @type int $insert_id
+     *  @type bool $update
+     * }
      *
      * @throws Exception
      */
-    protected function insertOrUpdate(TermTaxonomyModel $item, int $parent): int
+    public function insertOrUpdate(TermTaxonomyModel $item, int $parent): array
     {
         if ($id = $this->getRelatedTermId($item->term_id)) {
             if (!$this->isUpdatable()) {
@@ -113,7 +118,7 @@ class ImportWpTermCommand extends ImportWpBaseCommand
                     $this->getCounter(), $id, $item->name, $item->term_id
                 ));
 
-                return $id;
+                return ['insert_id' => $id, 'update' => true];
             }
 
             $this->parseTermdata($item, ['parent' => $parent]);
@@ -132,7 +137,7 @@ class ImportWpTermCommand extends ImportWpBaseCommand
                     $this->getCounter(), $res['term_id'], $item->name, $item->term_id
                 ));
 
-                return $res['term_id'];
+                return ['insert_id' => $res['term_id'], 'update' => true];
             } else {
                 throw new Exception(sprintf(
                     __('ERREUR: Mise à jour le terme de taxonomie [#%d] depuis [#%d - %s] >> %s - %s.', 'tify'),
@@ -156,7 +161,7 @@ class ImportWpTermCommand extends ImportWpBaseCommand
                     $this->getCounter(), $res['term_id'], $item->name, $item->term_id
                 ));
 
-                return $res['term_id'];
+                return ['insert_id' => $res['term_id'], 'update' => false];
             } else {
                 throw new Exception(sprintf(
                     __('ERREUR: Création du terme de taxonomie depuis [#%d - %s] >> %s - %s.', 'tify'),
@@ -222,13 +227,15 @@ class ImportWpTermCommand extends ImportWpBaseCommand
      */
     public function parseTermdata(TermTaxonomyModel $item, array $attrs = []): self
     {
-        $this->itemDatas(['termdata' => array_merge([
-            'description' => $item->description,
-            'name'        => $item->name,
-            'parent'      => $item->parent,
-            'slug'        => $item->slug,
-            'taxonomy'    => $this->getOutTaxonomy() ?: $item->taxonomy,
-        ], $attrs)]);
+        $this->itemDatas([
+            'termdata' => array_merge([
+                'description' => $item->description,
+                'name'        => $item->name,
+                'parent'      => $item->parent,
+                'slug'        => $item->slug,
+                'taxonomy'    => $this->getOutTaxonomy() ?: $item->taxonomy,
+            ], $attrs),
+        ]);
 
         return $this;
     }

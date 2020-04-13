@@ -76,17 +76,9 @@ class ImportWpAttachmentCommand extends ImportWpPostCommand
     protected $uploadDir = WP_CONTENT_DIR . '/uploads';
 
     /**
-     * Traitement des résultats de requête.
-     *
-     * @param BaseCollection|AttachmentModel[] $items
-     * @param OutputInterface $output
-     * @param int $parent
-     *
-     * @return void
-     *
-     * @throws Exception
+     * @inheritDoc
      */
-    protected function handleCollection(BaseCollection $items, OutputInterface $output, ?int $parent = null)
+    public function handleCollection(BaseCollection $items, OutputInterface $output, ?int $parent = null)
     {
         foreach ($items as $item) {
             $this->itemDatas()->clear();
@@ -96,14 +88,14 @@ class ImportWpAttachmentCommand extends ImportWpPostCommand
             $this->handleItemBefore($item);
 
             try {
-                $id = $this->insertOrUpdate(
+                $res = $this->insertOrUpdate(
                     $item, is_null($parent) ? $this->getRelatedPostId($item->post_parent) : $parent
                 );
             } catch (Exception $e) {
                 $this->message()->error($e->getMessage());
             }
 
-            $this->itemDatas()->set(['insert_id' => $id ?? 0]);
+            $this->itemDatas()->set($res ?? []);
 
             $this->handleItemAfter($item);
 
@@ -112,16 +104,11 @@ class ImportWpAttachmentCommand extends ImportWpPostCommand
     }
 
     /**
-     * Création ou mise à jour.
+     * @inheritDoc
      *
-     * @param AttachmentModel|PostModel $item
-     * @param int $parent
-     *
-     * @return int
-     *
-     * @throws Exception
+     * @param AttachmentModel $item
      */
-    public function insertOrUpdate(PostModel $item, int $parent): int
+    public function insertOrUpdate(PostModel $item, int $parent): array
     {
         require_once(ABSPATH . 'wp-admin/includes/image.php');
 
@@ -141,7 +128,7 @@ class ImportWpAttachmentCommand extends ImportWpPostCommand
                     $this->getCounter(), $id, basename($item->guid), $item->ID
                 ));
 
-                return $id;
+                return ['insert_id' => $id, 'update' => true];
             }
 
             if (! $file = $this->fetchTmpFile($path, $item)) {
@@ -174,7 +161,7 @@ class ImportWpAttachmentCommand extends ImportWpPostCommand
                     $this->getCounter(), $attached_id, basename($item->guid), $item->ID
                 ));
 
-                return $attached_id;
+                return ['insert_id' => $attached_id, 'update' => true];
             } else {
                 throw new Exception(sprintf(
                     __('ERREUR: Mise à jour du média [#%d] depuis [#%d - %s] >> %s - %s.', 'tify'),
@@ -211,7 +198,7 @@ class ImportWpAttachmentCommand extends ImportWpPostCommand
                     $this->getCounter(), $attached_id, basename($item->guid), $item->ID
                 ));
 
-                return $attached_id;
+                return ['insert_id' => $attached_id, 'update' => false];
             } else {
                 throw new Exception(sprintf(
                     __('ERREUR: Création du média depuis [#%d - %s] >> %s - %s.', 'tify'),

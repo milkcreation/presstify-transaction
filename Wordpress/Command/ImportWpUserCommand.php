@@ -52,12 +52,12 @@ class ImportWpUserCommand extends ImportWpBaseCommand
             $this->handleItemBefore($item);
 
             try {
-                $id = $this->insertOrUpdate($item);
+                $res = $this->insertOrUpdate($item);
             } catch (Exception $e) {
                 $this->message()->error($e->getMessage());
             }
 
-            $this->itemDatas()->set(['insert_id' => $id ?? 0]);
+            $this->itemDatas()->set($res ?? []);
 
             $this->handleItemAfter($item);
 
@@ -70,11 +70,14 @@ class ImportWpUserCommand extends ImportWpBaseCommand
      *
      * @param UserModel $item
      *
-     * @return int
+     * @return array {
+     *  @type int $insert_id
+     *  @type bool $update
+     * }
      *
      * @throws Exception
      */
-    public function insertOrUpdate(UserModel $item): int
+    public function insertOrUpdate(UserModel $item): array
     {
         if ($id = $this->getRelatedUserId($item->ID)) {
             if (!$this->isUpdatable()) {
@@ -83,7 +86,7 @@ class ImportWpUserCommand extends ImportWpBaseCommand
                     $this->getCounter(), $id, $item->user_email, $item->ID
                 ));
 
-                return $id;
+                return ['insert_id' => $id, 'update' => true];
             }
 
             $this->parseUserdata($item, ['ID' => $id]);
@@ -100,7 +103,7 @@ class ImportWpUserCommand extends ImportWpBaseCommand
                     $this->getCounter(), $user_id, $item->user_email, $item->ID
                 ));
 
-                return $user_id;
+                return ['insert_id' => $user_id, 'update' => true];
             } else {
                 throw new Exception(sprintf(
                     __('ERREUR: Mise à jour l\'utilisateur [#%d] depuis [#%d - %s] >> %s - %s.', 'tify'),
@@ -122,7 +125,7 @@ class ImportWpUserCommand extends ImportWpBaseCommand
                     $this->getCounter(), $user_id, $item->user_email, $item->ID
                 ));
 
-                return $user_id;
+                return ['insert_id' => $user_id, 'update' => false];
             } else {
                 throw new Exception(sprintf(
                     __('ERREUR: Création l\'utilisateur depuis [#%d - %s] >> %s - %s.', 'tify'),
