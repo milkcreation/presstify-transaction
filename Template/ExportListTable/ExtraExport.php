@@ -4,7 +4,7 @@ namespace tiFy\Plugins\Transaction\Template\ExportListTable;
 
 use tiFy\Plugins\Transaction\Proxy\Transaction;
 use tiFy\Template\Templates\ListTable\{Contracts\Extra as BaseExtraContract, Extra};
-use tiFy\Support\Proxy\View as ProxyView;
+use tiFy\Support\Proxy\{Url, View as ProxyView};
 use tiFy\Template\Factory\View;
 
 class ExtraExport extends Extra
@@ -29,11 +29,11 @@ class ExtraExport extends Extra
         return array_merge(parent::defaults(), [
             'button'   => [
                 'attrs'   => [
-                    'type' => 'submit',
-                    'name' => $this->factory->actions()->getIndex(),
-                    'value' => 'export'
+                    'href' => Url::set($this->factory->url()->action())->with(array_merge([
+                        $this->factory->actions()->getIndex() => 'export',
+                    ], Url::current()->params()))->render(),
                 ],
-                'tag'     => 'button',
+                'tag'     => 'a',
                 'content' => __('Lancer l\'export', 'tify'),
             ],
             'progress' => [],

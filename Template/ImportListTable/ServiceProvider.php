@@ -170,7 +170,7 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function registerFactorySource(): void
     {
-        $this->getContainer()->share($this->getFactoryAlias('source'), function (): BaseSourceContract {
+        $this->getContainer()->share($this->getFactoryAlias('source'), function (): ?BaseSourceContract {
             $ctrl = $this->factory->provider('source');
 
             if (!$attrs = $this->factory->param('source', [])) {
