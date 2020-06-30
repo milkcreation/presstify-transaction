@@ -79,6 +79,13 @@ class ImportManager implements ImportManagerContract
             array_merge(Database::getConnection()->getConfig(), ['strict' => false]),
             'transaction.import'
         );
+
+        if (is_multisite()) {
+            global $wpdb;
+
+            Database::getConnection('transaction.import')->setTablePrefix($wpdb->prefix);
+        }
+
         $schema = Schema::connexion('transaction.import');
 
         if (!$schema->hasTable($this->table)) {
