@@ -183,25 +183,16 @@ class ServiceProvider extends BaseServiceProvider
     {
         parent::registerFactoryViewFilters();
 
-        $this->getContainer()->add($this->getFactoryAlias('view-filter.all'),
-            function (string $name, array $attrs = []) {
-                return (new ViewFilterAll())
-                    ->setTemplateFactory($this->factory)
-                    ->setName($name)->set($attrs)->parse();
-            });
+        $this->getContainer()->add($this->getFactoryAlias('view-filter.all'), function () {
+            return (new ViewFilterAll())->setTemplateFactory($this->factory);
+        });
 
-        $this->getContainer()->add($this->getFactoryAlias('view-filter.publish'),
-            function (string $name, array $attrs = []) {
-                return (new ViewFilterPublish())
-                    ->setTemplateFactory($this->factory)
-                    ->setName($name)->set($attrs)->parse();
-            });
+        $this->getContainer()->add($this->getFactoryAlias('view-filter.publish'), function () {
+            return (new ViewFilterPublish())->setTemplateFactory($this->factory);
+        });
 
-        $this->getContainer()->add($this->getFactoryAlias('view-filter.trash'),
-            function (string $name, array $attrs = []) {
-                return (new ViewFilterTrash())
-                    ->setTemplateFactory($this->factory)
-                    ->setName($name)->set($attrs)->parse();
-            });
+        $this->getContainer()->add($this->getFactoryAlias('view-filter.trash'), function () {
+            return (new ViewFilterTrash())->setTemplateFactory($this->factory);
+        });
     }
 }
