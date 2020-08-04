@@ -545,8 +545,7 @@ class ImportRecorder extends Collection implements ImportRecorderContract
         if ($record instanceof ImportRecordContract) {
             $record = clone $record;
         } elseif (($factory = $this->params->get('record')) && ($factory instanceof ImportRecordContract)) {
-            $factory = clone $factory;
-            $record = $factory->setInput($record);
+            $record = (clone $factory)->setInput($record);
         } else {
             $factory = $this->params->get('record');
             $input = $record;
@@ -554,6 +553,6 @@ class ImportRecorder extends Collection implements ImportRecorderContract
             $record = (class_exists($factory) ? new $factory() : new ImportRecord())->setInput($input);
         }
 
-        return $this->items[$key] = $record->setRecorder($this);
+        return $this->items[$key] = $record->setRecorder($this)->build();
     }
 }

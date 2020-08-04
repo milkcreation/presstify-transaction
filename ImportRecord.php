@@ -9,6 +9,12 @@ use tiFy\Support\{MessagesBag, ParamsBag};
 class ImportRecord implements ImportRecordContract
 {
     /**
+     * Indicateur d'initialisation.
+     * @var bool
+     */
+    protected $built = false;
+
+    /**
      * Elements existant associé au données d'import.
      * {@internal Déclenche la mise à jour si définie, sinon crée un nouvel élément.}
      * @var mixed
@@ -58,22 +64,19 @@ class ImportRecord implements ImportRecordContract
     protected $success = false;
 
     /**
-     * CONSTRUCTEUR.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->messages = new MessagesBag();
-        $this->output = new ParamsBag();
-
-        $this->boot();
-    }
-
-    /**
      * @inheritDoc
      */
-    public function boot(): void { }
+    public function build(): ImportRecordContract
+    {
+        if (!$this->built) {
+            $this->messages = new MessagesBag();
+            $this->output = new ParamsBag();
+
+            $this->built = true;
+        }
+
+        return $this;
+    }
 
     /**
      * @inheritDoc
