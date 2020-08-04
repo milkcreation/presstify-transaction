@@ -6,11 +6,7 @@ use tiFy\Plugins\Transaction\{
     Contracts\ImportRecord as BaseImportRecordContract,
     Wordpress\Contracts\ImportWcProduct as ImportWcProductContract
 };
-use WP_Post;
-use WC_Product;
-use WC_Product_Simple;
-use WC_Product_Variable;
-use WC_Product_Variation;
+use WP_Post, WC_Product, WC_Product_Simple, WC_Product_Variable, WC_Product_Variation;
 
 class ImportWcProduct extends ImportWpPost implements ImportWcProductContract
 {

@@ -174,7 +174,7 @@ class ImportRecord implements ImportRecordContract
     public function prepare(): ImportRecordContract
     {
         if (!$this->prepared) {
-            $this->fetchExists()->messages()->flush();
+            $this->fetchExists();
 
             $this->prepared = true;
         }

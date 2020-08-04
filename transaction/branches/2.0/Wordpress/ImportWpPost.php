@@ -7,9 +7,7 @@ use tiFy\Plugins\Transaction\{
     ImportRecord as BaseImportRecord,
     Wordpress\Contracts\ImportWpPost as ImportWpPostContract
 };
-use WP_Error;
-use WP_Post;
-use WP_Query;
+use WP_Error, WP_Post, WP_Query;
 
 class ImportWpPost extends BaseImportRecord implements ImportWpPostContract
 {
@@ -132,17 +130,14 @@ class ImportWpPost extends BaseImportRecord implements ImportWpPostContract
                 $this
                     ->setSuccess(true)
                     ->setExists($post)
-                    ->messages()->success(
-                        sprintf(
-                            $update
-                                ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
-                                : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
-                            $this->recorder()->labels()->singular(),
-                            html_entity_decode($post->post_title),
-                            $post->ID
-                        ),
-                        ['post' => $post->to_array()]
-                    );
+                    ->messages()->success(sprintf(
+                        $update
+                            ? __('%s : "%s" - id : "%d" >> mis(e) à jour avec succès.', 'tify')
+                            : __('%s : "%s" - id : "%d" >> créé(e) avec succès.', 'tify'),
+                        $this->recorder()->labels()->singular(),
+                        html_entity_decode($post->post_title),
+                        $post->ID
+                    ), ['post' => $post->to_array()]);
 
                 $this->saveMetas()->saveTerms();
             }
