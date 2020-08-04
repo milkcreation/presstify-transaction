@@ -52,6 +52,21 @@ class ImportWpPost extends BaseImportRecord implements ImportWpPostContract
     /**
      * @inheritDoc
      */
+    public function clearCache(): ImportWpPostContract
+    {
+        if ($this->exists() instanceof WP_Post) {
+            $id = $this->exists()->ID;
+
+            wp_cache_delete($id, 'posts');
+            wp_cache_delete($id, 'post_meta');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function execute(): BaseImportRecordContract
     {
         $this->prepare()->save()->saveInfos();
@@ -162,7 +177,7 @@ class ImportWpPost extends BaseImportRecord implements ImportWpPostContract
             }
         }
 
-        return $this;
+        return $this->clearCache();
     }
 
     /**

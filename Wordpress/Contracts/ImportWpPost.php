@@ -8,6 +8,13 @@ use WP_Post;
 interface ImportWpPost extends ImportRecord
 {
     /**
+     * Suppression de l'object WP_Post en cache.
+     *
+     * @return static
+     */
+    public function clearCache(): ImportWpPost;
+
+    /**
      * @inheritDoc
      */
     public function exists(): ?WP_Post;
