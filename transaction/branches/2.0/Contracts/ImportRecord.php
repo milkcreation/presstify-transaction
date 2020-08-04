@@ -7,11 +7,11 @@ use tiFy\Contracts\Support\{MessagesBag, ParamsBag};
 interface ImportRecord
 {
     /**
-     * Initialisation du controleur.
+     * Initialisation.
      *
-     * @return void
+     * @return static
      */
-    public function boot(): void;
+    public function build(): ImportRecord;
 
     /**
      * Execution de l'import des éléments.
