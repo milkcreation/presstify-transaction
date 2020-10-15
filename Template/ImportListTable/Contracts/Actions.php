@@ -14,5 +14,5 @@ interface Actions extends BaseActions
      *
      * @throws Exception
      */
-    public function executeImport();
+    public function doImport();
 }

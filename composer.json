@@ -15,8 +15,8 @@
     "xml",
     "csv"
   ],
-  "homepage": "https://svn.milkcreation.fr/presstify-plugins/transaction",
-  "time": "2020-08-24",
+  "homepage": "https://svn.milkcreation.fr/presstify-plugins/transaction/",
+  "time": "2020-10-15",
   "license": "proprietary",
   "authors": [
     {
@@ -28,7 +28,7 @@
   "repositories": [
     {
       "type": "composer",
-      "url": "http://composer.tigreblanc.fr/presstify/"
+      "url": "https://composer.tigreblanc.fr/presstify/"
     }
   ],
   "require": {
@@ -49,7 +49,6 @@
   "config" : {
     "optimize-autoloader": true,
     "preferred-install": "dist",
-    "secure-http": false,
     "sort-packages": true
   }
 }
