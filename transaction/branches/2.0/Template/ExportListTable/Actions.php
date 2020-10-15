@@ -3,7 +3,7 @@
 namespace tiFy\Plugins\Transaction\Template\ExportListTable;
 
 use tiFy\Support\DateTime;
-use tiFy\Plugins\Parser\Parsers\CsvWriter;
+use tiFy\Plugins\Parser\Driver\CsvWriter;
 use tiFy\Plugins\Transaction\Template\ExportListTable\Contracts\Actions as ActionsContract;
 use tiFy\Template\Templates\ListTable\Actions as BaseActions;
 
@@ -18,7 +18,7 @@ class Actions extends BaseActions implements ActionsContract
     /**
      * @inheritDoc
      */
-    public function executeExport()
+    public function doExport()
     {
         $this->factory->builder()->setPerPage(-1);
 

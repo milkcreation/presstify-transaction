@@ -17,7 +17,7 @@ class Actions extends BaseActions implements ActionsContract
     /**
      * @inheritDoc
      */
-    public function executeImport()
+    public function doImport()
     {
         if ($id = $this->factory->request()->input('id')) {
             $this->factory->prepare();
