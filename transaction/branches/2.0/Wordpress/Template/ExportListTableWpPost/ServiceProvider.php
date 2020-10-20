@@ -3,12 +3,15 @@
 namespace tiFy\Plugins\Transaction\Wordpress\Template\ExportListTableWpPost;
 
 use Illuminate\Database\Eloquent\Model;
+use tiFy\Contracts\Template\FactoryDb;
 use tiFy\Plugins\Transaction\Wordpress\Template\ExportListTableWpBase\ServiceProvider as BaseServiceProvider;
+use tiFy\Template\Factory\Db;
 use tiFy\Template\Templates\ListTable\Contracts\{
     Builder as BaseBuilderContract,
     RowAction as BaseRowActionContract
 };
-use tiFy\Template\Templates\PostListTable\{
+use tiFy\Wordpress\Database\Model\Post as PostModel;
+use tiFy\Wordpress\Template\Templates\PostListTable\{
     ColumnPostTitle,
     ColumnPostType,
     Labels,
@@ -18,12 +21,10 @@ use tiFy\Template\Templates\PostListTable\{
     ViewFilterPublish,
     ViewFilterTrash
 };
-use tiFy\Template\Templates\PostListTable\Contracts\{
-    Db as DbContract,
+use tiFy\Wordpress\Template\Templates\PostListTable\Contracts\{
     DbBuilder,
     Item,
     Params as BaseParamsContract};
-use tiFy\Template\Factory\Db;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -96,11 +97,15 @@ class ServiceProvider extends BaseServiceProvider
     public function registerFactoryDb(): void
     {
         $this->getContainer()->share($this->getFactoryAlias('db'), function () {
-            if ($db = $this->factory->provider('db')) {
+            $db = $this->factory->provider('db', '');
+
+            if (!is_null($db)) {
                 if ($db instanceof Model) {
                     $db = (new Db())->setDelegate($db);
-                } elseif (!$db instanceof DbContract) {
-                    $db = new Db();
+                } elseif (!$db instanceof FactoryDb) {
+                    $db = (new Db())->setDelegate(new PostModel());
+                } else {
+                    $db->setDelegate(new PostModel());
                 }
 
                 return  $db->setTemplateFactory($this->factory);

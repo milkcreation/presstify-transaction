@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\Transaction\Wordpress\Template\ExportListTableWpPost;
 
-use tiFy\Template\Templates\PostListTable\Params as BaseParams;
+use tiFy\Wordpress\Template\Templates\PostListTable\Params as BaseParams;
 
 class Params extends BaseParams
 {
